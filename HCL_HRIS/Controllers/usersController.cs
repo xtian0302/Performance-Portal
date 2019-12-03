@@ -11,6 +11,7 @@ using HCL_HRIS.Models;
 using System.Web.Configuration;
 using System.Web.Security;
 using System.Diagnostics;
+using System.Data.Entity.Infrastructure; 
 
 namespace HCL_HRIS.Controllers
 {
@@ -54,9 +55,19 @@ namespace HCL_HRIS.Controllers
         {
             if (ModelState.IsValid)
             {
+                try { 
                 db.users.Add(user);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ExceptionHelper.IsUniqueConstraintViolation(ex))
+                    {
+                        ModelState.AddModelError("sap_id", $"The SAP Number '{user.sap_id}' is already in use, please enter a different SAP Number.");
+                        return View(nameof(Create), user);
+                    }
+                }
             }
 
             return View(user);
@@ -86,9 +97,20 @@ namespace HCL_HRIS.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(user).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                try
+                {
+                    db.Entry(user).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                    return RedirectToAction("Index");
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ExceptionHelper.IsUniqueConstraintViolation(ex))
+                    {
+                        ModelState.AddModelError("sap_id", $"The SAP Number '{user.sap_id}' is already in use, please enter a different SAP Number.");
+                        return View(nameof(Edit), user);
+                    }
+                }
             }
             return View(user);
         }
