@@ -1,0 +1,27 @@
+﻿body {
+}
+footer.sticky-footer{
+    padding: 0.8rem 0;
+}
+nav.topbar {
+    height: 2.5rem !important;
+    margin-bottom: 1rem !important;
+}
+.no-rad-bltl {
+    border-bottom-left-radius: 0px !important;
+    border-top-left-radius: 0px !important;
+}
+.no-rad-brtr {
+    border-bottom-right-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+}
+::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+    background: gray;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background: #000;
+    border-radius: 10px;
+}
