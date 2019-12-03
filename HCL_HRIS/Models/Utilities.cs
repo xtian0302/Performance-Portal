@@ -9,7 +9,7 @@ namespace HCL_HRIS.Models
 {
     public static class Utilities
     {
-        public static SqlConnection getDPLConn()
+        public static SqlConnection getConn()
         {
             HCL_HRISEntities db = new HCL_HRISEntities();
             return new SqlConnection(db.Database.Connection.ConnectionString);
@@ -22,7 +22,7 @@ namespace HCL_HRIS.Models
                 if (String.IsNullOrWhiteSpace(_username)) _username = "";
                 if (String.IsNullOrWhiteSpace(_password)) _password = "";
 
-                string _sql = @"SELECT [sap_id] FROM [dbo].[User] " +
+                string _sql = @"SELECT [sap_id] FROM [dbo].[users] " +
                        @"WHERE [sap_id] = @u AND [password] = @p";
                 var cmd = new SqlCommand(_sql, cn);
                 cmd.Parameters
@@ -46,6 +46,11 @@ namespace HCL_HRIS.Models
                     return false;
                 }
             }
+        }
+
+        internal static bool IsValid(int sap_id, string password)
+        {
+            throw new NotImplementedException();
         }
     }
 }

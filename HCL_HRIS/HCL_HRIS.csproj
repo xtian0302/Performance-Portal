@@ -169,6 +169,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Images\CFM MockLogo.png" />
+    <Content Include="Images\New Logo.png" />
     <Content Include="Images\hcl.jpg" />
     <Content Include="Images\hcl.png" />
     <Content Include="Images\loading.gif" />
@@ -241,6 +242,7 @@
     <Content Include="Views\users\Details.cshtml" />
     <Content Include="Views\users\Edit.cshtml" />
     <Content Include="Views\users\Index.cshtml" />
+    <Content Include="Views\users\Login.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

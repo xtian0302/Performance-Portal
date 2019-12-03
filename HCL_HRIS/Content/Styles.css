@@ -7,6 +7,8 @@ nav.topbar {
     height: 2.5rem !important;
     margin-bottom: 1rem !important;
 }
+
+/*no radius left right*/
 .no-rad-bltl {
     border-bottom-left-radius: 0px !important;
     border-top-left-radius: 0px !important;
@@ -15,13 +17,15 @@ nav.topbar {
     border-bottom-right-radius: 0px !important;
     border-top-right-radius: 0px !important;
 }
+
+/*Scrollbar Design*/
 ::-webkit-scrollbar {
     height: 4px;
     width: 4px;
     background: gray;
 }
-
 ::-webkit-scrollbar-thumb:horizontal {
     background: #000;
     border-radius: 10px;
 }
+

@@ -8,6 +8,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using HCL_HRIS.Models;
+using System.Web.Configuration;
+using System.Web.Security;
+using System.Diagnostics;
 
 namespace HCL_HRIS.Controllers
 {
@@ -123,6 +126,35 @@ namespace HCL_HRIS.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+        public async Task<ActionResult> Login()
+        {
+            return View();
+        }
+
+        // Login And LogOut POST
+        [HttpPost]
+        public async Task<ActionResult> Login(Models.user user)
+        {
+            if (ModelState.IsValid)
+            {
+                if (Utilities.IsValid(user.sap_id.ToString(), user.password))
+                {
+                    FormsAuthenticationConfiguration formsAuthentication = new FormsAuthenticationConfiguration();
+                    FormsAuthentication.SetAuthCookie(user.sap_id.ToString(), true);  
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "SAP Number and/or Password is wrong!");
+                }
+            }
+            return View(user);
+        }
+        public async Task<ActionResult> Logout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Login", "Users");
         }
     }
 }

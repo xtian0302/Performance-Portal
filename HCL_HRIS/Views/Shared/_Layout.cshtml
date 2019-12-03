@@ -1,5 +1,6 @@
 ﻿@using System.Data;
 @using System.Data.SqlClient;
+@using System.Diagnostics;
 @{
     var id = 0;
 }
@@ -237,51 +238,52 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                    @{ /*if (Request.IsAuthenticated)
+                                    @{if (Request.IsAuthenticated)
                                         {
                                             {
-                                                using (var cn = WebDPL.Models.Methods.getDPLConn())
+                                                using (var cn = HCL_HRIS.Models.Utilities.getConn())
                                                 {
 
-                                                    string _sql = @"SELECT [Full Name], ID FROM [dbo].[User] " +
-                                                           @"WHERE [SapID] = @u";
+                                                    string _sql = @"SELECT [name], [user_id] FROM [dbo].[users] " +
+                                                           @"WHERE [sap_id] = @u";
+                                                    Debug.WriteLine(User.Identity.Name);
                                                     var cmd = new SqlCommand(_sql, cn);
                                                     cmd.Parameters
-                                                        .Add(new SqlParameter("@u", SqlDbType.NVarChar))
-                                                        .Value = User.Identity.Name;
+                                                        .Add(new SqlParameter("@u", SqlDbType.Int))
+                                                        .Value =  Int32.Parse(User.Identity.Name);
                                                     cn.Open();
                                                     var reader = cmd.ExecuteReader();
                                                     if (reader.HasRows)
                                                     {
                                                         while (reader.Read())
                                                         {
-                                                        <strong>@User.Identity.Name -  @reader.GetString(0) &nbsp;</strong>
-                                                        id = reader.GetInt32(1);
+                                                            <strong>@User.Identity.Name -  @reader.GetString(0) &nbsp;</strong>
+                                                            id = reader.GetInt32(1);
+                                                        }
+                                                        reader.Dispose();
+                                                        cmd.Dispose();
                                                     }
-                                                    reader.Dispose();
-                                                    cmd.Dispose();
+                                                    else
+                                                    {
+                                                        reader.Dispose();
+                                                        cmd.Dispose();
+                                                    }
                                                 }
-                                                else
-                                                {
-                                                    reader.Dispose();
-                                                    cmd.Dispose();
-                                                }
-                                            }
 
+                                            }
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                Response.Redirect("~/users/Login");
+                                            }
+                                            catch (Exception e)
+                                            {
+                                                Response.Redirect("~/users/Login");
+                                            }
                                         }
                                     }
-                                    else
-                                    {
-                                        try
-                                        {
-                                            Response.Redirect("~/Users/Login");
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            Response.Redirect("~/Users/Login");
-                                        }
-                                    } 
-                                    */}
 
                                 </span>
                                 <img class="img-profile rounded-circle" src="~/Images/hcl.png">
@@ -368,16 +370,17 @@
     <script src="~/Scripts/jquery.dataTables.min.js"></script>
     <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
     <script>
-    $(document).ready(function () {  $body.removeClass("loading");
+        $(document).ready(function () {
+            $body.removeClass("loading");
             updateClock();
             setInterval('updateClock()', 1000);
-             $('ul.navbar-nav').find('a[href="' + location.pathname + '"]').closest('li').addClass('active');
+            $('ul.navbar-nav').find('a[href="' + location.pathname + '"]').closest('li').addClass('active');
         });
-    $body = $("body");
+        $body = $("body");
 
         $(document).on({
-                ajaxStart: function() { $body.addClass("loading"); },
-                ajaxStop: function () { $body.removeClass("loading"); },
+            ajaxStart: function () { $body.addClass("loading"); },
+            ajaxStop: function () { $body.removeClass("loading"); },
 
         });
     </script>
