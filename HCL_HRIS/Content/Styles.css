@@ -29,3 +29,15 @@ nav.topbar {
     border-radius: 10px;
 }
 
+.chatbox {
+    border: thin;
+    border-color: lightgrey;
+    border-style: ridge;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    min-width: 90%;
+    height: 143px;
+    margin-top: 5px;
+    padding: 5px;
+    overflow-y: scroll;
+} 

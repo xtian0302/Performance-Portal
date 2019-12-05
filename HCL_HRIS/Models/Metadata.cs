@@ -14,13 +14,27 @@ namespace HCL_HRIS.Models
         [Required]
         [Index(IsUnique = true)]
         [Display(Name = "SAP Number")]
-        public int sap_id { get; set; }
-        [Required]
+        public int sap_id { get; set; } 
         [Display(Name = "Full Name")]
         public string name { get; set; }
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string password { get; set; }
+    }
+
+    public class chatMetadata
+    { 
+        [Key]
+        public int chat_id { get; set; }
+        [Required]
+        [Display(Name = "Chat From")]
+        public Nullable<int> chat_from { get; set; }
+        [Required]
+        [Display(Name = "Chat For")]
+        public Nullable<int> chat_to { get; set; }
+        [Required]
+        [Display(Name = "Chat Message")]
+        public string chat_message { get; set; }
     }
 }

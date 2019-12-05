@@ -4,7 +4,27 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="HCL_HRISModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="HCL_HRISModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="announcements">
+          <Key>
+            <PropertyRef Name="announcement_id" />
+          </Key>
+          <Property Name="announcement_id" Type="int" Nullable="false" />
+          <Property Name="announcement_title" Type="nvarchar" MaxLength="240" />
+          <Property Name="announcement_details" Type="nvarchar(max)" />
+          <Property Name="announcement_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="chat">
+          <Key>
+            <PropertyRef Name="chat_id" />
+          </Key>
+          <Property Name="chat_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="chat_from" Type="int" />
+          <Property Name="chat_to" Type="int" />
+          <Property Name="chat_message" Type="nvarchar(max)" />
+          <Property Name="datetime_sent" Type="datetime" />
+          <Property Name="datetime_read" Type="datetime" />
+        </EntityType>
         <EntityType Name="users">
           <Key>
             <PropertyRef Name="user_id" />
@@ -15,10 +35,11 @@
           <Property Name="password" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityContainer Name="HCL_HRISModelStoreContainer">
+          <EntitySet Name="announcements" EntityType="Self.announcements" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="chat" EntityType="Self.chat" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="HCL_HRISModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -33,7 +54,29 @@
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
+          <EntitySet Name="chats" EntityType="HCL_HRISModel.chat" />
+          <EntitySet Name="announcements" EntityType="HCL_HRISModel.announcement" />
         </EntityContainer>
+        <EntityType Name="chat">
+          <Key>
+            <PropertyRef Name="chat_id" />
+          </Key>
+          <Property Name="chat_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="chat_from" Type="Int32" />
+          <Property Name="chat_to" Type="Int32" />
+          <Property Name="chat_message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="datetime_sent" Type="DateTime" Precision="3" />
+          <Property Name="datetime_read" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="announcement">
+          <Key>
+            <PropertyRef Name="announcement_id" />
+          </Key>
+          <Property Name="announcement_id" Type="Int32" Nullable="false" />
+          <Property Name="announcement_title" Type="String" MaxLength="240" FixedLength="false" Unicode="true" />
+          <Property Name="announcement_details" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="announcement_date" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -47,6 +90,28 @@
                 <ScalarProperty Name="sap_id" ColumnName="sap_id" />
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="password" ColumnName="password" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="chats">
+            <EntityTypeMapping TypeName="HCL_HRISModel.chat">
+              <MappingFragment StoreEntitySet="chat">
+                <ScalarProperty Name="datetime_read" ColumnName="datetime_read" />
+                <ScalarProperty Name="datetime_sent" ColumnName="datetime_sent" />
+                <ScalarProperty Name="chat_message" ColumnName="chat_message" />
+                <ScalarProperty Name="chat_to" ColumnName="chat_to" />
+                <ScalarProperty Name="chat_from" ColumnName="chat_from" />
+                <ScalarProperty Name="chat_id" ColumnName="chat_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="announcements">
+            <EntityTypeMapping TypeName="HCL_HRISModel.announcement">
+              <MappingFragment StoreEntitySet="announcements">
+                <ScalarProperty Name="announcement_date" ColumnName="announcement_date" />
+                <ScalarProperty Name="announcement_details" ColumnName="announcement_details" />
+                <ScalarProperty Name="announcement_title" ColumnName="announcement_title" />
+                <ScalarProperty Name="announcement_id" ColumnName="announcement_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

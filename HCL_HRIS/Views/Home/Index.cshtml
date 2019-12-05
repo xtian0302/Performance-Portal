@@ -205,18 +205,79 @@
                 Chat
             </div>
             <div class="card-body" style="padding:3px;font-size:0.75rem;">
-                <ul class="nav nav-tabs" style="height:100%">
-                    <li class="nav-item"    >
-                        <a class="nav-link active" href="#">Team Leader</a> 
-                        <br/>
-                            <b style="padding:8px;">Agent 2 :</b> TL Please approve my A.L. Request 
+                <ul class="nav nav-tabs" style=" ">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Team Leader</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Team Members</a>
                     </li>
                 </ul>
+                <!-- Chat Box -->
+                <div class="chatbox" id="chatbox"> 
+                </div>
+                <form onsubmit="return false">
+                    <div class="input-group mb-3" style="border-top-left-radius:0px;border-top-right-radius:0px;margin-bottom:0px !important;">
+                        <input type="text" id="chatMessage" required class="form-control" style="border-top-left-radius:0px;" placeholder="Enter Message..." aria-label="Enter Message..." aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" id="tlSend" style="border-top-right-radius:0px;" type="submit">Send</button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
         </div>
     </div> 
 </div>
+<script>
+    $(document).ready(function () { 
+        var uri = '../api/chats';
+        $.getJSON(uri).done(function (data) { 
+            console.log(data);
+            $.each(data, function (key, item) {
+                // Add a list item for the product.
+                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />');
+                console.log(item.chat_message);
+                $("#chatbox").scrollTop( 100000);
+            });
+
+        });
+        $("#tlSend").click(function () {
+            if ($("#chatMessage").val() == "") {
+                return;
+            }
+            // Post New Chat 
+            var chat = {
+                chat_from: @User.Identity.Name, 
+                chat_message: $("#chatMessage").val(),
+                chat_to: @User.Identity.Name, 
+                datetime_read: null,
+                datetime_sent: null,
+            }; 
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify(chat),
+                url: uri,
+                contentType: "application/json"
+            }).done(function (res) {    
+                    clearChat();
+                    console.log('res', res);
+                     $("#chatMessage").val("")
+                    $.getJSON(uri).done(function (data) {  
+                            $.each(data, function (key, item) {
+                            // Add a list item for the product.
+                                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />'); 
+
+                            });
+                    $("#chatbox").scrollTop( 100000 );
+                    }); 
+                $("#chatMessage").focus(); 
+            });    
+        });
+    });
+
+    function clearChat(){
+        $('#chatbox > span').remove();   
+        $('#chatbox > br').remove();  
+    }
+</script>

@@ -26,8 +26,8 @@ namespace HCL_HRIS.Models
                        @"WHERE [sap_id] = @u AND [password] = @p";
                 var cmd = new SqlCommand(_sql, cn);
                 cmd.Parameters
-                    .Add(new SqlParameter("@u", SqlDbType.NVarChar))
-                    .Value = _username;
+                    .Add(new SqlParameter("@u", SqlDbType.Int))
+                    .Value = Int32.Parse(_username);
                 cmd.Parameters
                     .Add(new SqlParameter("@p", SqlDbType.NVarChar))
                     .Value = _password;

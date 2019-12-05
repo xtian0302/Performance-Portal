@@ -9,5 +9,10 @@ namespace HCL_HRIS.Models
    [MetadataType(typeof(userMetadata))]
    public partial class user
    {
-   } 
+   }
+    [MetadataType(typeof(chatMetadata))]
+    public partial class chat
+    {
+    }
+
 }
