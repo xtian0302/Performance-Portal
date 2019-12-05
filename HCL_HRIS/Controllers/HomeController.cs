@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HCL_HRIS.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -8,9 +11,10 @@ namespace HCL_HRIS.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        private HCL_HRISEntities db = new HCL_HRISEntities();
+        public async Task<ActionResult> Index()
         {
-            return View();
+            return View(await db.announcements.ToListAsync());
         }
 
         public ActionResult About()

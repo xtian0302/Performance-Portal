@@ -1,15 +1,16 @@
-﻿@{
+﻿@model IEnumerable<HCL_HRIS.Models.announcement>
+@{
     ViewBag.Title = "Home Page";
-} 
+}
 <div class="row ">
     <div class="col-md-6" style="min-height:800px;padding:0px">
         <div class="card no-rad-brtr" style="min-height:800px;padding:0px">
             <div class="card-header" style="padding:4.5px;">
                 Agent 2 - Scorecard as of November 29, 2019
             </div>
-            <div class="card-body"  style="padding:3px;">
+            <div class="card-body" style="padding:3px;">
                 <div class="card">
-                    <div class="card-header" style="padding:3px;" >
+                    <div class="card-header" style="padding:3px;">
                         Quality Scores
                     </div>
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
@@ -160,8 +161,8 @@
                     </div>
                 </div>
             </div>
-            </div>
         </div>
+    </div>
     <div class="col-md-6" style="padding:0px">
         <div class="col-12 no-rad-bltl" style="min-height:33.33%;height:1px;border-bottom-right-radius: 0px !important;">
             <div class="row" style="min-height: 100%;">
@@ -169,11 +170,12 @@
                     <div class="card-header" style="padding:4.5px;">
                         Announcements
                     </div>
-                    <div class="card-body" style="font-size:0.9rem;">
-                        <h5>Item 1</h5>
-                        <p>Announcemnet Example Sample 1</p>
-                        <h5>Item 2</h5>
-                        <p>Announcemnet Example Sample 2</p>
+                    <div class="card-body" style="font-size:0.9rem;"> 
+                        @foreach (var item in Model)
+                        {
+                            <h5>@item.announcement_title</h5>
+                            <p>@item.announcement_details</p> 
+                        }
                     </div>
                 </div>
                 <div class="col-6 card no-rad-bltl" style="padding:0px;border-bottom-right-radius: 0px !important;">
@@ -214,7 +216,7 @@
                     </li>
                 </ul>
                 <!-- Chat Box -->
-                <div class="chatbox" id="chatbox"> 
+                <div class="chatbox" id="chatbox">
                 </div>
                 <form onsubmit="return false">
                     <div class="input-group mb-3" style="border-top-left-radius:0px;border-top-right-radius:0px;margin-bottom:0px !important;">
@@ -227,12 +229,12 @@
             </div>
 
         </div>
-    </div> 
+    </div>
 </div>
 <script>
-    $(document).ready(function () { 
+    $(document).ready(function () {
         var uri = '../api/chats';
-        $.getJSON(uri).done(function (data) { 
+        $.getJSON(uri).done(function (data) {
             console.log(data);
             $.each(data, function (key, item) {
                 // Add a list item for the product.
@@ -246,38 +248,38 @@
             if ($("#chatMessage").val() == "") {
                 return;
             }
-            // Post New Chat 
+            // Post New Chat
             var chat = {
-                chat_from: @User.Identity.Name, 
+                chat_from: @User.Identity.Name,
                 chat_message: $("#chatMessage").val(),
-                chat_to: @User.Identity.Name, 
+                chat_to: @User.Identity.Name,
                 datetime_read: null,
                 datetime_sent: null,
-            }; 
+            };
             $.ajax({
                 type: "POST",
                 data: JSON.stringify(chat),
                 url: uri,
                 contentType: "application/json"
-            }).done(function (res) {    
+            }).done(function (res) {
                     clearChat();
                     console.log('res', res);
                      $("#chatMessage").val("")
-                    $.getJSON(uri).done(function (data) {  
+                    $.getJSON(uri).done(function (data) {
                             $.each(data, function (key, item) {
                             // Add a list item for the product.
-                                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />'); 
+                                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />');
 
                             });
                     $("#chatbox").scrollTop( 100000 );
-                    }); 
-                $("#chatMessage").focus(); 
-            });    
+                    });
+                $("#chatMessage").focus();
+            });
         });
     });
 
     function clearChat(){
-        $('#chatbox > span').remove();   
-        $('#chatbox > br').remove();  
+        $('#chatbox > span').remove();
+        $('#chatbox > br').remove();
     }
 </script>
