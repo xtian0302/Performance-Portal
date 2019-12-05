@@ -7,7 +7,7 @@
       <Diagram DiagramId="c514bf48e158483589b274ab7a091b10" Name="Diagram1" ShowGrid="true">
         <EntityTypeShape EntityType="HCL_HRISModel.user" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="HCL_HRISModel.chat" Width="1.5" PointX="2.5" PointY="0.75" />
-        <EntityTypeShape EntityType="HCL_HRISModel.announcement" Width="1.5" PointX="4.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HCL_HRISModel.announcement" Width="1.5" PointX="4.125" PointY="1" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -142,6 +142,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\announcementsController.cs" />
     <Compile Include="Controllers\chatsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\usersController.cs" />
@@ -264,6 +265,11 @@
     <Content Include="Views\users\Edit.cshtml" />
     <Content Include="Views\users\Index.cshtml" />
     <Content Include="Views\users\Login.cshtml" />
+    <Content Include="Views\announcements\Create.cshtml" />
+    <Content Include="Views\announcements\Delete.cshtml" />
+    <Content Include="Views\announcements\Details.cshtml" />
+    <Content Include="Views\announcements\Edit.cshtml" />
+    <Content Include="Views\announcements\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

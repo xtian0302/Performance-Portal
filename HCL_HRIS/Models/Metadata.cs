@@ -36,5 +36,21 @@ namespace HCL_HRIS.Models
         [Required]
         [Display(Name = "Chat Message")]
         public string chat_message { get; set; }
+        public Nullable<System.DateTime> datetime_sent { get; set; }
+        public Nullable<System.DateTime> datetime_read { get; set; }
+    }
+    public class announcementMetadata
+    {
+        [Key]
+        public int announcement_id { get; set; }
+
+        [Display(Name = "Title")]
+        public string announcement_title { get; set; }
+
+        [Display(Name = "Details")]
+        public string announcement_details { get; set; }
+
+        [Display(Name = "Date")]
+        public Nullable<System.DateTime> announcement_date { get; set; }
     }
 }

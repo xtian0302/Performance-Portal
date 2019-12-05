@@ -1,0 +1,42 @@
+﻿@model HCL_HRIS.Models.announcement
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>announcement</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.announcement_title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.announcement_title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.announcement_details)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.announcement_details)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.announcement_date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.announcement_date)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.announcement_id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

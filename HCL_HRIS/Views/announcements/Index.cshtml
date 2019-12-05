@@ -1,0 +1,45 @@
+﻿@model IEnumerable<HCL_HRIS.Models.announcement>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Announcements</h2>
+
+<p>
+    @Html.ActionLink("Add New Announcement", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.announcement_title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.announcement_details)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.announcement_date)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.announcement_title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.announcement_details)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.announcement_date)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.announcement_id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.announcement_id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.announcement_id })
+        </td>
+    </tr>
+}
+
+</table>

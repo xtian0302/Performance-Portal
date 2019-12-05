@@ -9,8 +9,8 @@
           <Key>
             <PropertyRef Name="announcement_id" />
           </Key>
-          <Property Name="announcement_id" Type="int" Nullable="false" />
-          <Property Name="announcement_title" Type="nvarchar" MaxLength="240" />
+          <Property Name="announcement_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="announcement_title" Type="nvarchar" MaxLength="150" />
           <Property Name="announcement_details" Type="nvarchar(max)" />
           <Property Name="announcement_date" Type="datetime" />
         </EntityType>
@@ -72,8 +72,8 @@
           <Key>
             <PropertyRef Name="announcement_id" />
           </Key>
-          <Property Name="announcement_id" Type="Int32" Nullable="false" />
-          <Property Name="announcement_title" Type="String" MaxLength="240" FixedLength="false" Unicode="true" />
+          <Property Name="announcement_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="announcement_title" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="announcement_details" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="announcement_date" Type="DateTime" Precision="3" />
         </EntityType>
