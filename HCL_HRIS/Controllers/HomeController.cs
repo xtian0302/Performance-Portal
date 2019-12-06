@@ -14,7 +14,7 @@ namespace HCL_HRIS.Controllers
         private HCL_HRISEntities db = new HCL_HRISEntities();
         public async Task<ActionResult> Index()
         {
-            return View(await db.announcements.ToListAsync());
+            return View(await db.announcements.OrderBy(x=>x.announcement_id).Take(3).ToListAsync());
         }
 
         public ActionResult About()

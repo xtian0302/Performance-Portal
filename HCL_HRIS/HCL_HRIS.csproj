@@ -143,6 +143,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\announcementsController.cs" />
+    <Compile Include="Controllers\attendanceController.cs" />
     <Compile Include="Controllers\chatsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\usersController.cs" />
@@ -185,6 +186,9 @@
     </Content>
     <Content Include="Content\all.min.css" />
     <Content Include="Content\dataTables.bootstrap4.min.css" />
+    <Content Include="Content\fullcalendar-bootstrap.min.css" />
+    <Content Include="Content\fullcalendar-core.min.css" />
+    <Content Include="Content\fullcalendar-daygrid.css" />
     <Content Include="Content\sb-admin-2.min.css" />
     <Content Include="Content\Styles.css" />
     <Content Include="favicon.ico" />
@@ -209,6 +213,9 @@
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\Chart.min.js" />
     <Content Include="Scripts\dataTables.bootstrap4.min.js" />
+    <Content Include="Scripts\fullcalendar-bootstrap.min.js" />
+    <Content Include="Scripts\fullcalendar-core.min.js" />
+    <Content Include="Scripts\fullcalendar-daygrid.js" />
     <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.easing.js" />
     <Content Include="Scripts\jquery.min.js" />
@@ -270,7 +277,9 @@
     <Content Include="Views\announcements\Details.cshtml" />
     <Content Include="Views\announcements\Edit.cshtml" />
     <Content Include="Views\announcements\Index.cshtml" />
+    <Content Include="Views\attendance\Index.cshtml" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
