@@ -51,7 +51,7 @@ namespace HCL_HRIS.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "user_id,sap_id,name,password")] user user)
+        public async Task<ActionResult> Create([Bind(Include = "user_id,sap_id,name,password,group_id,user_role")] user user)
         {
             if (ModelState.IsValid)
             {
@@ -93,7 +93,7 @@ namespace HCL_HRIS.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "user_id,sap_id,name,password")] user user)
+        public async Task<ActionResult> Edit([Bind(Include = "user_id,sap_id,name,password,group_id,user_role")] user user)
         {
             if (ModelState.IsValid)
             {
@@ -178,5 +178,14 @@ namespace HCL_HRIS.Controllers
             FormsAuthentication.SignOut();
             return RedirectToAction("Login", "Users");
         }
+
+        // GET: users/GetGroups
+        [HttpGet]
+        public JsonResult GetGroups()
+        {
+            var objCustomerlist = db.groups.ToList();
+            return Json(objCustomerlist, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

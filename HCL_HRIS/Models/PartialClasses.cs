@@ -18,4 +18,12 @@ namespace HCL_HRIS.Models
     public partial class announcement
     {
     }
+    [MetadataType(typeof(groupMetadata))]
+    public partial class group
+    {
+    }
+    [MetadataType(typeof(trackMetadata))]
+    public partial class track
+    {
+    }
 }

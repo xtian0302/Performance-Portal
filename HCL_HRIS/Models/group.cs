@@ -10,15 +10,12 @@
 namespace HCL_HRIS.Models
 {
     using System;
-    using System.Collections.Generic;
-    
-    public partial class user
+
+    public partial class group
     {
-        public int user_id { get; set; }
-        public int sap_id { get; set; }
-        public string name { get; set; }
-        public string password { get; set; }
-        public Nullable<int> group_id { get; set; }
-        public string user_role { get; set; }
+        public int group_id { get; set; }
+        public string group_name { get; set; }
+        public Nullable<int> group_leader { get; set; }
+        public Nullable<int> track_id { get; set; }
     }
 }

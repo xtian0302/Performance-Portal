@@ -20,7 +20,11 @@ namespace HCL_HRIS.Models
         [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
-        public string password { get; set; }
+        public string password { get; set; } 
+        [Display(Name = "Team")]
+        public Nullable<int> group_id { get; set; }
+        [Display(Name = "Role")]
+        public string user_role { get; set; }
     }
 
     public class chatMetadata
@@ -52,5 +56,24 @@ namespace HCL_HRIS.Models
 
         [Display(Name = "Date")]
         public Nullable<System.DateTime> announcement_date { get; set; }
+    }
+
+    public class groupMetadata
+    {
+        public int group_id { get; set; }
+        [Display(Name = "Name")]
+        public string group_name { get; set; }
+        [Display(Name = "Leader")]
+        public Nullable<int> group_leader { get; set; }
+        [Display(Name = "Track")]
+        public Nullable<int> track_id { get; set; }
+    }
+    public class trackMetadata
+    {
+        public int track_id { get; set; }
+        [Display(Name = "Name")]
+        public string track_name { get; set; }
+        [Display(Name = "Manager")]
+        public Nullable<int> track_manager { get; set; }
     }
 }

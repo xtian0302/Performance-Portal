@@ -1,0 +1,102 @@
+﻿@model IEnumerable<HCL_HRIS.Models.group>
+@using System.Data.SqlClient;
+@using System.Data;
+
+@{
+    ViewBag.Title = "Group Management";
+}
+
+<h2>Group Management</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.group_name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.group_leader)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.track_id)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.group_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.group_leader) - 
+                @{ using (var cn = HCL_HRIS.Models.Utilities.getConn())
+                    {
+                        string _sql = @"SELECT [name] FROM [dbo].[users] " +
+                        @"WHERE [sap_id] = @u";
+                        var cmd = new SqlCommand(_sql, cn);
+                        cmd.Parameters
+                            .Add(new SqlParameter("@u", SqlDbType.Int))
+                            .Value = item.group_leader;
+                        cn.Open();
+                        var reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                            <strong> @reader.GetString(0) </strong>
+                            }
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                    }
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.track_id) | 
+                @{ using (var cn = HCL_HRIS.Models.Utilities.getConn())
+                    {
+                        string _sql = @"SELECT [track_name] FROM [dbo].[track] " +
+                        @"WHERE [track_id] = @u";
+                        var cmd = new SqlCommand(_sql, cn);
+                        cmd.Parameters
+                            .Add(new SqlParameter("@u", SqlDbType.Int))
+                            .Value = item.track_id;
+                        cn.Open();
+                        var reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                <strong> @reader.GetString(0) </strong>
+                            }
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                    }
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.group_id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.group_id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.group_id })
+            </td>
+        </tr>
+    }
+
+</table>
+<script>
+</script>

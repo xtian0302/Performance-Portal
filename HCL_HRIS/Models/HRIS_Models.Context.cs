@@ -28,5 +28,7 @@ namespace HCL_HRIS.Models
         public virtual DbSet<user> users { get; set; }
         public virtual DbSet<chat> chats { get; set; }
         public virtual DbSet<announcement> announcements { get; set; }
+        public virtual DbSet<group> groups { get; set; }
+        public virtual DbSet<track> tracks { get; set; }
     }
 }

@@ -145,7 +145,9 @@
     <Compile Include="Controllers\announcementsController.cs" />
     <Compile Include="Controllers\attendanceController.cs" />
     <Compile Include="Controllers\chatsController.cs" />
+    <Compile Include="Controllers\groupsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\tracksController.cs" />
     <Compile Include="Controllers\usersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -154,6 +156,9 @@
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\chat.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\group.cs">
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\HRIS_Models.Context.cs">
@@ -173,6 +178,9 @@
     </Compile>
     <Compile Include="Models\Metadata.cs" />
     <Compile Include="Models\PartialClasses.cs" />
+    <Compile Include="Models\track.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\user.cs">
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
@@ -189,6 +197,7 @@
     <Content Include="Content\fullcalendar-bootstrap.min.css" />
     <Content Include="Content\fullcalendar-core.min.css" />
     <Content Include="Content\fullcalendar-daygrid.css" />
+    <Content Include="Content\jquery-ui.min.css" />
     <Content Include="Content\sb-admin-2.min.css" />
     <Content Include="Content\Styles.css" />
     <Content Include="favicon.ico" />
@@ -216,6 +225,7 @@
     <Content Include="Scripts\fullcalendar-bootstrap.min.js" />
     <Content Include="Scripts\fullcalendar-core.min.js" />
     <Content Include="Scripts\fullcalendar-daygrid.js" />
+    <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.easing.js" />
     <Content Include="Scripts\jquery.min.js" />
@@ -278,6 +288,16 @@
     <Content Include="Views\announcements\Edit.cshtml" />
     <Content Include="Views\announcements\Index.cshtml" />
     <Content Include="Views\attendance\Index.cshtml" />
+    <Content Include="Views\groups\Create.cshtml" />
+    <Content Include="Views\groups\Delete.cshtml" />
+    <Content Include="Views\groups\Details.cshtml" />
+    <Content Include="Views\groups\Edit.cshtml" />
+    <Content Include="Views\groups\Index.cshtml" />
+    <Content Include="Views\tracks\Create.cshtml" />
+    <Content Include="Views\tracks\Delete.cshtml" />
+    <Content Include="Views\tracks\Details.cshtml" />
+    <Content Include="Views\tracks\Edit.cshtml" />
+    <Content Include="Views\tracks\Index.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<HCL_HRIS.Models.user>
+@using System.Data.SqlClient;
+@using System.Data; 
 
 @{
     ViewBag.Title = "Manage Users";
@@ -17,29 +19,68 @@
         <th>
             @Html.DisplayNameFor(model => model.name)
         </th>
+        <th>
+            @Html.DisplayNameFor(model => model.group_id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.user_role)
+        </th>
         @*<th>
-            @Html.DisplayNameFor(model => model.password)
-        </th>*@
+                @Html.DisplayNameFor(model => model.password)
+            </th>*@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.sap_id)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.name)
-        </td>
-        @*<td>
-            @Html.DisplayFor(modelItem => item.password)
-        </td>*@
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.user_id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.user_id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.user_id })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.sap_id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.group_id) -
+                @{ using (var cn = HCL_HRIS.Models.Utilities.getConn())
+                    {
+                        string _sql = @"SELECT [group_name] FROM [dbo].[group] " +
+                        @"WHERE [group_id] = @u";
+                        var cmd = new SqlCommand(_sql, cn);
+                        cmd.Parameters
+                            .Add(new SqlParameter("@u", SqlDbType.Int))
+                            .Value = item.group_id;
+                        cn.Open();
+                        var reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                <strong> @reader.GetString(0) </strong>
+                            }
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                    }
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.user_role)
+            </td>
+            @*<td>
+                    @Html.DisplayFor(modelItem => item.password)
+                </td>*@
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.user_id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.user_id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.user_id })
+            </td>
+        </tr>
+    }
 
 </table>

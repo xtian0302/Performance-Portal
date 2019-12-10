@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HCL_HRIS.Models.track>
+@using System.Data.SqlClient;
+@using System.Data;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Track Management</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.track_name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.track_manager)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.track_name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.track_manager) -
+                @{ using (var cn = HCL_HRIS.Models.Utilities.getConn())
+                    {
+                        string _sql = @"SELECT [name] FROM [dbo].[users] " +
+                        @"WHERE [sap_id] = @u";
+                        var cmd = new SqlCommand(_sql, cn);
+                        cmd.Parameters
+                            .Add(new SqlParameter("@u", SqlDbType.Int))
+                            .Value = item.track_manager;
+                        cn.Open();
+                        var reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                <strong> @reader.GetString(0) </strong>
+                            }
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                        else
+                        {
+                            reader.Dispose();
+                            cmd.Dispose();
+                        }
+                    }
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.track_id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.track_id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.track_id })
+            </td>
+        </tr>
+    }
+
+</table>

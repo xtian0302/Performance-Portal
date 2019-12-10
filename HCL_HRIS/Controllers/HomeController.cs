@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-
 namespace HCL_HRIS.Controllers
 {
     public class HomeController : Controller
@@ -15,7 +14,7 @@ namespace HCL_HRIS.Controllers
         public async Task<ActionResult> Index()
         {
             return View(await db.announcements.OrderBy(x=>x.announcement_id).Take(3).ToListAsync());
-        }
+        } 
 
         public ActionResult About()
         {

@@ -25,6 +25,23 @@
           <Property Name="datetime_sent" Type="datetime" />
           <Property Name="datetime_read" Type="datetime" />
         </EntityType>
+        <EntityType Name="group">
+          <Key>
+            <PropertyRef Name="group_id" />
+          </Key>
+          <Property Name="group_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="group_name" Type="nchar" MaxLength="50" />
+          <Property Name="group_leader" Type="int" />
+          <Property Name="track_id" Type="int" />
+        </EntityType>
+        <EntityType Name="track">
+          <Key>
+            <PropertyRef Name="track_id" />
+          </Key>
+          <Property Name="track_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="track_name" Type="nvarchar" MaxLength="50" />
+          <Property Name="track_manager" Type="int" />
+        </EntityType>
         <EntityType Name="users">
           <Key>
             <PropertyRef Name="user_id" />
@@ -33,10 +50,14 @@
           <Property Name="sap_id" Type="int" Nullable="false" />
           <Property Name="name" Type="nchar" MaxLength="150" Nullable="false" />
           <Property Name="password" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="group_id" Type="int" />
+          <Property Name="user_role" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityContainer Name="HCL_HRISModelStoreContainer">
           <EntitySet Name="announcements" EntityType="Self.announcements" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="chat" EntityType="Self.chat" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="group" EntityType="Self.group" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="track" EntityType="Self.track" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -51,11 +72,15 @@
           <Property Name="sap_id" Type="Int32" Nullable="false" />
           <Property Name="name" Type="String" MaxLength="150" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="group_id" Type="Int32" />
+          <Property Name="user_role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
           <EntitySet Name="chats" EntityType="HCL_HRISModel.chat" />
           <EntitySet Name="announcements" EntityType="HCL_HRISModel.announcement" />
+          <EntitySet Name="groups" EntityType="HCL_HRISModel.group" />
+          <EntitySet Name="tracks" EntityType="HCL_HRISModel.track" />
         </EntityContainer>
         <EntityType Name="chat">
           <Key>
@@ -77,6 +102,23 @@
           <Property Name="announcement_details" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="announcement_date" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="group">
+          <Key>
+            <PropertyRef Name="group_id" />
+          </Key>
+          <Property Name="group_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="group_name" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
+          <Property Name="group_leader" Type="Int32" />
+          <Property Name="track_id" Type="Int32" />
+        </EntityType>
+        <EntityType Name="track">
+          <Key>
+            <PropertyRef Name="track_id" />
+          </Key>
+          <Property Name="track_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="track_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="track_manager" Type="Int32" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -86,6 +128,8 @@
           <EntitySetMapping Name="users">
             <EntityTypeMapping TypeName="HCL_HRISModel.user">
               <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="user_role" ColumnName="user_role" />
+                <ScalarProperty Name="group_id" ColumnName="group_id" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
                 <ScalarProperty Name="sap_id" ColumnName="sap_id" />
                 <ScalarProperty Name="name" ColumnName="name" />
@@ -112,6 +156,25 @@
                 <ScalarProperty Name="announcement_details" ColumnName="announcement_details" />
                 <ScalarProperty Name="announcement_title" ColumnName="announcement_title" />
                 <ScalarProperty Name="announcement_id" ColumnName="announcement_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="groups">
+            <EntityTypeMapping TypeName="HCL_HRISModel.group">
+              <MappingFragment StoreEntitySet="group">
+                <ScalarProperty Name="track_id" ColumnName="track_id" />
+                <ScalarProperty Name="group_leader" ColumnName="group_leader" />
+                <ScalarProperty Name="group_name" ColumnName="group_name" />
+                <ScalarProperty Name="group_id" ColumnName="group_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tracks">
+            <EntityTypeMapping TypeName="HCL_HRISModel.track">
+              <MappingFragment StoreEntitySet="track">
+                <ScalarProperty Name="track_manager" ColumnName="track_manager" />
+                <ScalarProperty Name="track_name" ColumnName="track_name" />
+                <ScalarProperty Name="track_id" ColumnName="track_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

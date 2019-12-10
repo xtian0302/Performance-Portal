@@ -1,12 +1,29 @@
-﻿@model IEnumerable<HCL_HRIS.Models.announcement>
+﻿@using System.Globalization;
+@model IEnumerable<HCL_HRIS.Models.announcement>
 @{
     ViewBag.Title = "Home Page";
 }
+<style>
+    .fc-bgevent {
+        color: white !important;
+        font-weight: bolder;
+        opacity: 1 !important;   
+    }
+
+    .fc-title {
+        font-weight: bold;
+        text-align: center !important;
+    }
+
+    .fc-content {
+        text-align: center;
+    }
+</style>
 <div class="row ">
     <div class="col-md-6" style="min-height:800px;padding:0px">
         <div class="card no-rad-brtr" style="min-height:800px;padding:0px">
             <div class="card-header" style="padding:4.5px;">
-                Agent 2 - Scorecard as of November 29, 2019
+                Scorecard as of November 29, 2019
             </div>
             <div class="card-body" style="padding:3px;">
                 <div class="card">
@@ -170,11 +187,11 @@
                     <div class="card-header" style="padding:4.5px;">
                         Announcements
                     </div>
-                    <div class="card-body" style="font-size:0.9rem;"> 
+                    <div class="card-body" style="font-size:0.9rem;">
                         @foreach (var item in Model)
                         {
                             <h5>@item.announcement_title</h5>
-                            <p>@item.announcement_details</p> 
+                            <p>@item.announcement_details</p>
                         }
                     </div>
                 </div>
@@ -198,8 +215,10 @@
             <div class="card-header" style="padding:4.5px;">
                 Attendance and Pay Hours
             </div>
-            <div class="card-body" style="padding:3px;font-size:0.75rem;">
-
+            <div class="card-body" style="padding:3px;font-size:0.75rem;text-align:center;overflow-y:scroll;max-height:230px;">
+                @DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("en"))
+                <a href="~/attendance/Index" class="btn btn-outline-dark float-right">See All...</a>
+                <div id="calendar" style="width:450px;margin-left:25px;"></div>
             </div>
         </div>
         <div class="col-12 card no-rad-bltl" style="min-height:33.33%;padding:0px;border-top-right-radius: 0px !important;">
@@ -278,6 +297,54 @@
         });
     });
 
+    //Attendance Calendar
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'dayGrid','bootstrap' ],
+            themeSystem: 'bootstrap',
+            eventOrder: 'eventProperty',
+            fixedWeekCount: false,
+            header: false,
+            eventRender : function(info) {
+                   const props = info.event.extendedProps,
+                      rendering = info.event.rendering;
+                   if(rendering == "background") {
+		            $(info.el).text(info.event.title);
+		            $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "vertical-align": "middle" });
+                 }
+            }
+        });
+
+    calendar.addEvent({
+        title: 'A',
+        start: '2019-12-06',
+        allDay: true,
+        backgroundColor: "Red",
+        textColor: "white",
+        rendering: 'background'
+    });
+    calendar.addEvent({
+        title: '9.5 hrs',
+        start: '2019-12-04',
+        allDay: true,
+        backgroundColor: "Green",
+        textColor: "white",
+        rendering: 'background'
+    });
+         calendar.addEvent({
+        title: '30 mins',
+        start: '2019-12-05',
+        allDay: true,
+        backgroundColor: "Orange",
+        textColor: "white",
+        rendering: 'background'
+    });
+    calendar.render();
+      });
+
+    // Utilities
     function clearChat(){
         $('#chatbox > span').remove();
         $('#chatbox > br').remove();
