@@ -83,11 +83,15 @@ $(document).ready(function () {
                 }
             })
         }
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
     var roles = ["Administrator","Team Leader","Agent","Manager"];
     $("#user_role").autocomplete({
         minLength: 0,
         source: roles
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
 });
 </script>

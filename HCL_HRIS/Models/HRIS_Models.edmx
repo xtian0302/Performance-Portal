@@ -14,6 +14,23 @@
           <Property Name="announcement_details" Type="nvarchar(max)" />
           <Property Name="announcement_date" Type="datetime" />
         </EntityType>
+        <EntityType Name="audit">
+          <Key>
+            <PropertyRef Name="audit_id" />
+          </Key>
+          <Property Name="audit_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="case_id" Type="nvarchar(max)" />
+          <Property Name="audit_type" Type="nvarchar(max)" />
+          <Property Name="type_of_monitoring" Type="nvarchar(max)" />
+          <Property Name="auditor_sap" Type="int" />
+          <Property Name="agent_sap" Type="int" />
+          <Property Name="audit_date" Type="date" />
+          <Property Name="transaction_date" Type="date" />
+          <Property Name="bc" Type="bit" />
+          <Property Name="euc" Type="bit" />
+          <Property Name="cc" Type="bit" />
+          <Property Name="fatal" Type="bit" />
+        </EntityType>
         <EntityType Name="chat">
           <Key>
             <PropertyRef Name="chat_id" />
@@ -55,6 +72,7 @@
         </EntityType>
         <EntityContainer Name="HCL_HRISModelStoreContainer">
           <EntitySet Name="announcements" EntityType="Self.announcements" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="audit" EntityType="Self.audit" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="chat" EntityType="Self.chat" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="group" EntityType="Self.group" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="track" EntityType="Self.track" Schema="dbo" store:Type="Tables" />
@@ -81,6 +99,7 @@
           <EntitySet Name="announcements" EntityType="HCL_HRISModel.announcement" />
           <EntitySet Name="groups" EntityType="HCL_HRISModel.group" />
           <EntitySet Name="tracks" EntityType="HCL_HRISModel.track" />
+          <EntitySet Name="audits" EntityType="HCL_HRISModel.audit" />
         </EntityContainer>
         <EntityType Name="chat">
           <Key>
@@ -118,6 +137,23 @@
           <Property Name="track_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="track_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="track_manager" Type="Int32" />
+        </EntityType>
+        <EntityType Name="audit">
+          <Key>
+            <PropertyRef Name="audit_id" />
+          </Key>
+          <Property Name="audit_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="case_id" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="audit_type" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="type_of_monitoring" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="auditor_sap" Type="Int32" />
+          <Property Name="agent_sap" Type="Int32" />
+          <Property Name="audit_date" Type="DateTime" Precision="0" />
+          <Property Name="transaction_date" Type="DateTime" Precision="0" />
+          <Property Name="bc" Type="Boolean" />
+          <Property Name="euc" Type="Boolean" />
+          <Property Name="cc" Type="Boolean" />
+          <Property Name="fatal" Type="Boolean" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -175,6 +211,24 @@
                 <ScalarProperty Name="track_manager" ColumnName="track_manager" />
                 <ScalarProperty Name="track_name" ColumnName="track_name" />
                 <ScalarProperty Name="track_id" ColumnName="track_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="audits">
+            <EntityTypeMapping TypeName="HCL_HRISModel.audit">
+              <MappingFragment StoreEntitySet="audit">
+                <ScalarProperty Name="fatal" ColumnName="fatal" />
+                <ScalarProperty Name="cc" ColumnName="cc" />
+                <ScalarProperty Name="euc" ColumnName="euc" />
+                <ScalarProperty Name="bc" ColumnName="bc" />
+                <ScalarProperty Name="transaction_date" ColumnName="transaction_date" />
+                <ScalarProperty Name="audit_date" ColumnName="audit_date" />
+                <ScalarProperty Name="agent_sap" ColumnName="agent_sap" />
+                <ScalarProperty Name="auditor_sap" ColumnName="auditor_sap" />
+                <ScalarProperty Name="type_of_monitoring" ColumnName="type_of_monitoring" />
+                <ScalarProperty Name="audit_type" ColumnName="audit_type" />
+                <ScalarProperty Name="case_id" ColumnName="case_id" />
+                <ScalarProperty Name="audit_id" ColumnName="audit_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

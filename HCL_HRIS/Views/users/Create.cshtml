@@ -3,16 +3,16 @@
 @{
     ViewBag.Title = "Manage Users - Add New User";
 }
-    <div class="row">
-        <div class="col-6">
-            <h2>Add New User</h2>
-        </div>
-        <div class="col-6 "> 
-            <div class="float-right">
-                @Html.ActionLink("Manage Users", "Index")
-            </div>
+<div class="row">
+    <div class="col-6">
+        <h2>Add New User</h2>
+    </div>
+    <div class="col-6 "> 
+        <div class="float-right">
+            @Html.ActionLink("Manage Users", "Index")
         </div>
     </div>
+</div>
 @using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
@@ -80,12 +80,16 @@ $(document).ready(function () {
                 }
             })
         }
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
 
     var roles = ["Administrator","Team Leader","Agent","Manager"];
     $("#user_role").autocomplete({
         minLength: 0,
         source: roles
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
 });
 </script>

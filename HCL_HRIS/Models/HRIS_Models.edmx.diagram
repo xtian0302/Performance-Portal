@@ -10,6 +10,7 @@
         <EntityTypeShape EntityType="HCL_HRISModel.announcement" Width="1.5" PointX="4.25" PointY="0.75" />
         <EntityTypeShape EntityType="HCL_HRISModel.group" Width="1.5" PointX="0.75" PointY="3.125" />
         <EntityTypeShape EntityType="HCL_HRISModel.track" Width="1.5" PointX="2.5" PointY="3.125" />
+        <EntityTypeShape EntityType="HCL_HRISModel.audit" Width="1.5" PointX="4.25" PointY="2.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

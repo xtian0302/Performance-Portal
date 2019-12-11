@@ -1,0 +1,111 @@
+﻿@model HCL_HRIS.Models.audit
+
+@{
+    ViewBag.Title = "Excel Import";
+}
+ 
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+
+        <h2>Audits Upload</h2>
+        <div class="row">
+            <div class="col-6">
+                <a href="@Url.Action("DownloadFile")" class="float-left">
+                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                </a>
+            </div>
+            <div class="col-6 ">
+                <div class="float-right">
+                    @Html.ActionLink("Manage Audits", "Index")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-6 text-center">
+                <form>
+                    <h4>Q.A. Audits Excel Upload</h4>
+                    <input type="file" id="FileUpload" accept=".xls,.xlsx" />
+                    <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" />
+
+                </form> 
+            </div>
+            <div class="col-6 text-center">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--                                Error Modal                                    -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel"><span id="Title">Error! </span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><span id="Desc">Error! Unable to Save Transaction.</span></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--                                Success Modal                                    -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel"><span id="Title">Success! </span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><span id="Desc">Your Excel file has been succesfully uploaded to the Database!</span></p>
+            </div>
+
+            <div class="modal-footer">
+                <a href="@Url.Action("Index")"><button class="btn btn-secondary" type="button" data-dismiss="modal">Done</button></a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#Upload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("FileUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("FileUpload").files[i];
+
+                formData.append("FileUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/audits/Upload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        }); 
+    });
+
+</script>

@@ -22,7 +22,16 @@ namespace HCL_HRIS.Controllers
         // GET: users
         public async Task<ActionResult> Index()
         {
-            return View(await db.users.ToListAsync());
+            int id = int.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == id).First();
+            if (usr.user_role == "Administrator")
+            {
+                return View(await db.users.ToListAsync());
+            }
+            else
+            {
+                return new HttpNotFoundResult("You are not Allowed Access to this Page");
+            }
         }
 
         // GET: users/Details/5
@@ -163,7 +172,7 @@ namespace HCL_HRIS.Controllers
                 if (Utilities.IsValid(user.sap_id.ToString(), user.password))
                 {
                     FormsAuthenticationConfiguration formsAuthentication = new FormsAuthenticationConfiguration();
-                    FormsAuthentication.SetAuthCookie(user.sap_id.ToString(), true);  
+                    FormsAuthentication.SetAuthCookie(user.sap_id.ToString(), true);   
                     return RedirectToAction("Index", "Home");
                 }
                 else

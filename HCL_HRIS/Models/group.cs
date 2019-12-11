@@ -10,7 +10,8 @@
 namespace HCL_HRIS.Models
 {
     using System;
-
+    using System.Collections.Generic;
+    
     public partial class group
     {
         public int group_id { get; set; }

@@ -1,0 +1,124 @@
+﻿@model IEnumerable<HCL_HRIS.Models.audit>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Audit Management</h2>
+<div class="row">
+    <div class="col-2">
+        <p>
+            <a href="@Url.Action("Create")">
+                <i class='fa fa-fw fa-plus-circle'></i>
+                Create New
+            </a>
+        </p>
+    </div>
+
+    <div class="col-2">
+        <a href="@Url.Action("Import")" class="float-left">
+            <i class="fa fa-fw fa-file-excel"></i> <span>Excel Import</span>
+        </a>
+    </div>
+    <div class="col-3">
+        <a href="@Url.Action("DownloadFile")" class="float-left">
+            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+        </a>
+    </div>
+</div>
+<table id="table" class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.case_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.audit_type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.type_of_monitoring)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.auditor_sap)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.agent_sap)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.audit_date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.transaction_date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.bc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.euc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.cc)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.fatal)
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.case_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.audit_type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.type_of_monitoring)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.auditor_sap)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.agent_sap)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.audit_date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.transaction_date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.bc)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.euc)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.cc)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fatal)
+                </td>
+                <td>
+                    <div class="row">
+                        @Html.ActionLink("Edit", "Edit", new { id = item.audit_id }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.audit_id }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.audit_id })
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $(document).ready(function() {
+        var table = $('#table').DataTable( {
+            responsive: true,
+            scrollX: true
+        } );
+    } );
+    
+</script>

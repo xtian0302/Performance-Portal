@@ -30,5 +30,6 @@ namespace HCL_HRIS.Models
         public virtual DbSet<announcement> announcements { get; set; }
         public virtual DbSet<group> groups { get; set; }
         public virtual DbSet<track> tracks { get; set; }
+        public virtual DbSet<audit> audits { get; set; }
     }
 }

@@ -66,6 +66,8 @@ $(document).ready(function () {
                 }
             })
         }
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
     $("#track_id").autocomplete({
         minLength: 0,
@@ -82,6 +84,8 @@ $(document).ready(function () {
                 }
             })
         }
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });
 });
 </script>

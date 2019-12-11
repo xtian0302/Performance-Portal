@@ -1,0 +1,106 @@
+﻿@model HCL_HRIS.Models.audit
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>audit</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.case_id)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.case_id)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.audit_type)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.audit_type)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.type_of_monitoring)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.type_of_monitoring)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.auditor_sap)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.auditor_sap)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.agent_sap)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.agent_sap)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.audit_date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.audit_date)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.transaction_date)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.transaction_date)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.bc)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.bc)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.euc)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.euc)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.cc)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.cc)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fatal)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fatal)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.audit_id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

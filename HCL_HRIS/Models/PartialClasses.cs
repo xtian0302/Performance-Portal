@@ -26,4 +26,8 @@ namespace HCL_HRIS.Models
     public partial class track
     {
     }
+    [MetadataType(typeof(auditMetadata))]
+    public partial class audit
+    {
+    }
 }

@@ -40,4 +40,7 @@ nav.topbar {
     margin-top: 5px;
     padding: 5px;
     overflow-y: scroll;
-} 
+}
+table.dataTable th {
+    vertical-align: middle !important;
+}

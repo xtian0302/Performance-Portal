@@ -59,6 +59,8 @@
                 }
             })
         }
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
     });  
 });
 

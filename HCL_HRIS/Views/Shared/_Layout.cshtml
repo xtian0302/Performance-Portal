@@ -165,49 +165,64 @@
                     <span>Performance</span>
                 </a>
             </li>
-
-            <!-- Divider -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Admin
+                Quality
             </div>
-
-
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="~/Users/Index">
-                    <i class="fa fa-fw fa-user-alt"></i>
-                    <span>User Management</span>
+                <a class="nav-link" href="~/audits/Index">
+                    <i class="fa fa-fw fa-archive"></i>
+                    <span>Q.A. Audits</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="~/groups/Index">
-                    <i class="fa fa-fw fa-user-friends"></i>
-                    <span>Group Management</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="~/tracks/Index">
-                    <i class="fa fa-fw fa-users"></i>
-                    <span>Track Management</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="~/Announcements/Index">
-                    <i class="fa fa-fw fa-bullhorn"></i>
-                    <span>Announcements</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="~/Users/Import">
-                    <i class="fa fa-fw fa-file-excel"></i>
-                    <span>Excel Import</span>
-                </a>
-            </li>
+            <!-- Divider -->
+            @if (role.Equals("Administrator"))
+            {
+                <hr class="sidebar-divider">
 
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Admin
+                </div>
+
+
+
+                <!-- Nav Item - Charts -->
+                <li class="nav-item">
+                    <a class="nav-link" href="~/Users/Index">
+                        <i class="fa fa-fw fa-user-alt"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="~/groups/Index">
+                        <i class="fa fa-fw fa-user-friends"></i>
+                        <span>Group Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="~/tracks/Index">
+                        <i class="fa fa-fw fa-users"></i>
+                        <span>Track Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="~/Announcements/Index">
+                        <i class="fa fa-fw fa-bullhorn"></i>
+                        <span>Announcements</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="~/Users/Import">
+                        <i class="fa fa-fw fa-file-excel"></i>
+                        <span>Excel Import</span>
+                    </a>
+                </li>
+            }
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -233,18 +248,18 @@
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-                    <span id="clock">&nbsp;</span>&nbsp;  @track  / @team / @role
+                    <span id="clock">&nbsp;</span>&nbsp;- @track  > @team
                     <!-- Topbar Search -->
                     @*<form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-            <div class="input-group">
-                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                    </button>
-                </div>
-            </div>
-        </form>*@
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button">
+                                        <i class="fas fa-search fa-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>*@
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -282,16 +297,16 @@
                                     Alerts Center
                                 </h6>
                                 @*<a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="mr-3">
-                            <div class="icon-circle bg-primary">
-                                <i class="fas fa-file-alt text-white"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="small text-gray-500">December 12, 2019</div>
-                            <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                        </div>
-                    </a>*@
+                                        <div class="mr-3">
+                                            <div class="icon-circle bg-primary">
+                                                <i class="fas fa-file-alt text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="small text-gray-500">December 12, 2019</div>
+                                            <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                        </div>
+                                    </a>*@
                                 <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                             </div>
                         </li>
@@ -314,9 +329,9 @@
                                     Profile
                                 </a>
                                 @*<a class="dropdown-item" href="~/Users/Edit/@id">
-                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Settings
-                    </a>*@
+                                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Settings
+                                    </a>*@
                                 <a class="dropdown-item" href="@Url.Action("Index","DPL")">
                                     <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Activity Log
@@ -387,10 +402,10 @@
     <script src="~/Scripts/Chart.min.js"></script>
     <script src="~/Scripts/sb-admin-2.min.js"></script>
     <script src="~/Scripts/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
     <script src="~/Scripts/fullcalendar-core.min.js"></script>
     <script src="~/Scripts/fullcalendar-daygrid.js"></script>
     <script src="~/Scripts/fullcalendar-bootstrap.min.js"></script>
-    <script src="~/Scripts/dataTables.bootstrap4.min.js"></script>
     <script src="~/Scripts/jquery-ui.min.js"></script>
     <script>
         $(document).ready(function () {

@@ -47,38 +47,42 @@
     @Html.ActionLink("Back to List", "Index")
 </div>
 <script>
-$(document).ready(function () {
-    $("#group_leader").autocomplete({
-        minLength: 0,
-        source: function (request, response) {
-            $.ajax({
-                url: '@Url.Action("GetUsers", "groups")', 
-                success: function (data) {
-                    response($.map(data, function (val, item) {
-                        return {
-                            label:  val.name + " - " + val.sap_id,
-                            value: val.sap_id
-                        }
-                    }))
-                }
-            })
-        }
+    $(document).ready(function () {
+        $("#group_leader").autocomplete({
+            minLength: 0,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetUsers", "groups")',
+                    success: function (data) {
+                        response($.map(data, function (val, item) {
+                            return {
+                                label: val.name + " - " + val.sap_id,
+                                value: val.sap_id
+                            }
+                        }))
+                    }
+                })
+            }
+        }).focus(function () {
+            $(this).autocomplete('search', $(this).val())
+        });
+        $("#track_id").autocomplete({
+            minLength: 0,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetTracks", "groups")',
+                    success: function (data) {
+                        response($.map(data, function (val, item) {
+                            return {
+                                label: val.track_name + " - " + val.track_id,
+                                value: val.track_id
+                            }
+                        }))
+                    }
+                })
+            }
+        }).focus(function () {
+            $(this).autocomplete('search', $(this).val())
+        });
     });
-    $("#track_id").autocomplete({
-        minLength: 0,
-        source: function (request, response) {
-            $.ajax({
-                url: '@Url.Action("GetTracks", "groups")', 
-                success: function (data) {
-                    response($.map(data, function (val, item) {
-                        return {
-                            label: val.track_name + " - " + val.track_id,
-                            value: val.track_id
-                        }
-                    }))
-                }
-            })
-        }
-    });
-});
 </script>

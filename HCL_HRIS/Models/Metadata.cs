@@ -76,4 +76,39 @@ namespace HCL_HRIS.Models
         [Display(Name = "Manager")]
         public Nullable<int> track_manager { get; set; }
     }
+    public class auditMetadata
+    {
+        public int audit_id { get; set; }
+        [Required]
+        [Display(Name = "Case ID")]
+        public string case_id { get; set; }
+        [Required]
+        [Display(Name = "Audit Type")]
+        public string audit_type { get; set; }
+        [Required]
+        [Display(Name = "Type of Monitoring")]
+        public string type_of_monitoring { get; set; }
+        [Required]
+        [Display(Name = "Auditor")]
+        public Nullable<int> auditor_sap { get; set; }
+        [Required]
+        [Display(Name = "Agent")]
+        public Nullable<int> agent_sap { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Date of Audit")]
+        public Nullable<System.DateTime> audit_date { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Date of Transaction")]
+        public Nullable<System.DateTime> transaction_date { get; set; }
+        [Display(Name = "B.C. Fail?")]
+        public Nullable<bool> bc { get; set; }
+        [Display(Name = "E.U.C. Fail?")]
+        public Nullable<bool> euc { get; set; }
+        [Display(Name = "C.C. Fail?")]
+        public Nullable<bool> cc { get; set; }
+        [Display(Name = "Fatal Accuracy Fail?")]
+        public Nullable<bool> fatal { get; set; }
+    }
 }
