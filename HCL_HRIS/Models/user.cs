@@ -18,7 +18,9 @@ namespace HCL_HRIS.Models
         public int sap_id { get; set; }
         public string name { get; set; }
         public string password { get; set; }
-        public Nullable<int> group_id { get; set; }
+        public int group_id { get; set; }
         public string user_role { get; set; }
+    
+        public virtual group group { get; set; }
     }
 }

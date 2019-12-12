@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 
 namespace HCL_HRIS.Models
 {
@@ -22,9 +23,10 @@ namespace HCL_HRIS.Models
         [Display(Name = "Password")]
         public string password { get; set; } 
         [Display(Name = "Team")]
-        public Nullable<int> group_id { get; set; }
+        public Nullable<int> group_id { get; set; }  
         [Display(Name = "Role")]
-        public string user_role { get; set; }
+        public string user_role { get; set; } 
+        public virtual group group { get; set; }
     }
 
     public class chatMetadata
@@ -66,7 +68,9 @@ namespace HCL_HRIS.Models
         [Display(Name = "Leader")]
         public Nullable<int> group_leader { get; set; }
         [Display(Name = "Track")]
-        public Nullable<int> track_id { get; set; }
+        public Nullable<int> track_id { get; set; } 
+        public virtual user user { get; set; } 
+        public virtual track track { get; set; }
     }
     public class trackMetadata
     {
@@ -74,7 +78,8 @@ namespace HCL_HRIS.Models
         [Display(Name = "Name")]
         public string track_name { get; set; }
         [Display(Name = "Manager")]
-        public Nullable<int> track_manager { get; set; }
+        public Nullable<int> track_manager { get; set; } 
+        public virtual user user { get; set; }
     }
     public class auditMetadata
     {

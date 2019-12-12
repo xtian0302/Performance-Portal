@@ -4,13 +4,17 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="c514bf48e158483589b274ab7a091b10" Name="Diagram1" ShowGrid="true">
+      <Diagram DiagramId="c514bf48e158483589b274ab7a091b10" Name="Diagram1" ShowGrid="true" ZoomLevel="82">
         <EntityTypeShape EntityType="HCL_HRISModel.user" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="HCL_HRISModel.chat" Width="1.5" PointX="2.5" PointY="0.75" />
         <EntityTypeShape EntityType="HCL_HRISModel.announcement" Width="1.5" PointX="4.25" PointY="0.75" />
-        <EntityTypeShape EntityType="HCL_HRISModel.group" Width="1.5" PointX="0.75" PointY="3.125" />
+        <EntityTypeShape EntityType="HCL_HRISModel.group" Width="1.5" PointX="0.75" PointY="3.375" />
         <EntityTypeShape EntityType="HCL_HRISModel.track" Width="1.5" PointX="2.5" PointY="3.125" />
         <EntityTypeShape EntityType="HCL_HRISModel.audit" Width="1.5" PointX="4.25" PointY="2.75" />
+        <AssociationConnector Association="HCL_HRISModel.usergroup" />
+        <AssociationConnector Association="HCL_HRISModel.groupuser" />
+        <AssociationConnector Association="HCL_HRISModel.grouptrack" />
+        <AssociationConnector Association="HCL_HRISModel.trackuser" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

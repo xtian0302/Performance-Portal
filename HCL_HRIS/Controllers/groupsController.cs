@@ -128,7 +128,12 @@ namespace HCL_HRIS.Controllers
         public JsonResult GetUsers()
         {
             var objCustomerlist = db.users.ToList();
-            return Json(objCustomerlist, JsonRequestBehavior.AllowGet);
+            var subCategoryToReturn = objCustomerlist.Select(S => new {
+                user_id = S.user_id,
+                name = S.name,
+                sap_id = S.sap_id 
+            });
+            return Json(subCategoryToReturn, JsonRequestBehavior.AllowGet);
         }
         // GET: groups/GetUsersTracks
 
@@ -136,6 +141,7 @@ namespace HCL_HRIS.Controllers
         public JsonResult GetTracks()
         {
             var objCustomerlist = db.tracks.ToList();
+
             return Json(objCustomerlist, JsonRequestBehavior.AllowGet);
         }
 

@@ -31,148 +31,107 @@
                         Quality Scores
                     </div>
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
-                        <table class="table-bordered table text-center" style="color:black">
+                        <table class="table-bordered table text-center " style="color:black;overflow-x:scroll">
                             <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th >WK1</th>
+                                    <th >WK2</th>
+                                    <th >WK3</th>
+                                    <th >WK4</th>
+                                    <th >WK5</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th rowspan="3" style="vertical-align : middle;text-align:center;">&nbsp;B.C.&nbsp;&nbsp;</th>
-                                    <td colspan="2">Prev Month</td>
-                                    <td colspan="2">Current Month</td>
-                                    <td colspan="2">Week 1</td>
-                                    <td colspan="2">Week 2</td>
-                                    <td colspan="2">Week 3</td>
-                                    <td colspan="2">Week 4</td>
-                                    <td colspan="2">Week 5</td>
+                                    <td rowspan="2" valign="middle">Overall Quality</td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.BCPrev</td>
+                                    <td>@ViewBag.BCCurr</td>
+                                    <td>@ViewBag.BCWk1</td>
+                                    <td>@ViewBag.BCWk2</td>
+                                    <td>@ViewBag.BCWk3</td>
+                                    <td>@ViewBag.BCWk4</td>
+                                    <td>@ViewBag.BCWk5</td>
                                 </tr>
                                 <tr>
-                                    <td>Score</td>
                                     <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
                                 </tr>
                                 <tr>
-                                    <td>95%</td>
-                                    <td>#2</td>
-                                    <td>96%</td>
-                                    <td>#1</td>
-                                    <td>92%</td>
-                                    <td>#4</td>
-                                    <td>98%</td>
-                                    <td>#1</td>
-                                    <td>90%</td>
-                                    <td>#4</td>
-                                    <td>89%</td>
-                                    <td>#9</td>
-                                    <td>90%</td>
-                                    <td>#7</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table-bordered table text-center" style="color:black">
-                            <thead>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th rowspan="3" style="vertical-align : middle;text-align:center;">E.U.C.</th>
-                                    <td colspan="2">Prev Month</td>
-                                    <td colspan="2">Current Month</td>
-                                    <td colspan="2">Week 1</td>
-                                    <td colspan="2">Week 2</td>
-                                    <td colspan="2">Week 3</td>
-                                    <td colspan="2">Week 4</td>
-                                    <td colspan="2">Week 5</td>
-                                </tr>
-                                <tr>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                </tr>
-                                <tr>
-                                    <td>95%</td>
-                                    <td>#2</td>
-                                    <td>96%</td>
-                                    <td>#1</td>
-                                    <td>92%</td>
-                                    <td>#4</td>
-                                    <td>98%</td>
-                                    <td>#1</td>
-                                    <td>90%</td>
-                                    <td>#4</td>
-                                    <td>89%</td>
-                                    <td>#9</td>
-                                    <td>90%</td>
-                                    <td>#7</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="table-bordered table text-center" style="color:black">
-                            <thead>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th rowspan="3" style="vertical-align : middle;text-align:center;">&nbsp;C.C.&nbsp;&nbsp;</th>
-                                    <td colspan="2">Prev Month</td>
-                                    <td colspan="2">Current Month</td>
-                                    <td colspan="2">Week 1</td>
-                                    <td colspan="2">Week 2</td>
-                                    <td colspan="2">Week 3</td>
-                                    <td colspan="2">Week 4</td>
-                                    <td colspan="2">Week 5</td>
-                                </tr>
-                                <tr>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                    <td>Score</td>
-                                    <td>Rank</td>
-                                </tr>
-                                <tr>
-                                    <td>95%</td>
-                                    <td>#2</td>
-                                    <td>96%</td>
-                                    <td>#1</td>
-                                    <td>92%</td>
-                                    <td>#4</td>
-                                    <td>98%</td>
-                                    <td>#1</td>
-                                    <td>90%</td>
-                                    <td>#4</td>
-                                    <td>89%</td>
-                                    <td>#9</td>
-                                    <td>90%</td>
-                                    <td>#7</td>
-                                </tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#" ><i class="fa fa-window-minimize float-right" id="clicky" ></i></a></td>
+                                </tr> 
+                                    <tr class="hideable">
+                                        <td rowspan="2" valign="middle">BC</td>
+                                        <td>Score</td>
+                                        <td>@ViewBag.BCPrev</td>
+                                        <td>@ViewBag.BCCurr</td>
+                                        <td>@ViewBag.BCWk1</td>
+                                        <td>@ViewBag.BCWk2</td>
+                                        <td>@ViewBag.BCWk3</td>
+                                        <td>@ViewBag.BCWk4</td>
+                                        <td>@ViewBag.BCWk5</td>
+                                    </tr>
+                                    <tr class="hideable">
+                                        <td>Rank</td>
+                                        <td>#@ViewBag.bcPrevRank</td>
+                                        <td>#@ViewBag.bcCurrRank</td>
+                                        <td>#@ViewBag.bcWk1Rank</td>
+                                        <td>#@ViewBag.bcWk2Rank</td>
+                                        <td>#@ViewBag.bcWk3Rank</td>
+                                        <td>#@ViewBag.bcWk4Rank</td>
+                                        <td>#@ViewBag.bcWk5Rank</td>
+                                    </tr>
+                                    <tr class="hideable">
+                                        <td rowspan="2" valign="middle">EUC</td>
+                                        <td>Score</td>
+                                        <td>@ViewBag.EUCPrev</td>
+                                        <td>@ViewBag.EUCCurr</td>
+                                        <td>@ViewBag.EUCWk1</td>
+                                        <td>@ViewBag.EUCWk2</td>
+                                        <td>@ViewBag.EUCWk3</td>
+                                        <td>@ViewBag.EUCWk4</td>
+                                        <td>@ViewBag.EUCWk5</td>
+                                    </tr>
+                                    <tr class="hideable">
+                                        <td>Rank</td>
+                                        <td>#@ViewBag.eucPrevRank</td>
+                                        <td>#@ViewBag.eucCurrRank</td>
+                                        <td>#@ViewBag.eucWk1Rank</td>
+                                        <td>#@ViewBag.eucWk2Rank</td>
+                                        <td>#@ViewBag.eucWk3Rank</td>
+                                        <td>#@ViewBag.eucWk4Rank</td>
+                                        <td>#@ViewBag.eucWk5Rank</td>
+                                    </tr>
+                                    <tr class="hideable">
+                                        <td rowspan="2" valign="middle">CC</td>
+                                        <td>Score</td>
+                                        <td>@ViewBag.CCPrev</td>
+                                        <td>@ViewBag.CCCurr</td>
+                                        <td>@ViewBag.CCWk1</td>
+                                        <td>@ViewBag.CCWk2</td>
+                                        <td>@ViewBag.CCWk3</td>
+                                        <td>@ViewBag.CCWk4</td>
+                                        <td>@ViewBag.CCWk5</td>
+                                    </tr>
+                                    <tr class="hideable">
+                                        <td>Rank</td>
+                                        <td>#@ViewBag.ccPrevRank</td>
+                                        <td>#@ViewBag.ccCurrRank</td>
+                                        <td>#@ViewBag.ccWk1Rank</td>
+                                        <td>#@ViewBag.ccWk2Rank</td>
+                                        <td>#@ViewBag.ccWk3Rank</td>
+                                        <td>#@ViewBag.ccWk4Rank</td>
+                                        <td>#@ViewBag.ccWk5Rank</td>
+                                    </tr> 
                             </tbody>
                         </table>
                     </div>
@@ -180,6 +139,7 @@
             </div>
         </div>
     </div>
+    
     <div class="col-md-6" style="padding:0px">
         <div class="col-12 no-rad-bltl" style="min-height:33.33%;height:1px;border-bottom-right-radius: 0px !important;">
             <div class="row" style="min-height: 100%;">
@@ -252,6 +212,12 @@
 </div>
 <script>
     $(document).ready(function () {
+
+        $('#clicky').click(function () {
+            $('.hideable').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize'); 
+        });
+
         var uri = '../api/chats';
         $.getJSON(uri).done(function (data) {
             console.log(data);

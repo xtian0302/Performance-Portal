@@ -18,5 +18,8 @@ namespace HCL_HRIS.Models
         public string group_name { get; set; }
         public Nullable<int> group_leader { get; set; }
         public Nullable<int> track_id { get; set; }
+    
+        public virtual user user { get; set; }
+        public virtual track track { get; set; }
     }
 }

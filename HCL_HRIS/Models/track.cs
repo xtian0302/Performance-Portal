@@ -17,5 +17,7 @@ namespace HCL_HRIS.Models
         public int track_id { get; set; }
         public string track_name { get; set; }
         public Nullable<int> track_manager { get; set; }
+    
+        public virtual user user { get; set; }
     }
 }

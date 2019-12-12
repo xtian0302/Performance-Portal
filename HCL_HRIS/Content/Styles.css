@@ -44,3 +44,7 @@ nav.topbar {
 table.dataTable th {
     vertical-align: middle !important;
 }
+.hidden{
+
+    visibility:hidden !important;
+}

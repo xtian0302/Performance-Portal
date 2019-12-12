@@ -3,7 +3,7 @@
 @using System.Data;
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Track Management";
 }
 
 <h2>Track Management</h2>
@@ -29,33 +29,8 @@
                 @Html.DisplayFor(modelItem => item.track_name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.track_manager) -
-                @{ using (var cn = HCL_HRIS.Models.Utilities.getConn())
-                    {
-                        string _sql = @"SELECT [name] FROM [dbo].[users] " +
-                        @"WHERE [sap_id] = @u";
-                        var cmd = new SqlCommand(_sql, cn);
-                        cmd.Parameters
-                            .Add(new SqlParameter("@u", SqlDbType.Int))
-                            .Value = item.track_manager;
-                        cn.Open();
-                        var reader = cmd.ExecuteReader();
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                <strong> @reader.GetString(0) </strong>
-                            }
-                            reader.Dispose();
-                            cmd.Dispose();
-                        }
-                        else
-                        {
-                            reader.Dispose();
-                            cmd.Dispose();
-                        }
-                    }
-                }
+
+                @Html.DisplayFor(modelItem => item.user.sap_id) - @Html.DisplayFor(modelItem => item.user.name)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.track_id }) |

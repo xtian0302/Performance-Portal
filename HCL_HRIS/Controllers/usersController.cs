@@ -158,14 +158,14 @@ namespace HCL_HRIS.Controllers
             }
             base.Dispose(disposing);
         }
-        public async Task<ActionResult> Login()
+        public ActionResult Login()
         {
             return View();
         }
 
         // Login And LogOut POST
         [HttpPost]
-        public async Task<ActionResult> Login(Models.user user)
+        public ActionResult Login(Models.user user)
         {
             if (ModelState.IsValid)
             {
@@ -182,7 +182,7 @@ namespace HCL_HRIS.Controllers
             }
             return View(user);
         }
-        public async Task<ActionResult> Logout()
+        public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
             return RedirectToAction("Login", "Users");
@@ -193,7 +193,12 @@ namespace HCL_HRIS.Controllers
         public JsonResult GetGroups()
         {
             var objCustomerlist = db.groups.ToList();
-            return Json(objCustomerlist, JsonRequestBehavior.AllowGet);
+            var subCategoryToReturn = objCustomerlist.Select(S => new {
+                group_id = S.group_id,
+                group_name = S.group_name,
+                group_leader = S.group_leader
+            });
+            return Json(subCategoryToReturn, JsonRequestBehavior.AllowGet);
         }
 
     }

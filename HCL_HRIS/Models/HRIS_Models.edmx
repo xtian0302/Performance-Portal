@@ -90,8 +90,9 @@
           <Property Name="sap_id" Type="Int32" Nullable="false" />
           <Property Name="name" Type="String" MaxLength="150" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="group_id" Type="Int32" />
+          <Property Name="group_id" Type="Int32" Nullable="false" />
           <Property Name="user_role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="group" Relationship="HCL_HRISModel.usergroup" FromRole="user" ToRole="group" />
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
@@ -100,6 +101,22 @@
           <EntitySet Name="groups" EntityType="HCL_HRISModel.group" />
           <EntitySet Name="tracks" EntityType="HCL_HRISModel.track" />
           <EntitySet Name="audits" EntityType="HCL_HRISModel.audit" />
+          <AssociationSet Name="usergroup" Association="HCL_HRISModel.usergroup">
+            <End Role="user" EntitySet="users" />
+            <End Role="group" EntitySet="groups" />
+          </AssociationSet>
+          <AssociationSet Name="groupuser" Association="HCL_HRISModel.groupuser">
+            <End Role="group" EntitySet="groups" />
+            <End Role="user" EntitySet="users" />
+          </AssociationSet>
+          <AssociationSet Name="grouptrack" Association="HCL_HRISModel.grouptrack">
+            <End Role="group" EntitySet="groups" />
+            <End Role="track" EntitySet="tracks" />
+          </AssociationSet>
+          <AssociationSet Name="trackuser" Association="HCL_HRISModel.trackuser">
+            <End Role="track" EntitySet="tracks" />
+            <End Role="user" EntitySet="users" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="chat">
           <Key>
@@ -129,6 +146,8 @@
           <Property Name="group_name" Type="String" MaxLength="50" FixedLength="true" Unicode="true" />
           <Property Name="group_leader" Type="Int32" />
           <Property Name="track_id" Type="Int32" />
+          <NavigationProperty Name="user" Relationship="HCL_HRISModel.groupuser" FromRole="group" ToRole="user" />
+          <NavigationProperty Name="track" Relationship="HCL_HRISModel.grouptrack" FromRole="group" ToRole="track" />
         </EntityType>
         <EntityType Name="track">
           <Key>
@@ -137,6 +156,7 @@
           <Property Name="track_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="track_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="track_manager" Type="Int32" />
+          <NavigationProperty Name="user" Relationship="HCL_HRISModel.trackuser" FromRole="track" ToRole="user" />
         </EntityType>
         <EntityType Name="audit">
           <Key>
@@ -155,6 +175,54 @@
           <Property Name="cc" Type="Boolean" />
           <Property Name="fatal" Type="Boolean" />
         </EntityType>
+        <Association Name="usergroup">
+          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="*" />
+          <End Type="HCL_HRISModel.group" Role="group" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="group">
+              <PropertyRef Name="group_id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="group_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="groupuser">
+          <End Type="HCL_HRISModel.group" Role="group" Multiplicity="*" />
+          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="group">
+              <PropertyRef Name="group_leader" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="grouptrack">
+          <End Type="HCL_HRISModel.group" Role="group" Multiplicity="*" />
+          <End Type="HCL_HRISModel.track" Role="track" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="track">
+              <PropertyRef Name="track_id" />
+            </Principal>
+            <Dependent Role="group">
+              <PropertyRef Name="track_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="trackuser">
+          <End Type="HCL_HRISModel.track" Role="track" Multiplicity="*" />
+          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="track">
+              <PropertyRef Name="track_manager" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
