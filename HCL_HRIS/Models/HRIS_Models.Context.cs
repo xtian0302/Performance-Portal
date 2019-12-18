@@ -12,6 +12,8 @@ namespace HCL_HRIS.Models
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class HCL_HRISEntities : DbContext
     {
@@ -31,5 +33,33 @@ namespace HCL_HRIS.Models
         public virtual DbSet<group> groups { get; set; }
         public virtual DbSet<track> tracks { get; set; }
         public virtual DbSet<audit> audits { get; set; }
+        public virtual DbSet<eq_prod> eq_prod { get; set; }
+    
+        public virtual ObjectResult<get_Errors_Result> get_Errors(Nullable<int> sap_id)
+        {
+            var sap_idParameter = sap_id.HasValue ?
+                new ObjectParameter("sap_id", sap_id) :
+                new ObjectParameter("sap_id", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<get_Errors_Result>("get_Errors", sap_idParameter);
+        }
+    
+        public virtual ObjectResult<get_QualityRanks_Result> get_QualityRanks(Nullable<int> sapid)
+        {
+            var sapidParameter = sapid.HasValue ?
+                new ObjectParameter("sapid", sapid) :
+                new ObjectParameter("sapid", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<get_QualityRanks_Result>("get_QualityRanks", sapidParameter);
+        }
+    
+        public virtual ObjectResult<get_Prod_Result> get_Prod(Nullable<int> sap_id)
+        {
+            var sap_idParameter = sap_id.HasValue ?
+                new ObjectParameter("sap_id", sap_id) :
+                new ObjectParameter("sap_id", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<get_Prod_Result>("get_Prod", sap_idParameter);
+        }
     }
 }

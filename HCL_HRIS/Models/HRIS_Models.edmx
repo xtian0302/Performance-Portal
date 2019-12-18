@@ -41,6 +41,56 @@
           <Property Name="chat_message" Type="nvarchar(max)" />
           <Property Name="datetime_sent" Type="datetime" />
           <Property Name="datetime_read" Type="datetime" />
+          <Property Name="group_id" Type="int" />
+        </EntityType>
+        <EntityType Name="eq_prod">
+          <Key>
+            <PropertyRef Name="eq_prod_id" />
+          </Key>
+          <Property Name="eq_prod_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="queue_name" Type="nvarchar(max)" />
+          <Property Name="Process_Instance_ID" Type="nvarchar(max)" />
+          <Property Name="Work_Item_ID" Type="nvarchar(max)" />
+          <Property Name="Intake_CPU" Type="nvarchar(max)" />
+          <Property Name="BU_ID" Type="nvarchar(max)" />
+          <Property Name="Cust_ID" Type="nvarchar(max)" />
+          <Property Name="Requeued_Queue_Name" Type="nvarchar(max)" />
+          <Property Name="Task_Create_Date_Time" Type="datetime" />
+          <Property Name="Process_Type" Type="nvarchar(max)" />
+          <Property Name="Task_Status" Type="nvarchar(max)" />
+          <Property Name="Task_Resolution" Type="nvarchar(max)" />
+          <Property Name="Idle_Seconds" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Handling_Seconds" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Duration_Seconds" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Touch_Count" Type="int" />
+          <Property Name="Last_Associate_ID" Type="nvarchar(max)" />
+          <Property Name="Last_Associate_Name" Type="nvarchar(max)" />
+          <Property Name="Last_Associcate_Manager" Type="nvarchar(max)" />
+          <Property Name="Last_Associate_Site" Type="nvarchar(max)" />
+          <Property Name="First_Assignment_Timestamp" Type="datetime" />
+          <Property Name="Last_Assignment_Timestamp" Type="datetime" />
+          <Property Name="Last_Assignment_Date" Type="datetime" />
+          <Property Name="Task_Create_Date" Type="datetime" />
+          <Property Name="Task_Resolved_Timestamp" Type="datetime" />
+          <Property Name="Last_Follow_Up_Code" Type="nvarchar(max)" />
+          <Property Name="Last_Follow_Up_Code_Timestamp" Type="datetime" />
+          <Property Name="NEB" Type="nvarchar(max)" />
+          <Property Name="PAP" Type="nvarchar(max)" />
+          <Property Name="O2_RNTL" Type="nvarchar(max)" />
+          <Property Name="NI_VENT" Type="nvarchar(max)" />
+          <Property Name="NPWT" Type="nvarchar(max)" />
+          <Property Name="PAP_SUPPLY" Type="nvarchar(max)" />
+          <Property Name="OTHER" Type="nvarchar(max)" />
+          <Property Name="BED" Type="nvarchar(max)" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="SAP_ID" Type="int" />
+          <Property Name="CITRIX_ID" Type="nvarchar(max)" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="Supervisor" Type="nvarchar(max)" />
+          <Property Name="Wave" Type="nvarchar(max)" />
+          <Property Name="Track_Roster_Wise" Type="nvarchar(max)" />
+          <Property Name="Track_Queue_Wise" Type="nvarchar(max)" />
+          <Property Name="Division" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="group">
           <Key>
@@ -69,11 +119,51 @@
           <Property Name="password" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="group_id" Type="int" />
           <Property Name="user_role" Type="nvarchar" MaxLength="50" />
+          <Property Name="designation" Type="nvarchar(max)" />
+          <Property Name="division" Type="nvarchar(max)" />
+          <Property Name="status" Type="nvarchar(max)" />
+          <Property Name="sub_department" Type="nvarchar(max)" />
+          <Property Name="phase" Type="nvarchar(max)" />
+          <Property Name="band" Type="nvarchar(max)" />
+          <Property Name="tenurity" Type="nvarchar(max)" />
+          <Property Name="hcl_hire_date" Type="nvarchar(max)" />
+          <Property Name="abay_start_date" Type="nvarchar(max)" />
+          <Property Name="cms_id" Type="nvarchar(max)" />
+          <Property Name="citrix" Type="nvarchar(max)" />
+          <Property Name="nt_login" Type="nvarchar(max)" />
+          <Property Name="finesse_extension" Type="nvarchar(max)" />
+          <Property Name="finesse_names" Type="nvarchar(max)" />
+          <Property Name="finesse_enterprise_names" Type="nvarchar(max)" />
+          <Property Name="badge_id" Type="nvarchar(max)" />
+          <Property Name="birth_date" Type="nvarchar(max)" />
+          <Property Name="address" Type="nvarchar(max)" />
+          <Property Name="contact_number" Type="nvarchar(max)" />
+          <Property Name="nda" Type="nvarchar(max)" />
+          <Property Name="nho/policies_sign_off" Type="nvarchar(max)" />
+          <Property Name="bgv" Type="nvarchar(max)" />
+          <Property Name="versant" Type="nchar" MaxLength="10" />
+          <Property Name="typing" Type="nvarchar(max)" />
+          <Property Name="aptitude" Type="nvarchar(max)" />
+          <Property Name="group_policy" Type="nvarchar(max)" />
         </EntityType>
+        <Function Name="fn_GetTotalWorkingDaysUsingLoop" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int">
+          <Parameter Name="DateFrom" Type="date" Mode="In" />
+          <Parameter Name="DateTo" Type="date" Mode="In" />
+        </Function>
+        <Function Name="get_Errors" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="sap_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="get_Prod" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="sap_id" Type="int" Mode="In" />
+        </Function>
+        <Function Name="get_QualityRanks" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="sapid" Type="int" Mode="In" />
+        </Function>
         <EntityContainer Name="HCL_HRISModelStoreContainer">
           <EntitySet Name="announcements" EntityType="Self.announcements" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="audit" EntityType="Self.audit" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="chat" EntityType="Self.chat" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="eq_prod" EntityType="Self.eq_prod" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="group" EntityType="Self.group" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="track" EntityType="Self.track" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
@@ -90,9 +180,35 @@
           <Property Name="sap_id" Type="Int32" Nullable="false" />
           <Property Name="name" Type="String" MaxLength="150" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="password" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="group_id" Type="Int32" Nullable="false" />
+          <Property Name="group_id" Type="Int32" />
           <Property Name="user_role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="group" Relationship="HCL_HRISModel.usergroup" FromRole="user" ToRole="group" />
+          <Property Name="designation" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="division" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="status" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="sub_department" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="phase" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="band" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="tenurity" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="hcl_hire_date" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="abay_start_date" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="cms_id" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="citrix" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="nt_login" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="finesse_extension" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="finesse_names" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="finesse_enterprise_names" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="badge_id" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="birth_date" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="contact_number" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="nda" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="nho_policies_sign_off" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="bgv" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="versant" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+          <Property Name="typing" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="aptitude" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="group_policy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
@@ -101,10 +217,6 @@
           <EntitySet Name="groups" EntityType="HCL_HRISModel.group" />
           <EntitySet Name="tracks" EntityType="HCL_HRISModel.track" />
           <EntitySet Name="audits" EntityType="HCL_HRISModel.audit" />
-          <AssociationSet Name="usergroup" Association="HCL_HRISModel.usergroup">
-            <End Role="user" EntitySet="users" />
-            <End Role="group" EntitySet="groups" />
-          </AssociationSet>
           <AssociationSet Name="groupuser" Association="HCL_HRISModel.groupuser">
             <End Role="group" EntitySet="groups" />
             <End Role="user" EntitySet="users" />
@@ -117,6 +229,24 @@
             <End Role="track" EntitySet="tracks" />
             <End Role="user" EntitySet="users" />
           </AssociationSet>
+          <FunctionImport Name="get_Errors" ReturnType="Collection(HCL_HRISModel.get_Errors_Result)">
+          <Parameter Name="sap_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="get_QualityRanks" ReturnType="Collection(HCL_HRISModel.get_QualityRanks_Result)">
+          <Parameter Name="sapid" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <AssociationSet Name="usergroup" Association="HCL_HRISModel.usergroup">
+            <End Role="user" EntitySet="users" />
+            <End Role="group" EntitySet="groups" />
+          </AssociationSet>
+          <EntitySet Name="eq_prod" EntityType="HCL_HRISModel.eq_prod" />
+          <AssociationSet Name="chatuser" Association="HCL_HRISModel.chatuser">
+            <End Role="chat" EntitySet="chats" />
+            <End Role="user" EntitySet="users" />
+          </AssociationSet>
+          <FunctionImport Name="get_Prod" ReturnType="Collection(HCL_HRISModel.get_Prod_Result)">
+          <Parameter Name="sap_id" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
         <EntityType Name="chat">
           <Key>
@@ -128,6 +258,8 @@
           <Property Name="chat_message" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="datetime_sent" Type="DateTime" Precision="3" />
           <Property Name="datetime_read" Type="DateTime" Precision="3" />
+          <Property Name="group_id" Type="Int32" />
+          <NavigationProperty Name="user" Relationship="HCL_HRISModel.chatuser" FromRole="chat" ToRole="user" />
         </EntityType>
         <EntityType Name="announcement">
           <Key>
@@ -175,18 +307,6 @@
           <Property Name="cc" Type="Boolean" />
           <Property Name="fatal" Type="Boolean" />
         </EntityType>
-        <Association Name="usergroup">
-          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="*" />
-          <End Type="HCL_HRISModel.group" Role="group" Multiplicity="1" />
-          <ReferentialConstraint>
-            <Principal Role="group">
-              <PropertyRef Name="group_id" />
-            </Principal>
-            <Dependent Role="user">
-              <PropertyRef Name="group_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="groupuser">
           <End Type="HCL_HRISModel.group" Role="group" Multiplicity="*" />
           <End Type="HCL_HRISModel.user" Role="user" Multiplicity="0..1" />
@@ -223,6 +343,140 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <ComplexType Name="get_Errors_Result">
+          <Property Type="Int32" Name="bcErrorPrevMos" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorPrevMos" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorPrevMos" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditPrevMos" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorCurrMos" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorCurrMos" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorCurrMos" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditCurrMos" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorWk1" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorWk1" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorWk1" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditWk1" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorWk2" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorWk2" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorWk2" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditWk2" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorWk3" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorWk3" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorWk3" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditWk3" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorWk4" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorWk4" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorWk4" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditWk4" Nullable="true" />
+          <Property Type="Int32" Name="bcErrorWk5" Nullable="true" />
+          <Property Type="Int32" Name="eucErrorWk5" Nullable="true" />
+          <Property Type="Int32" Name="ccErrorWk5" Nullable="true" />
+          <Property Type="Int32" Name="totalAuditWk5" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="get_QualityRanks_Result">
+          <Property Type="Int64" Name="bc_prev_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_prev_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_prev_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_curr_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_curr_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_curr_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_wk1_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_wk1_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_wk1_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_wk2_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_wk2_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_wk2_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_wk3_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_wk3_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_wk3_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_wk4_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_wk4_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_wk4_rank" Nullable="true" />
+          <Property Type="Int64" Name="bc_wk5_rank" Nullable="true" />
+          <Property Type="Int64" Name="euc_wk5_rank" Nullable="true" />
+          <Property Type="Int64" Name="cc_wk5_rank" Nullable="true" />
+          <Property Type="Int32" Name="sap_id" Nullable="false" />
+        </ComplexType>
+        <Association Name="usergroup">
+          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="*" />
+          <End Type="HCL_HRISModel.group" Role="group" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="group">
+              <PropertyRef Name="group_id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="group_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="eq_prod">
+          <Key>
+            <PropertyRef Name="eq_prod_id" />
+          </Key>
+          <Property Name="eq_prod_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="queue_name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Process_Instance_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Work_Item_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Intake_CPU" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="BU_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Cust_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Requeued_Queue_Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Task_Create_Date_Time" Type="DateTime" Precision="3" />
+          <Property Name="Process_Type" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Task_Status" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Task_Resolution" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Idle_Seconds" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Handling_Seconds" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Duration_Seconds" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Touch_Count" Type="Int32" />
+          <Property Name="Last_Associate_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Last_Associate_Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Last_Associcate_Manager" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Last_Associate_Site" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="First_Assignment_Timestamp" Type="DateTime" Precision="3" />
+          <Property Name="Last_Assignment_Timestamp" Type="DateTime" Precision="3" />
+          <Property Name="Last_Assignment_Date" Type="DateTime" Precision="3" />
+          <Property Name="Task_Create_Date" Type="DateTime" Precision="3" />
+          <Property Name="Task_Resolved_Timestamp" Type="DateTime" Precision="3" />
+          <Property Name="Last_Follow_Up_Code" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Last_Follow_Up_Code_Timestamp" Type="DateTime" Precision="3" />
+          <Property Name="NEB" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PAP" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="O2_RNTL" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NI_VENT" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NPWT" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PAP_SUPPLY" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="OTHER" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="BED" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Date" Type="DateTime" Precision="3" />
+          <Property Name="SAP_ID" Type="Int32" />
+          <Property Name="CITRIX_ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Supervisor" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Wave" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Track_Roster_Wise" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Track_Queue_Wise" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Division" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <Association Name="chatuser">
+          <End Type="HCL_HRISModel.chat" Role="chat" Multiplicity="*" />
+          <End Type="HCL_HRISModel.user" Role="user" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="chat">
+              <PropertyRef Name="chat_from" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <ComplexType Name="get_Prod_Result">
+          <Property Type="Int32" Name="AveProd" Nullable="true" />
+          <Property Type="Int32" Name="Completes" Nullable="true" />
+          <Property Type="Int32" Name="Concludes" Nullable="true" />
+          <Property Type="Int32" Name="WithinSLA" Nullable="true" />
+          <Property Type="Int32" Name="NotWithinSLA" Nullable="true" />
+        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -232,6 +486,32 @@
           <EntitySetMapping Name="users">
             <EntityTypeMapping TypeName="HCL_HRISModel.user">
               <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="group_policy" ColumnName="group_policy" />
+                <ScalarProperty Name="aptitude" ColumnName="aptitude" />
+                <ScalarProperty Name="typing" ColumnName="typing" />
+                <ScalarProperty Name="versant" ColumnName="versant" />
+                <ScalarProperty Name="bgv" ColumnName="bgv" />
+                <ScalarProperty Name="nho_policies_sign_off" ColumnName="nho/policies_sign_off" />
+                <ScalarProperty Name="nda" ColumnName="nda" />
+                <ScalarProperty Name="contact_number" ColumnName="contact_number" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="birth_date" ColumnName="birth_date" />
+                <ScalarProperty Name="badge_id" ColumnName="badge_id" />
+                <ScalarProperty Name="finesse_enterprise_names" ColumnName="finesse_enterprise_names" />
+                <ScalarProperty Name="finesse_names" ColumnName="finesse_names" />
+                <ScalarProperty Name="finesse_extension" ColumnName="finesse_extension" />
+                <ScalarProperty Name="nt_login" ColumnName="nt_login" />
+                <ScalarProperty Name="citrix" ColumnName="citrix" />
+                <ScalarProperty Name="cms_id" ColumnName="cms_id" />
+                <ScalarProperty Name="abay_start_date" ColumnName="abay_start_date" />
+                <ScalarProperty Name="hcl_hire_date" ColumnName="hcl_hire_date" />
+                <ScalarProperty Name="tenurity" ColumnName="tenurity" />
+                <ScalarProperty Name="band" ColumnName="band" />
+                <ScalarProperty Name="phase" ColumnName="phase" />
+                <ScalarProperty Name="sub_department" ColumnName="sub_department" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="division" ColumnName="division" />
+                <ScalarProperty Name="designation" ColumnName="designation" />
                 <ScalarProperty Name="user_role" ColumnName="user_role" />
                 <ScalarProperty Name="group_id" ColumnName="group_id" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
@@ -244,6 +524,7 @@
           <EntitySetMapping Name="chats">
             <EntityTypeMapping TypeName="HCL_HRISModel.chat">
               <MappingFragment StoreEntitySet="chat">
+                <ScalarProperty Name="group_id" ColumnName="group_id" />
                 <ScalarProperty Name="datetime_read" ColumnName="datetime_read" />
                 <ScalarProperty Name="datetime_sent" ColumnName="datetime_sent" />
                 <ScalarProperty Name="chat_message" ColumnName="chat_message" />
@@ -300,6 +581,129 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="get_Errors" FunctionName="HCL_HRISModel.Store.get_Errors">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HCL_HRISModel.get_Errors_Result">
+                <ScalarProperty Name="bcErrorPrevMos" ColumnName="bcErrorPrevMos" />
+                <ScalarProperty Name="eucErrorPrevMos" ColumnName="eucErrorPrevMos" />
+                <ScalarProperty Name="ccErrorPrevMos" ColumnName="ccErrorPrevMos" />
+                <ScalarProperty Name="totalAuditPrevMos" ColumnName="totalAuditPrevMos" />
+                <ScalarProperty Name="bcErrorCurrMos" ColumnName="bcErrorCurrMos" />
+                <ScalarProperty Name="eucErrorCurrMos" ColumnName="eucErrorCurrMos" />
+                <ScalarProperty Name="ccErrorCurrMos" ColumnName="ccErrorCurrMos" />
+                <ScalarProperty Name="totalAuditCurrMos" ColumnName="totalAuditCurrMos" />
+                <ScalarProperty Name="bcErrorWk1" ColumnName="bcErrorWk1" />
+                <ScalarProperty Name="eucErrorWk1" ColumnName="eucErrorWk1" />
+                <ScalarProperty Name="ccErrorWk1" ColumnName="ccErrorWk1" />
+                <ScalarProperty Name="totalAuditWk1" ColumnName="totalAuditWk1" />
+                <ScalarProperty Name="bcErrorWk2" ColumnName="bcErrorWk2" />
+                <ScalarProperty Name="eucErrorWk2" ColumnName="eucErrorWk2" />
+                <ScalarProperty Name="ccErrorWk2" ColumnName="ccErrorWk2" />
+                <ScalarProperty Name="totalAuditWk2" ColumnName="totalAuditWk2" />
+                <ScalarProperty Name="bcErrorWk3" ColumnName="bcErrorWk3" />
+                <ScalarProperty Name="eucErrorWk3" ColumnName="eucErrorWk3" />
+                <ScalarProperty Name="ccErrorWk3" ColumnName="ccErrorWk3" />
+                <ScalarProperty Name="totalAuditWk3" ColumnName="totalAuditWk3" />
+                <ScalarProperty Name="bcErrorWk4" ColumnName="bcErrorWk4" />
+                <ScalarProperty Name="eucErrorWk4" ColumnName="eucErrorWk4" />
+                <ScalarProperty Name="ccErrorWk4" ColumnName="ccErrorWk4" />
+                <ScalarProperty Name="totalAuditWk4" ColumnName="totalAuditWk4" />
+                <ScalarProperty Name="bcErrorWk5" ColumnName="bcErrorWk5" />
+                <ScalarProperty Name="eucErrorWk5" ColumnName="eucErrorWk5" />
+                <ScalarProperty Name="ccErrorWk5" ColumnName="ccErrorWk5" />
+                <ScalarProperty Name="totalAuditWk5" ColumnName="totalAuditWk5" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="get_QualityRanks" FunctionName="HCL_HRISModel.Store.get_QualityRanks">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HCL_HRISModel.get_QualityRanks_Result">
+                <ScalarProperty Name="bc_prev_rank" ColumnName="bc_prev_rank" />
+                <ScalarProperty Name="euc_prev_rank" ColumnName="euc_prev_rank" />
+                <ScalarProperty Name="cc_prev_rank" ColumnName="cc_prev_rank" />
+                <ScalarProperty Name="bc_curr_rank" ColumnName="bc_curr_rank" />
+                <ScalarProperty Name="euc_curr_rank" ColumnName="euc_curr_rank" />
+                <ScalarProperty Name="cc_curr_rank" ColumnName="cc_curr_rank" />
+                <ScalarProperty Name="bc_wk1_rank" ColumnName="bc_wk1_rank" />
+                <ScalarProperty Name="euc_wk1_rank" ColumnName="euc_wk1_rank" />
+                <ScalarProperty Name="cc_wk1_rank" ColumnName="cc_wk1_rank" />
+                <ScalarProperty Name="bc_wk2_rank" ColumnName="bc_wk2_rank" />
+                <ScalarProperty Name="euc_wk2_rank" ColumnName="euc_wk2_rank" />
+                <ScalarProperty Name="cc_wk2_rank" ColumnName="cc_wk2_rank" />
+                <ScalarProperty Name="bc_wk3_rank" ColumnName="bc_wk3_rank" />
+                <ScalarProperty Name="euc_wk3_rank" ColumnName="euc_wk3_rank" />
+                <ScalarProperty Name="cc_wk3_rank" ColumnName="cc_wk3_rank" />
+                <ScalarProperty Name="bc_wk4_rank" ColumnName="bc_wk4_rank" />
+                <ScalarProperty Name="euc_wk4_rank" ColumnName="euc_wk4_rank" />
+                <ScalarProperty Name="cc_wk4_rank" ColumnName="cc_wk4_rank" />
+                <ScalarProperty Name="bc_wk5_rank" ColumnName="bc_wk5_rank" />
+                <ScalarProperty Name="euc_wk5_rank" ColumnName="euc_wk5_rank" />
+                <ScalarProperty Name="cc_wk5_rank" ColumnName="cc_wk5_rank" />
+                <ScalarProperty Name="sap_id" ColumnName="sap_id" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="eq_prod">
+            <EntityTypeMapping TypeName="HCL_HRISModel.eq_prod">
+              <MappingFragment StoreEntitySet="eq_prod">
+                <ScalarProperty Name="Division" ColumnName="Division" />
+                <ScalarProperty Name="Track_Queue_Wise" ColumnName="Track_Queue_Wise" />
+                <ScalarProperty Name="Track_Roster_Wise" ColumnName="Track_Roster_Wise" />
+                <ScalarProperty Name="Wave" ColumnName="Wave" />
+                <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CITRIX_ID" ColumnName="CITRIX_ID" />
+                <ScalarProperty Name="SAP_ID" ColumnName="SAP_ID" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="BED" ColumnName="BED" />
+                <ScalarProperty Name="OTHER" ColumnName="OTHER" />
+                <ScalarProperty Name="PAP_SUPPLY" ColumnName="PAP_SUPPLY" />
+                <ScalarProperty Name="NPWT" ColumnName="NPWT" />
+                <ScalarProperty Name="NI_VENT" ColumnName="NI_VENT" />
+                <ScalarProperty Name="O2_RNTL" ColumnName="O2_RNTL" />
+                <ScalarProperty Name="PAP" ColumnName="PAP" />
+                <ScalarProperty Name="NEB" ColumnName="NEB" />
+                <ScalarProperty Name="Last_Follow_Up_Code_Timestamp" ColumnName="Last_Follow_Up_Code_Timestamp" />
+                <ScalarProperty Name="Last_Follow_Up_Code" ColumnName="Last_Follow_Up_Code" />
+                <ScalarProperty Name="Task_Resolved_Timestamp" ColumnName="Task_Resolved_Timestamp" />
+                <ScalarProperty Name="Task_Create_Date" ColumnName="Task_Create_Date" />
+                <ScalarProperty Name="Last_Assignment_Date" ColumnName="Last_Assignment_Date" />
+                <ScalarProperty Name="Last_Assignment_Timestamp" ColumnName="Last_Assignment_Timestamp" />
+                <ScalarProperty Name="First_Assignment_Timestamp" ColumnName="First_Assignment_Timestamp" />
+                <ScalarProperty Name="Last_Associate_Site" ColumnName="Last_Associate_Site" />
+                <ScalarProperty Name="Last_Associcate_Manager" ColumnName="Last_Associcate_Manager" />
+                <ScalarProperty Name="Last_Associate_Name" ColumnName="Last_Associate_Name" />
+                <ScalarProperty Name="Last_Associate_ID" ColumnName="Last_Associate_ID" />
+                <ScalarProperty Name="Touch_Count" ColumnName="Touch_Count" />
+                <ScalarProperty Name="Duration_Seconds" ColumnName="Duration_Seconds" />
+                <ScalarProperty Name="Handling_Seconds" ColumnName="Handling_Seconds" />
+                <ScalarProperty Name="Idle_Seconds" ColumnName="Idle_Seconds" />
+                <ScalarProperty Name="Task_Resolution" ColumnName="Task_Resolution" />
+                <ScalarProperty Name="Task_Status" ColumnName="Task_Status" />
+                <ScalarProperty Name="Process_Type" ColumnName="Process_Type" />
+                <ScalarProperty Name="Task_Create_Date_Time" ColumnName="Task_Create_Date_Time" />
+                <ScalarProperty Name="Requeued_Queue_Name" ColumnName="Requeued_Queue_Name" />
+                <ScalarProperty Name="Cust_ID" ColumnName="Cust_ID" />
+                <ScalarProperty Name="BU_ID" ColumnName="BU_ID" />
+                <ScalarProperty Name="Intake_CPU" ColumnName="Intake_CPU" />
+                <ScalarProperty Name="Work_Item_ID" ColumnName="Work_Item_ID" />
+                <ScalarProperty Name="Process_Instance_ID" ColumnName="Process_Instance_ID" />
+                <ScalarProperty Name="queue_name" ColumnName="queue_name" />
+                <ScalarProperty Name="eq_prod_id" ColumnName="eq_prod_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="get_Prod" FunctionName="HCL_HRISModel.Store.get_Prod">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HCL_HRISModel.get_Prod_Result">
+                <ScalarProperty Name="AveProd" ColumnName="AveProd" />
+                <ScalarProperty Name="Completes" ColumnName="Completes" />
+                <ScalarProperty Name="Concludes" ColumnName="Concludes" />
+                <ScalarProperty Name="WithinSLA" ColumnName="WithinSLA" />
+                <ScalarProperty Name="NotWithinSLA" ColumnName="NotWithinSLA" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HCL_HRIS.Models.user> 
+﻿@model IEnumerable<HCL_HRIS.Models.user>
 @{
     ViewBag.Title = "Manage Users";
 }
@@ -8,50 +8,61 @@
 <p>
     @Html.ActionLink("Add New User", "Create")
 </p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.sap_id)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.name)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.group_id)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.user_role)
-        </th>
-        @*<th>
-                @Html.DisplayNameFor(model => model.password)
-            </th>*@
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
+<table class="table" id="table">
+    <thead>
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.sap_id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.group.group_name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.user_role)
-            </td>
-            @*<td>
-                    @Html.DisplayFor(modelItem => item.password)
-                </td>*@
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.user_id }) |
-                @Html.ActionLink("Details", "Details", new { id = item.user_id }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.user_id })
-            </td>
+            <th>
+                @Html.DisplayNameFor(model => model.sap_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.group_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.user_role)
+            </th>
+            @*<th>
+                    @Html.DisplayNameFor(model => model.password)
+                </th>*@
+            <th>Actions</th>
         </tr>
-    }
-
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.sap_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.group.group_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.user_role)
+                </td>
+                @*<td>
+                        @Html.DisplayFor(modelItem => item.password)
+                    </td>*@
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.user_id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.user_id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.user_id })
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#table').DataTable( {
+            responsive: true, 
+        } );
+    } );
+
+</script>

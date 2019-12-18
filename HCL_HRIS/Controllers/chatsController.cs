@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
+using System.Web.Http.Description; 
 using HCL_HRIS.Models;
 
 namespace HCL_HRIS.Controllers
@@ -20,8 +20,12 @@ namespace HCL_HRIS.Controllers
         // GET: api/chats
         [HttpGet]
         public IQueryable<chat> Getchats()
-        {
-            return db.chats;
+        { 
+            int? sap_id = Int32.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == sap_id).First(); 
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            int? sup_id = leader.user_id, sup_sap_id = leader.sap_id ;
+            return db.chats.Where(x => (x.chat_from == usr.user_id && x.chat_to == sup_sap_id)||((x.chat_from == sup_id && x.chat_to == usr.sap_id)));
         }
         
         // GET: api/chats/5
@@ -80,7 +84,7 @@ namespace HCL_HRIS.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            chat.datetime_sent = DateTime.Now;
             db.chats.Add(chat);
             await db.SaveChangesAsync();
 

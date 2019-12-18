@@ -201,5 +201,15 @@ namespace HCL_HRIS.Controllers
             return Json(subCategoryToReturn, JsonRequestBehavior.AllowGet);
         }
 
+        // GET: users/GetGroupChats
+        [HttpGet]
+        public IQueryable<chat> GetGroupChats()
+        {
+            int? sap_id = Int32.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            int? group_id = usr.group_id;
+            return db.chats.Where(x =>  x.group_id == group_id);
+        }
+
     }
 }

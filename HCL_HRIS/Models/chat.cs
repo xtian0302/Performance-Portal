@@ -20,5 +20,8 @@ namespace HCL_HRIS.Models
         public string chat_message { get; set; }
         public Nullable<System.DateTime> datetime_sent { get; set; }
         public Nullable<System.DateTime> datetime_read { get; set; }
+        public Nullable<int> group_id { get; set; }
+    
+        public virtual user user { get; set; }
     }
 }

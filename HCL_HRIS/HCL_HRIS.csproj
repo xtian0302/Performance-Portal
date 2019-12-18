@@ -175,6 +175,18 @@
     <Compile Include="Models\chat.cs">
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\eq_prod.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\get_Errors_Result.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\get_Prod_Result.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\get_QualityRanks_Result.cs">
+      <DependentUpon>HRIS_Models.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\group.cs">
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
@@ -189,6 +201,11 @@
       <DependentUpon>HRIS_Models.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\HRIS_Models.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HRIS_Models.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\HRIS_Models1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>HRIS_Models.edmx</DependentUpon>
@@ -273,7 +290,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <EntityDeploy Include="Models\HRIS_Models.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>HRIS_Models.Designer.cs</LastGenOutput>
+      <LastGenOutput>HRIS_Models1.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <Content Include="Models\HRIS_Models.edmx.diagram">
       <DependentUpon>HRIS_Models.edmx</DependentUpon>
@@ -320,6 +337,7 @@
     <Content Include="Views\audits\Edit.cshtml" />
     <Content Include="Views\audits\Index.cshtml" />
     <Content Include="Views\audits\Import.cshtml" />
+    <Content Include="Views\Home\Import.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Files\Uploads\" />

@@ -23,7 +23,7 @@
     <div class="col-md-6" style="min-height:800px;padding:0px">
         <div class="card no-rad-brtr" style="min-height:800px;padding:0px">
             <div class="card-header" style="padding:4.5px;">
-                Scorecard as of November 29, 2019
+                Scorecard as of @DateTime.Now.ToLongDateString()
             </div>
             <div class="card-body" style="padding:3px;">
                 <div class="card">
@@ -31,7 +31,7 @@
                         Quality Scores
                     </div>
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
-                        <table class="table-bordered table text-center " style="color:black;overflow-x:scroll">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
                             <thead>
                                 <tr>
                                     <th colspan="2"></th>
@@ -133,6 +133,117 @@
                                         <td>#@ViewBag.ccWk5Rank</td>
                                     </tr> 
                             </tbody>
+                        </table> 
+                        
+                    </div>
+                </div> 
+                <div class="card" style="margin-top:5px;">
+                    <div class="card-header" style="padding:3px;">
+                        Productivity Score
+                    </div>
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle">Overall Productivity</td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.BCPrev</td>
+                                    <td>@ViewBag.BCCurr</td>
+                                    <td>@ViewBag.BCWk1</td>
+                                    <td>@ViewBag.BCWk2</td>
+                                    <td>@ViewBag.BCWk3</td>
+                                    <td>@ViewBag.BCWk4</td>
+                                    <td>@ViewBag.BCWk5</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky2"></i></a></td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td rowspan="2" valign="middle">Ave. Production</td>
+                                    <td>Score</td>
+                                    <td>0</td>
+                                    <td>@ViewBag.AveProd</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td>Rank</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td rowspan="2" valign="middle">Complete %</td>
+                                    <td>Score</td>
+                                    <td>0</td>
+                                    <td>@ViewBag.CompletePercent</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td>Rank</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td rowspan="2" valign="middle">OTC %</td>
+                                    <td>Score</td>
+                                    <td>0</td>
+                                    <td>@ViewBag.OTC</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td>Rank</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -178,7 +289,7 @@
             <div class="card-body" style="padding:3px;font-size:0.75rem;text-align:center;overflow-y:scroll;max-height:230px;">
                 @DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("en"))
                 <a href="~/attendance/Index" class="btn btn-outline-dark float-right">See All...</a>
-                <div id="calendar" style="width:450px;margin-left:25px;"></div>
+                <div id="calendar" style="width:75%;margin-left:25px;"></div>
             </div>
         </div>
         <div class="col-12 card no-rad-bltl" style="min-height:33.33%;padding:0px;border-top-right-radius: 0px !important;">
@@ -188,10 +299,10 @@
             <div class="card-body" style="padding:3px;font-size:0.75rem;">
                 <ul class="nav nav-tabs" style=" ">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Team Leader</a>
+                        <a class="nav-link active "  id="tl_click" >Team Leader</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Team Members</a>
+                        <a class="nav-link "  id="team_click" >Team Members</a>
                     </li>
                 </ul>
                 <!-- Chat Box -->
@@ -215,29 +326,24 @@
 
         $('#clicky').click(function () {
             $('.hideable').toggle().animate();
-            $(this).toggleClass('fa-window-minimize fa-window-maximize'); 
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
         });
-
+        $('#clicky2').click(function () {
+            $('.hideable2').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
+        });
         var uri = '../api/chats';
-        $.getJSON(uri).done(function (data) {
-            console.log(data);
-            $.each(data, function (key, item) {
-                // Add a list item for the product.
-                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />');
-                console.log(item.chat_message);
-                $("#chatbox").scrollTop( 100000);
-            });
+        reloadChat();
 
-        });
         $("#tlSend").click(function () {
             if ($("#chatMessage").val() == "") {
                 return;
             }
             // Post New Chat
             var chat = {
-                chat_from: @User.Identity.Name,
+                chat_from: @ViewBag.user.user_id,
                 chat_message: $("#chatMessage").val(),
-                chat_to: @User.Identity.Name,
+                chat_to: @ViewBag.leader_sap,
                 datetime_read: null,
                 datetime_sent: null,
             };
@@ -253,8 +359,11 @@
                     $.getJSON(uri).done(function (data) {
                             $.each(data, function (key, item) {
                             // Add a list item for the product.
-                                $("#chatbox").append('<span><b>' + item.chat_from + ' : </b>' + item.chat_message + '</span><br />');
-
+                                if (item.chat_from == @ViewBag.leader_sap) {
+                                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
+                                } else {
+                                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
+                                }
                             });
                     $("#chatbox").scrollTop( 100000 );
                     });
@@ -263,6 +372,16 @@
         });
     });
 
+    $('#team_click').click(function () {
+        $(this).tab('show');
+        clearChat();
+        reloadGroupChat();
+    });
+    $('#tl_click').click(function () {
+        $(this).tab('show');
+        clearChat();
+        reloadChat();
+    });
     //Attendance Calendar
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -308,11 +427,38 @@
         rendering: 'background'
     });
     calendar.render();
-      });
+    });
 
     // Utilities
     function clearChat(){
         $('#chatbox > span').remove();
         $('#chatbox > br').remove();
+    }
+
+    function reloadChat() {
+        var uri = '../api/chats';
+        $.getJSON(uri).done(function (data) {
+            console.log(data);
+            $.each(data, function (key, item) {
+                // Add a list item for the product.
+                if (item.chat_from == @ViewBag.leader_sap) {
+                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name  : </b>' + item.chat_message + '</span><br />');
+                } else {
+                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
+                }
+                $("#chatbox").scrollTop( 100000);
+            });
+        });
+        }
+
+    function reloadGroupChat() {
+        var uri = '../users/GetGroupChats';
+        $.getJSON(uri).done(function (data) {
+            console.log(data);
+            $.each(data, function (key, item) {
+                $("#chatbox").append('<span style="color:gray"><b> ' + item.user.name + '  : </b>' + item.chat_message + '</span><br />');
+                $("#chatbox").scrollTop( 100000);
+            });
+        });
     }
 </script>
