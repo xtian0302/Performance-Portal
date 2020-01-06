@@ -48,7 +48,63 @@
                     </form>
                 </div>
             </div>
-        </div>
+
+            <hr />
+            <div class="row" style="margin-top:25px">
+                <div class="col-6 text-center">
+                    <form>
+                        <h4>Team Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="TeamUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />
+                        </div>
+                    </form>
+                </div>
+                <div class="col-6 text-center">
+                    <form>
+                        <h4>LOB Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="LOBUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr />
+            <div class="row" style="margin-top:25px">
+                <div class="col-6 text-center">
+                    <form>
+                        <h4>User > Team Update Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="TeamUpdateUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />
+                        </div>
+                    </form>
+                </div>
+                <div class="col-6 text-center">
+                    <form>
+                        <h4>Team > LOB Update Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="LOBUpdateUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+    </div>
          
 <!--                                Error Modal                                    -->
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
@@ -130,6 +186,115 @@
             $.ajax({
                 type: "POST",
                 url: '/Home/UsersUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#TeamsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("TeamUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("TeamUpload").files[i];
+
+                formData.append("TeamUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/TeamsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        }); 
+        $("#LOBsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("LOBUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("LOBUpload").files[i];
+
+                formData.append("LOBUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/LOBsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#LOBsUpdateUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("LOBUpdateUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("LOBUpdateUpload").files[i];
+
+                formData.append("LOBUpdateUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/LOBsUpdateUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        
+        $("#TeamsUpdateUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("TeamUpdateUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("TeamUpdateUpload").files[i];
+
+                formData.append("TeamUpdateUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/TeamsUpdateUpload',
                 data: formData,
                 dataType: "json",
                 contentType: false,

@@ -68,24 +68,32 @@
 </div>
 <script>
 $(document).ready(function () {
-    $("#group_id").autocomplete({
+    var array;
+    $("#group_id").autocomplete({ 
         minLength: 0,
         source: function (request, response) {
-            $.ajax({
-                url: '@Url.Action("GetGroups", "users")',
-                success: function (data) {
-                    response($.map(data, function (val, item) {
-                        return {
-                            label:  val.group_id + " | "  + val.group_name,
-                            value: val.group_id
-                        }
-                    }))
-                }
-            })
+            if (array) {
+                response($.ui.autocomplete.filter(array, request.term));
+            } else {
+                $.ajax({
+                    url: '@Url.Action("GetGroups", "users")',
+                    cache: true,
+                    success: function (data) {
+                        array = $.map(data, function (val, item) {
+                            return {
+                                label: val.group_id + " | " + val.group_name,
+                                value: val.group_id
+                            }
+                        });
+                    }
+                })
+            }
         }
     }).focus(function() {
         $(this).autocomplete('search', $(this).val())
     });
+
+
     var roles = ["Administrator","Team Leader","Agent","Manager"];
     $("#user_role").autocomplete({
         minLength: 0,

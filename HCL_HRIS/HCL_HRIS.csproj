@@ -222,10 +222,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\HCL_HRIS.mdf" />
-    <Content Include="App_Data\HCL_HRIS_log.ldf">
-      <DependentUpon>HCL_HRIS.mdf</DependentUpon>
-    </Content>
     <Content Include="Content\all.min.css" />
     <Content Include="Content\dataTables.bootstrap4.min.css" />
     <Content Include="Content\fullcalendar-bootstrap.min.css" />
@@ -340,6 +336,7 @@
     <Content Include="Views\Home\Import.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="App_Data\" />
     <Folder Include="Files\Uploads\" />
   </ItemGroup>
   <PropertyGroup>

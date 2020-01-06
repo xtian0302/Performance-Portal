@@ -63,90 +63,90 @@ namespace HCL_HRIS.Controllers
             }
             reader.Close();
             command.Dispose();
-            //------------------------ BC EUC CC ViewBag ----------------------------
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
             if (totalAuditPrevMos != 0)
             {
-                ViewBag.BCPrev = string.Format("{00:P1}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
-                ViewBag.EUCPrev = string.Format("{00:P1}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
-                ViewBag.CCPrev = string.Format("{00:P1}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
             }
             else
             {
-                ViewBag.BCPrev = string.Format("{00:P1}", 0);
-                ViewBag.EUCPrev = string.Format("{00:P1}", 0);
-                ViewBag.CCPrev = string.Format("{00:P1}", 0);
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
             }
             if (totalAuditCurrMos != 0)
             {
-                ViewBag.BCCurr = string.Format("{00:P1}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
-                ViewBag.EUCCurr = string.Format("{00:P1}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
-                ViewBag.CCCurr = string.Format("{00:P1}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
             }
             else
             {
-                ViewBag.BCCurr = string.Format("{00:P1}", 0);
-                ViewBag.EUCCurr = string.Format("{00:P1}", 0);
-                ViewBag.CCCurr = string.Format("{00:P1}", 0);
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
             }
             if (totalAuditWk1 != 0)
             {
-                ViewBag.BCWk1 = string.Format("{00:P1}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
-                ViewBag.EUCWk1 = string.Format("{00:P1}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
-                ViewBag.CCWk1 = string.Format("{00:P1}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
             }
             else
             {
-                ViewBag.BCWk1 = string.Format("{00:P1}", 0);
-                ViewBag.EUCWk1 = string.Format("{00:P1}", 0);
-                ViewBag.CCWk1 = string.Format("{00:P1}", 0);
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
             }
             if (totalAuditWk2 != 0)
             {
-                ViewBag.BCWk2 = string.Format("{00:P1}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
-                ViewBag.EUCWk2 = string.Format("{00:P1}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
-                ViewBag.CCWk2 = string.Format("{00:P1}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
             }
             else
             {
-                ViewBag.BCWk2 = string.Format("{00:P1}", 0);
-                ViewBag.EUCWk2 = string.Format("{00:P1}", 0);
-                ViewBag.CCWk2 = string.Format("{00:P1}", 0);
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
             }
             if (totalAuditWk3 != 0)
             {
-                ViewBag.BCWk3 = string.Format("{00:P1}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
-                ViewBag.EUCWk3 = string.Format("{00:P1}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
-                ViewBag.CCWk3 = string.Format("{00:P1}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
             }
             else
             {
-                ViewBag.BCWk3 = string.Format("{00:P1}", 0);
-                ViewBag.EUCWk3 = string.Format("{00:P1}", 0);
-                ViewBag.CCWk3 = string.Format("{00:P1}", 0);
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
             }
             if (totalAuditWk4 != 0)
             {
-                ViewBag.BCWk4 = string.Format("{00:P1}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
-                ViewBag.EUCWk4 = string.Format("{00:P1}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
-                ViewBag.CCWk4 = string.Format("{00:P1}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
             }
             else
             {
-                ViewBag.BCWk4 = string.Format("{00:P1}", 0);
-                ViewBag.EUCWk4 = string.Format("{00:P1}", 0);
-                ViewBag.CCWk4 = string.Format("{00:P1}", 0);
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
             }
             if (totalAuditWk5 != 0)
             {
-                ViewBag.BCWk5 = string.Format("{00:P1}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
-                ViewBag.EUCWk5 = string.Format("{00:P1}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
-                ViewBag.CCWk5 = string.Format("{00:P1}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
             }
             else
             {
-                ViewBag.BCWk5 = string.Format("{00:P1}", 0);
-                ViewBag.EUCWk5 = string.Format("{00:P1}", 0);
-                ViewBag.CCWk5 = string.Format("{00:P1}", 0);
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
             }
 
             connection.Close();
@@ -190,19 +190,88 @@ namespace HCL_HRIS.Controllers
             reader = command.ExecuteReader();
 
             while (reader.Read())
-            { 
+            {
+                //  Previous Month Productivity
+                ViewBag.AveProdPrev = int.Parse(reader["AveProdPrev"].ToString());
+                ViewBag.CompletePercentPrev = Double.Parse(reader["CompletesPrev"].ToString()) / Double.Parse(reader["ConcludesPrev"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAPrev")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAPrev")))
+                {
+                    ViewBag.OTCPrev = Double.Parse(reader["WithinSLAPrev"].ToString()) / (Double.Parse(reader["WithinSLAPrev"].ToString()) + Double.Parse(reader["NotWithinSLAPrev"].ToString()));
+                }
+                else
+                {
+                    ViewBag.OTCPrev = 0;
+                }
+                //  Current Month Productivity
                 ViewBag.AveProd = int.Parse(reader["AveProd"].ToString());
                 ViewBag.CompletePercent = Double.Parse(reader["Completes"].ToString())/ Double.Parse(reader["Concludes"].ToString()); 
                 if(!reader.IsDBNull(reader.GetOrdinal("WithinSLA")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLA"))){ 
                     ViewBag.OTC = Double.Parse(reader["WithinSLA"].ToString()) / (Double.Parse(reader["WithinSLA"].ToString()) + Double.Parse(reader["NotWithinSLA"].ToString()));
+                } else {
+                    ViewBag.OTC = 0;
+                }
+                //  Week1 Productivity
+                ViewBag.AveProdWk1 = int.Parse(reader["AveProdWk1"].ToString());
+                ViewBag.CompletePercentWk1 = Double.Parse(reader["CompletesWk1"].ToString()) / Double.Parse(reader["ConcludesWk1"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk1")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk1")))
+                {
+                    ViewBag.OTCWk1 = Double.Parse(reader["WithinSLAWk1"].ToString()) / (Double.Parse(reader["WithinSLAWk1"].ToString()) + Double.Parse(reader["NotWithinSLAWk1"].ToString()));
                 }
                 else
                 {
-                    ViewBag.OTC = 0;
+                    ViewBag.OTCWk1 = 0;
+                }
+
+                //  Week2 Productivity
+                ViewBag.AveProdWk2 = int.Parse(reader["AveProdWk2"].ToString());
+                ViewBag.CompletePercentWk2 = Double.Parse(reader["CompletesWk2"].ToString()) / Double.Parse(reader["ConcludesWk2"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk2")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk2")))
+                {
+                    ViewBag.OTCWk2 = Double.Parse(reader["WithinSLAWk2"].ToString()) / (Double.Parse(reader["WithinSLAWk2"].ToString()) + Double.Parse(reader["NotWithinSLAWk2"].ToString()));
+                }
+                else
+                {
+                    ViewBag.OTCWk2 = 0;
+                }
+
+                //  Week3 Productivity
+                ViewBag.AveProdWk3 = int.Parse(reader["AveProdWk3"].ToString());
+                ViewBag.CompletePercentWk3 = Double.Parse(reader["CompletesWk3"].ToString()) / Double.Parse(reader["ConcludesWk3"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk3")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk3")))
+                {
+                    ViewBag.OTCWk3 = Double.Parse(reader["WithinSLAWk3"].ToString()) / (Double.Parse(reader["WithinSLAWk3"].ToString()) + Double.Parse(reader["NotWithinSLAWk3"].ToString()));
+                }
+                else
+                {
+                    ViewBag.OTCWk3 = 0;
+                }
+
+                //  Week4 Productivity
+                ViewBag.AveProdWk4 = int.Parse(reader["AveProdWk4"].ToString());
+                ViewBag.CompletePercentWk4 = Double.Parse(reader["CompletesWk4"].ToString()) / Double.Parse(reader["ConcludesWk4"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk4")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk4")))
+                {
+                    ViewBag.OTCWk4 = Double.Parse(reader["WithinSLAWk4"].ToString()) / (Double.Parse(reader["WithinSLAWk4"].ToString()) + Double.Parse(reader["NotWithinSLAWk4"].ToString()));
+                }
+                else
+                {
+                    ViewBag.OTCWk4 = 0;
+                }
+
+                //  Week5 Productivity
+                ViewBag.AveProdWk5 = int.Parse(reader["AveProdWk5"].ToString());
+                ViewBag.CompletePercentWk5 = Double.Parse(reader["CompletesWk5"].ToString()) / Double.Parse(reader["ConcludesWk5"].ToString());
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk5")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk5")))
+                {
+                    ViewBag.OTCWk5 = Double.Parse(reader["WithinSLAWk5"].ToString()) / (Double.Parse(reader["WithinSLAWk5"].ToString()) + Double.Parse(reader["NotWithinSLAWk5"].ToString()));
+                }
+                else
+                {
+                    ViewBag.OTCWk5 = 0;
                 }
             }
             connection.Close();
-            int sap_id = Int32.Parse(User.Identity.Name); 
+            int sap_id = Int32.Parse(User.Identity.Name.Trim()); 
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();
             ViewBag.user = usr;
@@ -521,7 +590,7 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@20", SqlDbType.NVarChar))
                                         .Value = row.Cell(26).Value.ToString();
 
-                                    if (row.Cell(27).ValueCached == null)
+                                    if (row.Cell(27).CachedValue == null)
                                     {
                                         cmd.Parameters.Add(new SqlParameter("@21", SqlDbType.NVarChar))
                                         .Value = "";
@@ -531,7 +600,7 @@ namespace HCL_HRIS.Controllers
                                         cmd.Parameters.Add(new SqlParameter("@21", SqlDbType.NVarChar))
                                         .Value = row.Cell(27).GetString();
                                     }
-                                    if (row.Cell(28).ValueCached == null ) {
+                                    if (row.Cell(28).CachedValue == null ) {
                                         cmd.Parameters.Add(new SqlParameter("@22", SqlDbType.NVarChar))
                                         .Value = "";
                                     }
@@ -540,7 +609,7 @@ namespace HCL_HRIS.Controllers
                                         cmd.Parameters.Add(new SqlParameter("@22", SqlDbType.NVarChar))
                                         .Value = row.Cell(28).GetString();
                                     }
-                                    if (row.Cell(29).ValueCached == null ) {
+                                    if (row.Cell(29).CachedValue == null ) {
                                         cmd.Parameters.Add(new SqlParameter("@23", SqlDbType.NVarChar))
                                         .Value = "";
                                     }
@@ -553,7 +622,7 @@ namespace HCL_HRIS.Controllers
                                         .Value = row.Cell(31).Value.ToString();
                                     cmd.Parameters.Add(new SqlParameter("@25", SqlDbType.NVarChar))
                                         .Value = row.Cell(32).Value.ToString();
-                                    if (row.Cell(33).ValueCached == null ) {
+                                    if (row.Cell(33).CachedValue == null ) {
                                         cmd.Parameters.Add(new SqlParameter("@26", SqlDbType.NVarChar))
                                         .Value = "";
                                     }
@@ -596,6 +665,514 @@ namespace HCL_HRIS.Controllers
                             GC.Collect();
                             return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
                         }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult TeamsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].[group] " + //42 columns excl. ID
+                        "([group_name], [group_leader])"
+                        + " VALUES (@1, @2)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.NChar))
+                                        .Value = row.Cell(2).Value.ToString();
+
+                                    int sap_id = Int32.Parse(row.Cell(1).Value.ToString());
+                                    user usr;
+                                    try {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Int))
+                                        .Value = usr.user_id;  
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult LOBsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].track " + //42 columns excl. ID
+                        "([track_name], [track_manager])"
+                        + " VALUES (@1, @2)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.NVarChar))
+                                        .Value = row.Cell(2).Value.ToString();
+
+                                    int sap_id = Int32.Parse(row.Cell(1).Value.ToString());
+                                    user usr;
+                                    try
+                                    {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Int))
+                                        .Value = usr.user_id;
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult LOBsUpdateUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+
+                        foreach (var row in WorkSheet.RowsUsed())
+                        {
+                            //do something here
+                            if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                            {
+                                Debug.WriteLine("- Empty row encountered");
+                            }
+                            else
+                            {
+                                string _sql = string.Format("UPDATE [dbo].[group] SET" + //42 columns excl. ID
+                                "[track_id] = @2" +
+                                " WHERE [group_leader] = @1");
+                                using (SqlConnection cn = Utilities.getConn())
+                                {
+                                    var cmd = new SqlCommand(_sql, cn); 
+
+                                    int sap_id = Int32.Parse(row.Cell(1).Value.ToString());
+                                    user usr;
+                                    try
+                                    {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = usr.user_id;
+                                    int currId = usr.user_id;
+                                    try { 
+                                        sap_id = Int32.Parse(row.Cell(2).Value.ToString());
+                                    }
+                                    catch
+                                    {
+                                        sap_id = 1;
+                                    }
+                                    try
+                                    {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+                                    track trk;
+                                    try
+                                    {
+                                        trk = db.tracks.Where(x => x.track_manager == usr.user_id).First();
+                                    }
+                                    catch
+                                    {
+                                        try
+                                        {
+                                            trk = db.tracks.Where(x => x.track_manager == currId).First();
+                                        }
+                                        catch
+                                        {
+                                            trk = db.tracks.Where(x => x.track_manager == 1).First();
+                                        }
+                                    } 
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Int))
+                                        .Value = trk.track_id;
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                        }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult TeamsUpdateUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+
+                        foreach (var row in WorkSheet.RowsUsed())
+                        {
+                            //do something here
+                            if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                            {
+                                Debug.WriteLine("- Empty row encountered");
+                            }
+                            else
+                            {
+                                string _sql = string.Format("UPDATE [dbo].[users] SET " + //42 columns excl. ID
+                                "[group_id] = @2" +
+                                " WHERE [user_id] = @1");
+                                using (SqlConnection cn = Utilities.getConn())
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+
+                                    int sap_id = Int32.Parse(row.Cell(1).Value.ToString());
+                                    user usr;
+                                    try
+                                    {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = usr.user_id;
+                                    int currId = usr.user_id;
+                                    try
+                                    {
+                                        sap_id = Int32.Parse(row.Cell(2).Value.ToString());
+                                    }
+                                    catch
+                                    {
+                                        sap_id = 1;
+                                    }
+                                    try
+                                    {
+                                        usr = db.users.Where(x => x.sap_id == sap_id).First();
+                                    }
+                                    catch
+                                    {
+                                        usr = db.users.Where(x => x.user_id == 1).First();
+                                    }
+                                    group grp;
+                                    try
+                                    {
+                                        grp = db.groups.Where(x => x.group_leader == usr.user_id).First();
+                                    }
+                                    catch
+                                    {
+                                        try
+                                        {
+                                            grp = db.groups.Where(x => x.group_leader == currId).First();
+                                        }
+                                        catch
+                                        {
+                                            grp = db.groups.Where(x => x.group_leader == 1).First();
+                                        }
+                                    }
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Int))
+                                        .Value = grp.group_id;
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                        }
+                        String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                        Debug.WriteLine("{status:'Upload Complete'}");
+                        file = null;
+                        GC.Collect();
+                        return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
                     }
                     else
                     {
