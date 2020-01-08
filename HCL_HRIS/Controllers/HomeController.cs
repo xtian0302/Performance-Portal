@@ -159,27 +159,27 @@ namespace HCL_HRIS.Controllers
 
             while (reader.Read())
             {
-                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
-                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
-                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
-                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
-                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
-                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
-                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.bcPrevRank  = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank  = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank   = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank   = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank   = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank   = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank   = int.Parse(reader["bc_wk5_rank"].ToString());
                 ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
                 ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
-                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
-                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
-                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
-                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
-                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
-                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
-                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
-                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
-                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
-                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
-                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
-                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+                ViewBag.eucWk1Rank  = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank  = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank  = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank  = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank  = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank  = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank  = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank   = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank   = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank   = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank   = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank   = int.Parse(reader["cc_wk5_rank"].ToString());
             } 
             connection.Close();
             command = new SqlCommand("get_Prod", connection);
@@ -193,7 +193,11 @@ namespace HCL_HRIS.Controllers
             {
                 //  Previous Month Productivity
                 ViewBag.AveProdPrev = int.Parse(reader["AveProdPrev"].ToString());
-                ViewBag.CompletePercentPrev = Double.Parse(reader["CompletesPrev"].ToString()) / Double.Parse(reader["ConcludesPrev"].ToString());
+                if(Double.Parse(reader["CompletesPrev"].ToString()) == 0 || Double.Parse(reader["ConcludesPrev"].ToString()) == 0){
+                    ViewBag.CompletePercentPrev = 0;
+                } else { 
+                    ViewBag.CompletePercentPrev = Double.Parse(reader["CompletesPrev"].ToString()) / Double.Parse(reader["ConcludesPrev"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAPrev")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAPrev")))
                 {
                     ViewBag.OTCPrev = Double.Parse(reader["WithinSLAPrev"].ToString()) / (Double.Parse(reader["WithinSLAPrev"].ToString()) + Double.Parse(reader["NotWithinSLAPrev"].ToString()));
@@ -203,8 +207,15 @@ namespace HCL_HRIS.Controllers
                     ViewBag.OTCPrev = 0;
                 }
                 //  Current Month Productivity
-                ViewBag.AveProd = int.Parse(reader["AveProd"].ToString());
-                ViewBag.CompletePercent = Double.Parse(reader["Completes"].ToString())/ Double.Parse(reader["Concludes"].ToString()); 
+                ViewBag.AveProd = int.Parse(reader["AveProd"].ToString()); 
+                if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercent = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercent = Double.Parse(reader["Completes"].ToString()) / Double.Parse(reader["Concludes"].ToString());
+                }
                 if(!reader.IsDBNull(reader.GetOrdinal("WithinSLA")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLA"))){ 
                     ViewBag.OTC = Double.Parse(reader["WithinSLA"].ToString()) / (Double.Parse(reader["WithinSLA"].ToString()) + Double.Parse(reader["NotWithinSLA"].ToString()));
                 } else {
@@ -212,7 +223,14 @@ namespace HCL_HRIS.Controllers
                 }
                 //  Week1 Productivity
                 ViewBag.AveProdWk1 = int.Parse(reader["AveProdWk1"].ToString());
-                ViewBag.CompletePercentWk1 = Double.Parse(reader["CompletesWk1"].ToString()) / Double.Parse(reader["ConcludesWk1"].ToString());
+                if (Double.Parse(reader["CompletesWk1"].ToString()) == 0 || Double.Parse(reader["ConcludesWk1"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercentWk1 = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercentWk1 = Double.Parse(reader["CompletesWk1"].ToString()) / Double.Parse(reader["ConcludesWk1"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk1")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk1")))
                 {
                     ViewBag.OTCWk1 = Double.Parse(reader["WithinSLAWk1"].ToString()) / (Double.Parse(reader["WithinSLAWk1"].ToString()) + Double.Parse(reader["NotWithinSLAWk1"].ToString()));
@@ -224,7 +242,14 @@ namespace HCL_HRIS.Controllers
 
                 //  Week2 Productivity
                 ViewBag.AveProdWk2 = int.Parse(reader["AveProdWk2"].ToString());
-                ViewBag.CompletePercentWk2 = Double.Parse(reader["CompletesWk2"].ToString()) / Double.Parse(reader["ConcludesWk2"].ToString());
+                if (Double.Parse(reader["CompletesWk2"].ToString()) == 0 || Double.Parse(reader["ConcludesWk2"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercentWk2 = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercentWk2 = Double.Parse(reader["CompletesWk2"].ToString()) / Double.Parse(reader["ConcludesWk2"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk2")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk2")))
                 {
                     ViewBag.OTCWk2 = Double.Parse(reader["WithinSLAWk2"].ToString()) / (Double.Parse(reader["WithinSLAWk2"].ToString()) + Double.Parse(reader["NotWithinSLAWk2"].ToString()));
@@ -236,7 +261,14 @@ namespace HCL_HRIS.Controllers
 
                 //  Week3 Productivity
                 ViewBag.AveProdWk3 = int.Parse(reader["AveProdWk3"].ToString());
-                ViewBag.CompletePercentWk3 = Double.Parse(reader["CompletesWk3"].ToString()) / Double.Parse(reader["ConcludesWk3"].ToString());
+                if (Double.Parse(reader["CompletesWk3"].ToString()) == 0 || Double.Parse(reader["ConcludesWk3"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercentWk3 = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercentWk3 = Double.Parse(reader["CompletesWk3"].ToString()) / Double.Parse(reader["ConcludesWk3"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk3")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk3")))
                 {
                     ViewBag.OTCWk3 = Double.Parse(reader["WithinSLAWk3"].ToString()) / (Double.Parse(reader["WithinSLAWk3"].ToString()) + Double.Parse(reader["NotWithinSLAWk3"].ToString()));
@@ -248,7 +280,14 @@ namespace HCL_HRIS.Controllers
 
                 //  Week4 Productivity
                 ViewBag.AveProdWk4 = int.Parse(reader["AveProdWk4"].ToString());
-                ViewBag.CompletePercentWk4 = Double.Parse(reader["CompletesWk4"].ToString()) / Double.Parse(reader["ConcludesWk4"].ToString());
+                if (Double.Parse(reader["CompletesWk4"].ToString()) == 0 || Double.Parse(reader["ConcludesWk4"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercentWk4 = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercentWk4 = Double.Parse(reader["CompletesWk4"].ToString()) / Double.Parse(reader["ConcludesWk4"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk4")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk4")))
                 {
                     ViewBag.OTCWk4 = Double.Parse(reader["WithinSLAWk4"].ToString()) / (Double.Parse(reader["WithinSLAWk4"].ToString()) + Double.Parse(reader["NotWithinSLAWk4"].ToString()));
@@ -260,7 +299,14 @@ namespace HCL_HRIS.Controllers
 
                 //  Week5 Productivity
                 ViewBag.AveProdWk5 = int.Parse(reader["AveProdWk5"].ToString());
-                ViewBag.CompletePercentWk5 = Double.Parse(reader["CompletesWk5"].ToString()) / Double.Parse(reader["ConcludesWk5"].ToString());
+                if (Double.Parse(reader["CompletesWk5"].ToString()) == 0 || Double.Parse(reader["ConcludesWk5"].ToString()) == 0)
+                {
+                    ViewBag.CompletePercentWk5 = 0;
+                }
+                else
+                {
+                    ViewBag.CompletePercentWk5 = Double.Parse(reader["CompletesWk5"].ToString()) / Double.Parse(reader["ConcludesWk5"].ToString());
+                }
                 if (!reader.IsDBNull(reader.GetOrdinal("WithinSLAWk5")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLAWk5")))
                 {
                     ViewBag.OTCWk5 = Double.Parse(reader["WithinSLAWk5"].ToString()) / (Double.Parse(reader["WithinSLAWk5"].ToString()) + Double.Parse(reader["NotWithinSLAWk5"].ToString()));
@@ -271,6 +317,39 @@ namespace HCL_HRIS.Controllers
                 }
             }
             connection.Close();
+            command = new SqlCommand("get_ProdRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.AveProdPrevRank         = int.Parse(reader["AveProdPrevRank"].ToString());
+                ViewBag.CompletePercentPrevRank = int.Parse(reader["CompletePercentPrev"].ToString());
+                ViewBag.OTCPrevRank             = int.Parse(reader["OTCPrev"].ToString());
+                ViewBag.AveProdRank             = int.Parse(reader["AveProdRank"].ToString());
+                ViewBag.CompletePercentRank     = int.Parse(reader["CompletePercent"].ToString());
+                ViewBag.OTCRank                 = int.Parse(reader["OTC"].ToString());
+                ViewBag.AveProdWk1Rank          = int.Parse(reader["AveProdWk1Rank"].ToString());
+                ViewBag.CompletePercentWk1Rank  = int.Parse(reader["CompletePercentWk1"].ToString());
+                ViewBag.OTCWk1Rank              = int.Parse(reader["OTCWk1"].ToString());
+                ViewBag.AveProdWk2Rank          = int.Parse(reader["AveProdWk2Rank"].ToString());
+                ViewBag.CompletePercentWk2Rank  = int.Parse(reader["CompletePercentWk2"].ToString());
+                ViewBag.OTCWk2Rank              = int.Parse(reader["OTCWk2"].ToString());
+                ViewBag.AveProdWk3Rank          = int.Parse(reader["AveProdWk3Rank"].ToString());
+                ViewBag.CompletePercentWk3Rank  = int.Parse(reader["CompletePercentWk3"].ToString());
+                ViewBag.OTCWk3Rank              = int.Parse(reader["OTCWk3"].ToString());
+                ViewBag.AveProdWk4Rank          = int.Parse(reader["AveProdWk4Rank"].ToString());
+                ViewBag.CompletePercentWk4Rank  = int.Parse(reader["CompletePercentWk4"].ToString());
+                ViewBag.OTCWk4Rank              = int.Parse(reader["OTCWk4"].ToString());
+                ViewBag.AveProdWk5Rank          = int.Parse(reader["AveProdWk5Rank"].ToString());
+                ViewBag.CompletePercentWk5Rank  = int.Parse(reader["CompletePercentWk5"].ToString());
+                ViewBag.OTCWk5Rank              = int.Parse(reader["OTCWk5"].ToString());
+            }
+            connection.Close();
+
             int sap_id = Int32.Parse(User.Identity.Name.Trim()); 
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();

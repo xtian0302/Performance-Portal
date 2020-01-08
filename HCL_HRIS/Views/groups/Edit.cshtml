@@ -54,49 +54,61 @@
     $(document).ready(function () {
         $("#name_container").val($("#group_leader").val());
         $("#track_container").val($("#track_id").val());
-        $("#name_container").autocomplete({
-            minLength: 0,
-            source: function (request, response) {
+      var array2; 
+    $("#name_container").autocomplete({
+        minLength: 0,
+        source: function (request, response) {
+            if (array2) {
+                response($.ui.autocomplete.filter(array2, request.term));
+            } else {
                 $.ajax({
                     url: '@Url.Action("GetUsers", "groups")',
+                    cache: true,
                     success: function (data) {
-                        response($.map(data, function (val, item) {
+                        array2 = $.map(data, function (val, item) {
                             return {
                                 label: val.sap_id+ " - " +val.name  ,
                                 value: val.sap_id+ " - " +val.name  ,
                                 id: val.user_id
                             }
-                        }))
+                        });
                     }
                 })
-            },
+            }
+        },
             select: function (event, ui) {
                  $('#group_leader').val(ui.item.id);
             }
-        }).focus(function () {
-            $(this).autocomplete('search', $(this).val())
-        });
-        $("#track_container").autocomplete({
-            minLength: 0,
-            source: function (request, response) {
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
+    });
+    var array;
+    $("#track_container").autocomplete({ 
+        minLength: 0,
+        source: function (request, response) {
+            if (array) {
+                response($.ui.autocomplete.filter(array, request.term));
+            } else {
                 $.ajax({
                     url: '@Url.Action("GetTracks", "groups")',
+                    cache: true,
                     success: function (data) {
-                        response($.map(data, function (val, item) {
+                        array = $.map(data, function (val, item) {
                             return {
                                 label: val.track_name  ,
                                 value: val.track_name  ,
                                 id: val.track_id
                             }
-                        }))
+                        });
                     }
                 })
-            },
+            }
+        },
             select: function (event, ui) {
                  $('#track_id').val(ui.item.id);
             }
-        }).focus(function () {
-            $(this).autocomplete('search', $(this).val())
-        });
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
+    }); 
     });
 </script>

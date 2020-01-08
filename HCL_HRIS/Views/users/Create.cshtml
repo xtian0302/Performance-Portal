@@ -46,7 +46,8 @@
     <div class="form-group">
         @Html.LabelFor(model => model.group_id, htmlAttributes: new { @class = "control-label col-md-2" })
         <div class="col-md-10">
-            @Html.EditorFor(model => model.group_id, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off"  } })
+            <input class="form-control text-box single-line ui-autocomplete-input" id="group_container" value="">
+            @Html.EditorFor(model => model.group_id, new { htmlAttributes = new { @class = "form-control hidden" } })
             @Html.ValidationMessageFor(model => model.group_id, "", new { @class = "text-danger" })
         </div>
     </div>
@@ -66,7 +67,7 @@
 <script>
 $(document).ready(function () {
     var array;
-    $("#group_id").autocomplete({ 
+    $("#group_container").autocomplete({ 
         minLength: 0,
         source: function (request, response) {
             if (array) {
@@ -77,15 +78,19 @@ $(document).ready(function () {
                     cache: true,
                     success: function (data) {
                         array = $.map(data, function (val, item) {
-                            return {
-                                label: val.group_id + " | " + val.group_name,
-                                value: val.group_id
+                            return { 
+                                label: val.group_name  ,
+                                value: val.group_name  ,
+                                id: val.group_id
                             }
                         });
                     }
                 })
             }
-        }
+        },
+            select: function (event, ui) {
+                 $('#group_id').val(ui.item.id);
+            }
     }).focus(function() {
         $(this).autocomplete('search', $(this).val())
     });

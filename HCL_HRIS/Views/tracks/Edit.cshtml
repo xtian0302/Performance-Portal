@@ -46,30 +46,35 @@
 </div>
 <script>
 
-    $(document).ready(function () {
-        $("#name_container").val($("#track_manager").val());
-        $("#name_container").autocomplete({
-            minLength: 0,
-            source: function (request, response) {
+$(document).ready(function () {
+    var array2; 
+    $("#name_container").autocomplete({
+        minLength: 0,
+        source: function (request, response) {
+            if (array2) {
+                response($.ui.autocomplete.filter(array2, request.term));
+            } else {
                 $.ajax({
                     url: '@Url.Action("GetUsers", "groups")',
+                    cache: true,
                     success: function (data) {
-                        response($.map(data, function (val, item) {
+                        array2 = $.map(data, function (val, item) {
                             return {
                                 label: val.sap_id+ " - " +val.name  ,
                                 value: val.sap_id+ " - " +val.name  ,
                                 id: val.user_id
                             }
-                        }))
+                        });
                     }
                 })
-            },
+            }
+        },
             select: function (event, ui) {
                  $('#track_manager').val(ui.item.id);
             }
-        }).focus(function () {
-            $(this).autocomplete('search', $(this).val())
-        });
+    }).focus(function() {
+        $(this).autocomplete('search', $(this).val())
+    });
 });
 
 </script>

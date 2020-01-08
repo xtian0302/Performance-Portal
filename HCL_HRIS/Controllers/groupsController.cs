@@ -141,8 +141,12 @@ namespace HCL_HRIS.Controllers
         public JsonResult GetTracks()
         {
             var objCustomerlist = db.tracks.ToList();
-
-            return Json(objCustomerlist, JsonRequestBehavior.AllowGet);
+            var subCategoryToReturn = objCustomerlist.Select(S => new {
+                track_id = S.track_id,
+                track_manager = S.track_manager,
+                track_name = S.track_name
+            });
+            return Json(subCategoryToReturn, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)
