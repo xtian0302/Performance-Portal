@@ -223,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\all.min.css" />
+    <Content Include="Content\Chart.min.css" />
     <Content Include="Content\dataTables.bootstrap4.min.css" />
     <Content Include="Content\fullcalendar-bootstrap.min.css" />
     <Content Include="Content\fullcalendar-core.min.css" />
@@ -292,6 +293,12 @@
       <DependentUpon>HRIS_Models.edmx</DependentUpon>
     </Content>
     <Content Include="Files\Excel_Templates\Audit_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\LOB_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\LOB_Update_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\Team_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\Team_Update_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\Users_Template.xlsx" />
+    <Content Include="Files\Excel_Templates\EqProd.xlsx" />
     <None Include="packages.config" />
     <Content Include="webfonts\fa-brands-400.eot" />
     <Content Include="webfonts\fa-brands-400.ttf" />
@@ -334,6 +341,9 @@
     <Content Include="Views\audits\Index.cshtml" />
     <Content Include="Views\audits\Import.cshtml" />
     <Content Include="Views\Home\Import.cshtml" />
+    <Content Include="Views\Home\OldIndex.cshtml" />
+    <Content Include="Views\Home\TeamLead.cshtml" />
+    <Content Include="Views\Home\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

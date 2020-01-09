@@ -1,7 +1,11 @@
 ﻿@using System.Globalization;
 @model IEnumerable<HCL_HRIS.Models.announcement>
 @{
-    ViewBag.Title = "Home Page";
+ViewBag.Title = "Home Page";
+
+  if("Team Leader".Equals(ViewBag.user_role)){ 
+            Response.Redirect("~/Home/TeamLead");
+  }
 } 
 <style>
     .fc-bgevent {
@@ -23,236 +27,93 @@
     <div class="col-md-6" style="min-height:800px;padding:0px">
         <div class="card no-rad-brtr" style="min-height:800px;padding:0px">
             <div class="card-header" style="padding:4.5px;">
-                Scorecard as of @DateTime.Now.ToLongDateString()
+                Agent Dashboard
             </div>
             <div class="card-body" style="padding:3px;">
-                <div class="card">
-                    <div class="card-header" style="padding:3px;">
-                        Quality Scores
-                    </div>
+                
+                <div class="card" style="margin-top:5px;">
+                    @*<div class="card-header" style="padding:3px;">
+                Productivity Score
+            </div>*@
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
-                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
                             <thead>
-                                <tr>
-                                    <th colspan="2"></th>
-                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
-                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
-                                    <th>WK1</th>
-                                    <th>WK2</th>
-                                    <th>WK3</th>
-                                    <th>WK4</th>
-                                    <th>WK5</th>
-                                </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td rowspan="2" valign="middle">Overall Quality</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk5))</td>
+                                    <td colspan="4" style="padding:5px;background-color:#2a4796;color:whitesmoke;">As of @DateTime.Now.ToLongDateString() Performance</td>
                                 </tr>
                                 <tr>
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.bcPrevRank</td>
-                                    <td>#@ViewBag.bcCurrRank</td>
-                                    <td>#@ViewBag.bcWk1Rank</td>
-                                    <td>#@ViewBag.bcWk2Rank</td>
-                                    <td>#@ViewBag.bcWk3Rank</td>
-                                    <td>#@ViewBag.bcWk4Rank</td>
-                                    <td>#@ViewBag.bcWk5Rank</td>
+                                    <td colspan="3">SCORE <br /> <h1 style="font-weight:bold;font-size:95px;margin-top:15px;">4.2</h1></td>
+                                    <td>Rank <br /><br /> <h1 style="font-weight:bold;">18th </h1> Of 32</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky"></i></a></td>
+                                    <td><span style="font-style:oblique;">Prod </span><br /> <h4 style="font-weight:bold;">4.1</h4></td>
+                                    <td><span style="font-style:oblique;">Quality </span><br /> <h4 style="font-weight:bold;">4.2</h4></td>
+                                    <td><span style="font-style:oblique;">Behavior </span><br /> <h4 style="font-weight:bold;"> 4.3</h4></td>
+                                    <td><span style="font-style:oblique;">Compliance </span><br /> <h4 style="font-weight:bold;"> 4.2</h4></td>
                                 </tr>
-                                <tr class="hideable">
-                                    <td rowspan="2" valign="middle">BC</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk5))</td>
+                                </table>
+                                @*For Team Leads*@
+                                @*<table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
+                                    <tr>
+                                        <td><span style="font-style:oblique;">Team Attrition</span><br /> <h4 style="font-weight:bold;">4.1</h4></td>
+                                        <td><span style="font-style:oblique;">Attendance (self) </span><br /> <h4 style="font-weight:bold;">4.2</h4></td>
+                                        <td><span style="font-style:oblique;">Compliance (self) </span><br /> <h4 style="font-weight:bold;"> 4.3</h4></td>
+                                    </tr>
+                                </table>*@
+                                <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
+                                <tr>
+                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">MANAGER</td>
+                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">SUPPORT</td>
                                 </tr>
-                                <tr class="hideable">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.bcPrevRank</td>
-                                    <td>#@ViewBag.bcCurrRank</td>
-                                    <td>#@ViewBag.bcWk1Rank</td>
-                                    <td>#@ViewBag.bcWk2Rank</td>
-                                    <td>#@ViewBag.bcWk3Rank</td>
-                                    <td>#@ViewBag.bcWk4Rank</td>
-                                    <td>#@ViewBag.bcWk5Rank</td>
+                                <tr>
+                                    <td style="padding:6px;background-color:#4e73df;" colspan="2">@ViewBag.manager</td>
+                                    <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3">Kim San Pascual (QA) <br />Donna Donna (WF) <br />Mary Pachica (Trainer) <br />Ma. Cristina Dalupirit (HR) <br /></td>
                                 </tr>
-                                <tr class="hideable">
-                                    <td rowspan="2" valign="middle">EUC</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCWk5))</td>
+                                <tr>
+                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796  ;" colspan="2">TEAM LEAD</td>
                                 </tr>
-                                <tr class="hideable">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.eucPrevRank</td>
-                                    <td>#@ViewBag.eucCurrRank</td>
-                                    <td>#@ViewBag.eucWk1Rank</td>
-                                    <td>#@ViewBag.eucWk2Rank</td>
-                                    <td>#@ViewBag.eucWk3Rank</td>
-                                    <td>#@ViewBag.eucWk4Rank</td>
-                                    <td>#@ViewBag.eucWk5Rank</td>
-                                </tr>
-                                <tr class="hideable">
-                                    <td rowspan="2" valign="middle">CC</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCWk5))</td>
-                                </tr>
-                                <tr class="hideable">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.ccPrevRank</td>
-                                    <td>#@ViewBag.ccCurrRank</td>
-                                    <td>#@ViewBag.ccWk1Rank</td>
-                                    <td>#@ViewBag.ccWk2Rank</td>
-                                    <td>#@ViewBag.ccWk3Rank</td>
-                                    <td>#@ViewBag.ccWk4Rank</td>
-                                    <td>#@ViewBag.ccWk5Rank</td>
+                                <tr>
+                                    <td style="padding:6px;background-color:#4e73df;" colspan="2">@ViewBag.leader_name</td>
                                 </tr>
                             </tbody>
                         </table>
-
                     </div>
                 </div>
-                <div class="card" style="margin-top:5px;">
-                    <div class="card-header" style="padding:3px;">
-                        Productivity Score
+                <div class="col-12 card no-rad-bltl" style="min-height:35%;padding:0px;border-top-right-radius: 0px !important;">
+                    <div class="card-header" style="padding:4.5px;">
+                        Chat
                     </div>
-                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
-                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
-                            <thead>
-                                <tr>
-                                    <th colspan="2"></th>
-                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
-                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
-                                    <th>WK1</th>
-                                    <th>WK2</th>
-                                    <th>WK3</th>
-                                    <th>WK4</th>
-                                    <th>WK5</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td rowspan="2" valign="middle">Overall Productivity</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk5))</td>
-                                </tr>
-                                <tr>
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.bcPrevRank</td>
-                                    <td>#@ViewBag.bcCurrRank</td>
-                                    <td>#@ViewBag.bcWk1Rank</td>
-                                    <td>#@ViewBag.bcWk2Rank</td>
-                                    <td>#@ViewBag.bcWk3Rank</td>
-                                    <td>#@ViewBag.bcWk4Rank</td>
-                                    <td>#@ViewBag.bcWk5Rank</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky2"></i></a></td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td rowspan="2" valign="middle">Ave. Production</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProd)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk5)</td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.AveProdPrevRank</td>
-                                    <td>#@ViewBag.AveProdRank</td>
-                                    <td>#@ViewBag.AveProdWk1Rank</td>
-                                    <td>#@ViewBag.AveProdWk2Rank</td>
-                                    <td>#@ViewBag.AveProdWk3Rank</td>
-                                    <td>#@ViewBag.AveProdWk4Rank</td>
-                                    <td>#@ViewBag.AveProdWk5Rank</td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td rowspan="2" valign="middle">Complete %</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercent)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk5)</td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.CompletePercentPrevRank</td>
-                                    <td>#@ViewBag.CompletePercentRank</td>
-                                    <td>#@ViewBag.CompletePercentWk1Rank</td>
-                                    <td>#@ViewBag.CompletePercentWk2Rank</td>
-                                    <td>#@ViewBag.CompletePercentWk3Rank</td>
-                                    <td>#@ViewBag.CompletePercentWk4Rank</td>
-                                    <td>#@ViewBag.CompletePercentWk5Rank</td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td rowspan="2" valign="middle">OTC %</td>
-                                    <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTC)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk5)</td>
-                                </tr>
-                                <tr class="hideable2">
-                                    <td>Rank</td>
-                                    <td>#@ViewBag.OTCPrevRank</td>
-                                    <td>#@ViewBag.OTCRank</td>
-                                    <td>#@ViewBag.OTCWk1Rank</td>
-                                    <td>#@ViewBag.OTCWk2Rank</td>
-                                    <td>#@ViewBag.OTCWk3Rank</td>
-                                    <td>#@ViewBag.OTCWk4Rank</td>
-                                    <td>#@ViewBag.OTCWk5Rank</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card-body" style="padding:3px;padding-bottom:10px;font-size:0.75rem;">
+                        <ul class="nav nav-tabs" style=" ">
+                            <li class="nav-item">
+                                <a class="nav-link active " id="tl_click">Team Leader</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " id="team_click">Team Members</a>
+                            </li>
+                        </ul>
+                        <!-- Chat Box -->
+                        <div class="chatbox" id="chatbox">
+                        </div>
+                        <form onsubmit="return false">
+                            <div class="input-group mb-3" style="border-top-left-radius:0px;border-top-right-radius:0px;margin-bottom:0px !important;">
+                                <input type="text" id="chatMessage" required class="form-control" style="border-top-left-radius:0px;" placeholder="Enter Message..." aria-label="Enter Message..." aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" id="tlSend" style="border-top-right-radius:0px;" type="submit">Send</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <div class="col-md-6" style="padding:0px">
-        <div class="col-12 no-rad-bltl" style="min-height:33.33%;height:1px;border-bottom-right-radius: 0px !important;">
+        <div class="col-12 no-rad-bltl" style="min-height:43%;height:1px;border-bottom-right-radius: 0px !important;">
             <div class="row" style="min-height: 100%;">
                 <div class="col-6 card no-rad-bltl" style="padding:0px;border-bottom-right-radius: 0px !important;border-top-right-radius: 0px !important;">
                     <div class="card-header" style="padding:4.5px;">
@@ -282,43 +143,17 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 card no-rad-bltl" style="min-height:33.33%;padding:0px;border-bottom-right-radius: 0px !important;border-top-right-radius: 0px !important;">
+        <div class="col-12 card no-rad-bltl" style="min-height:57%;padding:0px;border-top-right-radius: 0px !important;">
             <div class="card-header" style="padding:4.5px;">
                 Attendance and Pay Hours
             </div>
-            <div class="card-body" style="padding:3px;font-size:0.75rem;text-align:center;overflow-y:scroll;max-height:230px;">
-                @DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("en"))
+            <div class="card-body" style="padding:3px;font-size:0.75rem;text-align:center;">
+                <span style="font-weight:bold;font-size:large">@DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("en"))</span>
                 <a href="~/attendance/Index" class="btn btn-outline-dark float-right">See All...</a>
                 <div id="calendar" style="width:75%;margin-left:25px;"></div>
             </div>
         </div>
-        <div class="col-12 card no-rad-bltl" style="min-height:33.33%;padding:0px;border-top-right-radius: 0px !important;">
-            <div class="card-header" style="padding:4.5px;">
-                Chat
-            </div>
-            <div class="card-body" style="padding:3px;font-size:0.75rem;">
-                <ul class="nav nav-tabs" style=" ">
-                    <li class="nav-item">
-                        <a class="nav-link active " id="tl_click">Team Leader</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " id="team_click">Team Members</a>
-                    </li>
-                </ul>
-                <!-- Chat Box -->
-                <div class="chatbox" id="chatbox">
-                </div>
-                <form onsubmit="return false">
-                    <div class="input-group mb-3" style="border-top-left-radius:0px;border-top-right-radius:0px;margin-bottom:0px !important;">
-                        <input type="text" id="chatMessage" required class="form-control" style="border-top-left-radius:0px;" placeholder="Enter Message..." aria-label="Enter Message..." aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" id="tlSend" style="border-top-right-radius:0px;" type="submit">Send</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-        </div>
+ 
     </div>
 </div>
 <script>
@@ -404,7 +239,7 @@
 
     calendar.addEvent({
         title: 'A',
-        start: '2019-12-06',
+        start: '2020-01-02',
         allDay: true,
         backgroundColor: "Red",
         textColor: "white",
@@ -412,7 +247,7 @@
     });
     calendar.addEvent({
         title: '9.5 hrs',
-        start: '2019-12-04',
+        start: '2020-01-03',
         allDay: true,
         backgroundColor: "Green",
         textColor: "white",
@@ -420,7 +255,7 @@
     });
          calendar.addEvent({
         title: '30 mins',
-        start: '2019-12-05',
+        start: '2020-01-06',
         allDay: true,
         backgroundColor: "Orange",
         textColor: "white",

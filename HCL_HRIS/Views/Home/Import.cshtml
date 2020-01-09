@@ -7,7 +7,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
 
-            <h2>Production Dump Upload</h2>
+            <h4>Excel Uploads</h4>
             @*<div class="row">
                 <div class="col-6">
                     <a href="@Url.Action("DownloadFile")" class="float-left">
@@ -30,8 +30,11 @@
                         <div class="col-12">
                             <input type="file" id="FileUpload" accept=".xls,.xlsx" />
                         </div><br />
-                        <div class="col-12">
-                            <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" />
+                        <div class="col-12"> 
+                                <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" /> &nbsp; 
+                                <a href="@Url.Action("DownloadEQProdTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
@@ -43,7 +46,10 @@
                             <input type="file" id="UserUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />
+                            <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
+                                <a href="@Url.Action("DownloadUsersTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
@@ -59,7 +65,10 @@
                             <input type="file" id="TeamUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />
+                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
+                                <a href="@Url.Action("DownloadTeamTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
@@ -71,7 +80,10 @@
                             <input type="file" id="LOBUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />
+                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
+                                <a href="@Url.Action("DownloadLOBTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
@@ -87,7 +99,10 @@
                             <input type="file" id="TeamUpdateUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />
+                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
+                                <a href="@Url.Action("DownloadTeamUpdateTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
@@ -99,7 +114,10 @@
                             <input type="file" id="LOBUpdateUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />
+                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
+                                <a href="@Url.Action("DownloadLOBUpdateTemplate")" >
+                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                                </a> 
                         </div>
                     </form>
                 </div>
