@@ -19,6 +19,78 @@ namespace HCL_HRIS.Controllers
         private HCL_HRISEntities db = new HCL_HRISEntities();
         public async Task<ActionResult> Index()
         {
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            while (reader.Read()){
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString()); 
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1} 
+            if (totalAuditCurrMos != 0){
+               ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0-((double)bcErrorCurrMos/(double)totalAuditCurrMos), 1.0-((double)eucErrorCurrMos/(double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            } else {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
+            } 
+
+            connection.Close(); 
+
+            command = new SqlCommand("get_Prod", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            connection.Open();
+            reader = command.ExecuteReader();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            { //  Current Month Preaderroductivity
+                    aveprod = tryGetData(reader, "AveProd");
+                if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0){
+                    cmplt = 0;
+                } else {
+                    cmplt = Double.Parse(reader["Completes"].ToString()) / Double.Parse(reader["Concludes"].ToString());
+                }
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLA")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLA"))){
+                    otc = Double.Parse(reader["WithinSLA"].ToString()) / (Double.Parse(reader["WithinSLA"].ToString()) + Double.Parse(reader["NotWithinSLA"].ToString()));
+                } else {
+                    otc = 0;
+                }
+            }
+            ViewBag.ProdScore = HCL_HRIS.Models.Calculations.getOverallScoredProd(aveprod,cmplt,otc);
+            ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3));
+            ViewBag.ProdScore = string.Format("{0:0.#}", ViewBag.ProdScore);
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            connection.Open();
+            reader = command.ExecuteReader(); 
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read()){
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                mins.minsDate = (Convert.ToDateTime(reader["Date"])); 
+                minsCollection.Add(mins);
+            } 
+            reader.Close();
+            command.Dispose();
+            connection.Close(); 
+            ViewBag.minsCollection = minsCollection;
+
             int sap_id = Int32.Parse(User.Identity.Name.Trim()); 
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();
@@ -32,6 +104,25 @@ namespace HCL_HRIS.Controllers
         }
         public async Task<ActionResult> TeamLead()
         {
+            SqlConnection connection = Utilities.getConn();
+            SqlCommand command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                mins.minsDate = (Convert.ToDateTime(reader["Date"]));
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            ViewBag.minsCollection = minsCollection;
+
             int sap_id = Int32.Parse(User.Identity.Name.Trim());
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();
@@ -571,7 +662,7 @@ namespace HCL_HRIS.Controllers
             while (reader.Read())
             {
                 //  Previous Month Productivity
-                ViewBag.AveProdPrev = int.Parse(reader["AveProdPrev"].ToString());
+                ViewBag.AveProdPrev = tryGetData(reader, "AveProdPrev");
                 if (Double.Parse(reader["CompletesPrev"].ToString()) == 0 || Double.Parse(reader["ConcludesPrev"].ToString()) == 0)
                 {
                     ViewBag.CompletePercentPrev = 0;
@@ -588,8 +679,8 @@ namespace HCL_HRIS.Controllers
                 {
                     ViewBag.OTCPrev = 0;
                 }
-                //  Current Month Productivity
-                ViewBag.AveProd = int.Parse(reader["AveProd"].ToString());
+                //  Current Month Preaderroductivity
+                ViewBag.AveProd = tryGetData(reader,"AveProd");
                 if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0)
                 {
                     ViewBag.CompletePercent = 0;
@@ -1651,6 +1742,124 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult FinessesUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("reason code");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].finesse " + //42 columns excl. ID
+                        "([sap_id],[finesse_agent_team], [finesse_agent_name], [finesse_detail_event], [finesse_detail_event_datetime], [finesse_detail_reason_code], [finesse_detail_reason_code_name], [finesse_detail_duration])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.NVarChar))
+                                        .Value = row.Cell(2).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.NVarChar))
+                                        .Value = row.Cell(3).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.NVarChar))
+                                        .Value = row.Cell(4).Value.ToString();
+                                    if (row.Cell(5).Value.ToString().Equals(""))
+                                    {
+                                        cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.DateTime)).Value = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.DateTime)).Value = row.Cell(5).GetDateTime();
+                                    }
+                                    cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.NVarChar))
+                                        .Value = row.Cell(6).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.NVarChar))
+                                        .Value = row.Cell(7).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(8).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult DownloadEQProdTemplate()
         {
             string filename = "EqProd.xlsx";
@@ -1752,6 +1961,13 @@ namespace HCL_HRIS.Controllers
             Response.AppendHeader("Content-Disposition", cd.ToString());
 
             return File(filedata, contentType);
+        }
+        private int tryGetData(SqlDataReader reader, string columnName){ 
+            if (reader.IsDBNull(reader.GetOrdinal(columnName))){
+               return 0;
+            } else {
+               return int.Parse(reader[columnName].ToString());
+            }
         }
     }
 }

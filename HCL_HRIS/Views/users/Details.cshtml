@@ -4,10 +4,9 @@
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>User Profile</h2>
 
-<div>
-    <h4>user</h4>
+<div> 
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -39,7 +38,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.group_id)
+            @Html.DisplayFor(model => model.group.group_name)
         </dd>
 
         <dt>
@@ -49,9 +48,17 @@
         <dd>
             @Html.DisplayFor(model => model.user_role)
         </dd>
+
+        <dt>
+            Team Leader
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model =>  model.group.user.name)
+        </dd>
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.user_id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @*@Html.ActionLink("Go Back", "Index")*@
+    <a href="javascript:history.back()">Go Back</a>
 </p>

@@ -73,7 +73,19 @@ namespace HCL_HRIS.Models
         }
     }
     public static class Calculations
-    { 
+    {
+        public static double getEQOverallProd(int aveprod, int complete, int otc)
+        {
+            return (aveprod * .3) + (complete * .3) + (otc * .4); 
+        }
+        public static double getOverallScoredProd(double aveprod, double complete, double otc)
+        { 
+            return (getEQScoreProd(aveprod) * .3) + (getEQScoreCmpltPrcnt(complete) * .3) + (getEQScoreOTC(otc) * .4);
+        } 
+        public static double getQAScoredProd(double bc, double euc, double cc)
+        {
+            return (getEQScoreBC(bc) * .3) + (getEQScoreEUC(euc) * .3) + (getEQScoreCC(cc) * .4);
+        }
         public static int getEQScoreBC(double BcScore)  
         {
             double score = BcScore * 100;

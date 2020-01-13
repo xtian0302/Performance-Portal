@@ -16,78 +16,101 @@
         text-align:center;
     }
 </style>
-<h2>Attendance and Pay Hours</h2>
-
+<h2>Attendance and Pay Hours</h2> 
 <div id='calendar' style=""></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+    document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: [ 'dayGrid','bootstrap' ],
-            themeSystem: 'bootstrap',
-            eventOrder: 'eventProperty',
-            fixedWeekCount: false,
-            eventRender : function(info) {
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+    plugins: [ 'dayGrid','bootstrap' ],
+    themeSystem: 'bootstrap',
+    eventOrder: 'eventProperty',
+    fixedWeekCount: false,
+    eventRender : function(info) {
 
-                   const props = info.event.extendedProps,
-                      rendering = info.event.rendering;
+    const props = info.event.extendedProps,
+    rendering = info.event.rendering;
 
-                   if(rendering == "background") {
-		            $(info.el).text(info.event.title);
-		            $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "vertical-align": "middle" });
-                 }
-            }
-        });  
-    
-    calendar.addEvent({ 
-        title: '9pm to 5am ',
-        start: '2020-01-06',
-        allDay: true,
-        backgroundColor: "transparent",
-        borderColor: "transparent",
-        textColor: "black"
+    if(rendering == "background") {
+    $(info.el).text(info.event.title);
+    $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "vertical-align": "middle" });
+    }
+    }
     });
-    calendar.addEvent({ 
-        title: '30 mins Late',
-        start: '2020-01-06',
-        allDay: true,
-        backgroundColor: "Orange",
-        textColor: "Black"
-    });calendar.addEvent({ 
-        title: '9 hrs Present',
-        start: '2020-01-06',
-        allDay: true,
-        backgroundColor: "Orange",
-        textColor: "Black"
-    });
-  calendar.addEvent({ 
-        title: '9pm to 5am ',
-        start: '2020-01-03',
-        allDay: true,
-        backgroundColor: "transparent",
-        borderColor: "transparent",
-        textColor: "black"
-    });
-    
+
     calendar.addEvent({
-        title: '9.5 hrs Present',
-        start: '2020-01-03',
-        allDay: true,
-        backgroundColor :"Green"
+    title: '9pm to 5am ',
+    start: '2020-01-06',
+    allDay: true,
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    textColor: "black"
     });
     calendar.addEvent({
-        title: 'Absent',
-        start: '2020-01-07',
-        allDay: true, 
-        backgroundColor: "Red",
-        textColor: "white",
-        rendering: 'background'  
+    title: '30 mins Late',
+    start: '2020-01-06',
+    allDay: true,
+    backgroundColor: "Orange",
+    textColor: "Black"
+    });
+    calendar.addEvent({
+    title: '9 hrs Present',
+    start: '2020-01-06',
+    allDay: true,
+    backgroundColor: "Green", 
+    }); 
+    calendar.addEvent({
+    title: 'Absent',
+    start: '2020-01-07',
+    allDay: true,
+    backgroundColor: "Red",
+    textColor: "white",
+    rendering: 'background'
+    });     
+        
+    @foreach (var mins in ViewBag.minsCollection)
+    {
+        <text> 
+            calendar.addEvent({
+            title: '9pm to 5am ',
+            start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "transparent",
+            borderColor: "transparent",
+            textColor: "black"
+            }); 
+
+            calendar.addEvent({
+            title: '@(mins.minsLogged/60.0) hrs Present ' ,
+            start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor :"Green"
+            }); 
+        
+            calendar.addEvent({
+            title: 'BC:@mins.bcRate EUC:@mins.eucRate CC:@mins.ccRate' ,
+            start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor :"Gray"
+            }); 
+        </text>
+    }
+    @foreach (var prod in ViewBag.prodCollection)
+    { 
+        <text>
+            calendar.addEvent({
+            title: 'Prod : @prod.prodCount' ,
+            start: '@prod.prodDate.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor :"Gray"
+            });
+        </text>
+    }
+
+
+    calendar.render();
     });
 
-
-    calendar.render(); 
-      });
-    
-</script> 
+    </script>

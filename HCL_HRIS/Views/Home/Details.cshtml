@@ -1,7 +1,7 @@
 ﻿@using System.Globalization;
 @model IEnumerable<HCL_HRIS.Models.announcement>
 @{
-    ViewBag.Title = "Overall Score";
+    ViewBag.Title = "Performance - Scorecard";
 } 
 
 <style>
@@ -48,15 +48,15 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td rowspan="2" valign="middle" style="max-width:93px;">Overall Quality</td>
+                                    <td rowspan="2" valign="middle" style="max-width:93px;">Overall Quality<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCCurr), double.Parse(ViewBag.EUCCurr), double.Parse(ViewBag.CCCurr))</h4></td>
                                     <td style="min-width:68px;">Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk5))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCPrev), double.Parse(ViewBag.EUCPrev), double.Parse(ViewBag.CCPrev))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCCurr), double.Parse(ViewBag.EUCCurr), double.Parse(ViewBag.CCCurr))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk1), double.Parse(ViewBag.EUCWk1), double.Parse(ViewBag.CCWk1))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk2), double.Parse(ViewBag.EUCWk2), double.Parse(ViewBag.CCWk2))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk3), double.Parse(ViewBag.EUCWk3), double.Parse(ViewBag.CCWk3))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk4), double.Parse(ViewBag.EUCWk4), double.Parse(ViewBag.CCWk4))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk5), double.Parse(ViewBag.EUCWk5), double.Parse(ViewBag.CCWk5))</td>
                                 </tr>
                                 <tr>
                                     <td>Rank</td>
@@ -159,15 +159,15 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td rowspan="2" valign="middle" style="max-width:90px;">Overall Productivity</td>
+                                    <td rowspan="2" valign="middle" style="max-width:90px;">Overall Productivity<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProd, @ViewBag.CompletePercent, @ViewBag.OTC)</h4></td>
                                     <td style="min-width:66px;">Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCPrev))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk1))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk2))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk3))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk4))</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCWk5))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdPrev, @ViewBag.CompletePercentPrev, @ViewBag.OTCPrev)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProd, @ViewBag.CompletePercent, @ViewBag.OTC)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk1, @ViewBag.CompletePercentWk1, @ViewBag.OTCWk1)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk2, @ViewBag.CompletePercentWk2, @ViewBag.OTCWk2)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk3, @ViewBag.CompletePercentWk3, @ViewBag.OTCWk3)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk4, @ViewBag.CompletePercentWk4, @ViewBag.OTCWk4)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk5, @ViewBag.CompletePercentWk5, @ViewBag.OTCWk5)</td>
                                 </tr>
                                 <tr>
                                     <td>Rank</td>
@@ -183,15 +183,15 @@
                                     <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky2"></i></a></td>
                                 </tr>
                                 <tr class="hideable2">
-                                    <td rowspan="2" valign="middle" style="max-width:10px;">Ave. Production</td>
+                                    <td rowspan="2" valign="middle" style="max-width:10px;">Ave. Production<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProd)</h4></td>
                                     <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProd)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreProd(ViewBag.AveProdWk5)</td>
+                                    <td>@ViewBag.AveProdPrev</td>
+                                    <td>@ViewBag.AveProd</td>
+                                    <td>@ViewBag.AveProdWk1</td>
+                                    <td>@ViewBag.AveProdWk2</td>
+                                    <td>@ViewBag.AveProdWk3</td>
+                                    <td>@ViewBag.AveProdWk4</td>
+                                    <td>@ViewBag.AveProdWk5</td>
                                 </tr>
                                 <tr class="hideable2">
                                     <td>Rank</td>
@@ -204,15 +204,15 @@
                                     <td>#@ViewBag.AveProdWk5Rank</td>
                                 </tr>
                                 <tr class="hideable2">
-                                    <td rowspan="2" valign="middle">Complete %</td>
+                                    <td rowspan="2" valign="middle">Complete %<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercent)</h4></td>
                                     <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercent)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreCmpltPrcnt(ViewBag.CompletePercentWk5)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentPrev)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercent)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentWk1)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentWk2)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentWk3)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentWk4)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.CompletePercentWk5)</td>
                                 </tr>
                                 <tr class="hideable2">
                                     <td>Rank</td>
@@ -225,15 +225,15 @@
                                     <td>#@ViewBag.CompletePercentWk5Rank</td>
                                 </tr>
                                 <tr class="hideable2">
-                                    <td rowspan="2" valign="middle">OTC %</td>
+                                    <td rowspan="2" valign="middle">OTC %<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTC)</h4></td>
                                     <td>Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTC)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getEQScoreOTC(ViewBag.OTCWk5)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCPrev)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTC)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCWk1)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCWk2)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCWk3)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCWk4)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.OTCWk5)</td>
                                 </tr>
                                 <tr class="hideable2">
                                     <td>Rank</td>

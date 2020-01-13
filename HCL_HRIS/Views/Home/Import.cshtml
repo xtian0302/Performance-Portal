@@ -30,11 +30,11 @@
                         <div class="col-12">
                             <input type="file" id="FileUpload" accept=".xls,.xlsx" />
                         </div><br />
-                        <div class="col-12"> 
-                                <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" /> &nbsp; 
-                                <a href="@Url.Action("DownloadEQProdTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                        <div class="col-12">
+                            <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" /> &nbsp;
+                            <a href="@Url.Action("DownloadEQProdTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -46,10 +46,10 @@
                             <input type="file" id="UserUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
-                                <a href="@Url.Action("DownloadUsersTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                            <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <a href="@Url.Action("DownloadUsersTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -65,10 +65,10 @@
                             <input type="file" id="TeamUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
-                                <a href="@Url.Action("DownloadTeamTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <a href="@Url.Action("DownloadTeamTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -80,10 +80,10 @@
                             <input type="file" id="LOBUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
-                                <a href="@Url.Action("DownloadLOBTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <a href="@Url.Action("DownloadLOBTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -99,10 +99,10 @@
                             <input type="file" id="TeamUpdateUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
-                                <a href="@Url.Action("DownloadTeamUpdateTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <a href="@Url.Action("DownloadTeamUpdateTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -114,15 +114,32 @@
                             <input type="file" id="LOBUpdateUpload" accept=".xls,.xlsx" />
                         </div><br />
                         <div class="col-12">
-                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp; 
-                                <a href="@Url.Action("DownloadLOBUpdateTemplate")" >
-                                    <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                                </a> 
+                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <a href="@Url.Action("DownloadLOBUpdateTemplate")">
+                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
-    </div>
+
+            <hr /> 
+            <div class="row" style="margin-top:25px">
+                <div class="col-6 text-center">
+                    <form>
+                        <h4> Finesse Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="FinesseUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="FinessesUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <span>Finesse Template exported from Vim</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
          
 <!--                                Error Modal                                    -->
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
@@ -313,6 +330,34 @@
             $.ajax({
                 type: "POST",
                 url: '/Home/TeamsUpdateUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 600000,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+
+        $("#FinessesUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("FinesseUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("FinesseUpload").files[i];
+
+                formData.append("FinesseUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/FinessesUpload',
                 data: formData,
                 dataType: "json",
                 contentType: false,

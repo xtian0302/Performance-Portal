@@ -208,25 +208,26 @@ namespace HCL_HRIS.Controllers
                                 cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.DateTime))
                                     .Value = row.Cell(7).GetDateTime();
                                 // DateTime.FromOADate(row.Cell(7).GetDouble() - For Excel DOubles as Dates
+                                //Pass = 0, Fail = 1
                                 if (row.Cell(8).Value.ToString().ToUpper().Equals("PASS")) { 
-                                cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = true;
+                                cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = false;
                                 } else {
-                                cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = false; 
+                                cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = true; 
                                 }
                                 if (row.Cell(9).Value.ToString().ToUpper().Equals("PASS")) { 
-                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = true;
+                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = false;
                                 } else {
-                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = false; 
+                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = true; 
                                 }
                                 if (row.Cell(10).Value.ToString().ToUpper().Equals("PASS")) { 
-                                cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = true;
+                                cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = false;
                                 } else {
-                                cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = false; 
+                                cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = true; 
                                 }
                                 if (row.Cell(11).Value.ToString().ToUpper().Equals("PASS")) { 
-                                cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = true;
+                                cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = false;
                                 } else {
-                                cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = false; 
+                                cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = true; 
                                 } 
                                 
                                 insertCount++;

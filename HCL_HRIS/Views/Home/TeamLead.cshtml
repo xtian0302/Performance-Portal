@@ -66,7 +66,7 @@
                             </tr>
                             <tr>
                                 <td style="padding:6px;background-color:#4e73df;" colspan="2">@ViewBag.manager</td>
-                                <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3">Kim San Pascual (QA) <br />Donna Donna (WF) <br />Mary Pachica (Trainer) <br />Ma. Cristina Dalupirit (HR) <br /></td>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3">Kimberley Pascual (QA) <br />Donna Salting (WF) <br />Mary Pachica (Trainer) <br />Gianina Ciriaco (HR) <br /></td>
                             </tr>
                             <tr>
                                 <td style="font-weight:bolder;padding:6px;background-color:#2a4796  ;" colspan="2">TEAM LEAD</td>
@@ -306,30 +306,44 @@
             }
         });
 
-    calendar.addEvent({
-        title: 'A',
-        start: '2020-01-02',
-        allDay: true,
-        backgroundColor: "Red",
-        textColor: "white",
-        rendering: 'background'
-    });
-    calendar.addEvent({
-        title: '9.5 hrs',
-        start: '2020-01-03',
-        allDay: true,
-        backgroundColor: "Green",
-        textColor: "white",
-        rendering: 'background'
-    });
-         calendar.addEvent({
-        title: '30 mins',
-        start: '2020-01-06',
-        allDay: true,
-        backgroundColor: "Orange",
-        textColor: "white",
-        rendering: 'background'
-    });
+    //calendar.addEvent({
+    //    title: 'A',
+    //    start: '2020-01-02',
+    //    allDay: true,
+    //    backgroundColor: "Red",
+    //    textColor: "white",
+    //    rendering: 'background'
+    //});
+    //calendar.addEvent({
+    //    title: '9.5 hrs',
+    //    start: '2020-01-03',
+    //    allDay: true,
+    //    backgroundColor: "Green",
+    //    textColor: "white",
+    //    rendering: 'background'
+    //});
+    //     calendar.addEvent({
+    //    title: '30 mins',
+    //    start: '2020-01-06',
+    //    allDay: true,
+    //    backgroundColor: "Orange",
+    //    textColor: "white",
+    //    rendering: 'background'
+    //});
+
+        @foreach (var mins in ViewBag.minsCollection) {
+        <text> 
+  
+          calendar.addEvent({
+            title: '@string.Format("{0:0.#}",mins.minsLogged/60.0) hrs' ,
+            start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "Green",
+            textColor: "white",
+            rendering: 'background'
+        });
+        </text>
+    }
     calendar.render();
     });
 
