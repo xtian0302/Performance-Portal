@@ -45,6 +45,51 @@ namespace HCL_HRIS.Controllers
             } 
 
             connection.Close(); 
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if(reader.HasRows){
+                while (reader.Read()){ 
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString()))); 
+                }
+            }else{
+                ViewBag.lms = 0; 
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            { 
+                ViewBag.absCurr =tryGetData(reader,"AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();  
+                while (reader.Read()){
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks"))) {
+                    ViewBag.wpu = 0.0;
+                } else { 
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            } 
+            connection.Close();
 
             command = new SqlCommand("get_Prod", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -67,12 +112,14 @@ namespace HCL_HRIS.Controllers
                 }
             }
             ViewBag.ProdScore = HCL_HRIS.Models.Calculations.getOverallScoredProd(aveprod,cmplt,otc);
-            ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3));
+            ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3) + (ViewBag.lms*0.05) + (ViewBag.WpuScore * 0.05) + (ViewBag.AbsScore * 0.15));
             ViewBag.ProdScore = string.Format("{0:0.#}", ViewBag.ProdScore);
             ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
             reader.Close();
             command.Dispose();
             connection.Close();
+
+           
 
             command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -83,13 +130,84 @@ namespace HCL_HRIS.Controllers
             while (reader.Read()){
                 MinsPerDay mins = new MinsPerDay();
                 mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
-                mins.minsDate = (Convert.ToDateTime(reader["Date"])); 
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]); 
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try { 
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }catch(Exception e){
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
                 minsCollection.Add(mins);
             } 
             reader.Close();
             command.Dispose();
+
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = command.ExecuteReader();
+
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = command.ExecuteReader();
+
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0 , hours2 = 0;
+                try{ 
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }catch(Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24) {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24){
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)-24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)-24).ToString("D2")); 
+                }else if((hours2 + 16) > 24) {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                } else {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2")); 
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
             connection.Close(); 
             ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
 
             int sap_id = Int32.Parse(User.Identity.Name.Trim()); 
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
@@ -98,7 +216,9 @@ namespace HCL_HRIS.Controllers
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
             ViewBag.leader_sap = leader.sap_id;
             ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
             ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
             ViewBag.user_role = usr.user_role;
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
@@ -652,6 +772,26 @@ namespace HCL_HRIS.Controllers
                 ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
             }
             connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+
             command = new SqlCommand("get_Prod", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
@@ -825,6 +965,63 @@ namespace HCL_HRIS.Controllers
                 ViewBag.OTCWk5Rank = int.Parse(reader["OTCWk5"].ToString());
             }
             connection.Close();
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader(); 
+            if (reader.HasRows) {
+                while (reader.Read())
+                { 
+                        ViewBag.lms = double.Parse(string.Format("{0:0.#}",decimal.Parse(reader["LmsScore"].ToString()))); 
+                        ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            } else {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();  
+                while (reader.Read()){
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks"))) {
+                    ViewBag.wpu = 0.0;
+                } else { 
+                    ViewBag.wpu = reader["monthmarks"];
+                } 
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks"))) {
+                    ViewBag.wpuwk1 = 0.0;
+                } else { 
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                } 
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks"))) {
+                    ViewBag.wpuwk2 = 0.0;
+                } else { 
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks"))) {
+                    ViewBag.wpuwk3 = 0.0;
+                } else { 
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                } 
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks"))) {
+                    ViewBag.wpuwk4 = 0.0;
+                } else { 
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                } 
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks"))) {
+                    ViewBag.wpuwk5 = 0.0;
+                } else { 
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                } 
+            } 
+            connection.Close();
 
             int sap_id = Int32.Parse(User.Identity.Name.Trim());
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
@@ -837,7 +1034,7 @@ namespace HCL_HRIS.Controllers
         }
 
         [HttpPost]
-        public JsonResult EqUpload()
+        public async Task<JsonResult> EqUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -995,7 +1192,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     { 
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1036,9 +1233,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
-         
         [HttpPost]
-        public JsonResult UsersUpload()
+        public async Task<JsonResult> UsersUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1194,7 +1390,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1235,9 +1431,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
-
         [HttpPost]
-        public JsonResult TeamsUpload()
+        public async Task<JsonResult> TeamsUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1303,7 +1498,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1344,9 +1539,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
- 
         [HttpPost]
-        public JsonResult LOBsUpload()
+        public async Task<JsonResult> LOBsUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1414,7 +1608,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1455,9 +1649,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
-
         [HttpPost]
-        public JsonResult LOBsUpdateUpload()
+        public async Task<JsonResult> LOBsUpdateUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1557,7 +1750,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1598,9 +1791,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
-
         [HttpPost]
-        public JsonResult TeamsUpdateUpload()
+        public async Task<JsonResult> TeamsUpdateUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1701,7 +1893,7 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1742,9 +1934,8 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
-
         [HttpPost]
-        public JsonResult FinessesUpload()
+        public async Task<JsonResult> FinessesUpload()
         {
             int insertCount = 0;
             for (int i = 0; i < Request.Files.Count; i++)
@@ -1789,7 +1980,7 @@ namespace HCL_HRIS.Controllers
                                     Debug.WriteLine("- Empty row encountered");
                                 }
                                 else
-                                {
+                               {
                                     var cmd = new SqlCommand(_sql, cn);
                                     cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
                                         .Value = Int32.Parse(row.Cell(1).Value.ToString());
@@ -1818,7 +2009,338 @@ namespace HCL_HRIS.Controllers
                                     cn.Open();
                                     try
                                     {
-                                        cmd.ExecuteNonQuery();
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> LmsesUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].lms " + //42 columns excl. ID
+                        "([user_id],[training_title], [status], [registered_date], [due_date], [completed_date])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString().Substring(0,8));
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.NVarChar))
+                                        .Value = row.Cell(6).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.NVarChar))
+                                        .Value = row.Cell(7).Value.ToString(); 
+                                    if (row.Cell(8).Value.ToString().Equals("")){
+                                        cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.DateTime)).Value = DBNull.Value;
+                                    }else{
+                                        cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.DateTime)).Value = row.Cell(8).GetDateTime();
+                                    } 
+                                    if (row.Cell(9).Value.ToString().Equals("")){
+                                        cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Date)).Value = DBNull.Value;
+                                    }else{
+                                        cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Date)).Value = row.Cell(9).GetDateTime();
+                                    } 
+                                    if (row.Cell(10).Value.ToString().Equals("") || row.Cell(10).Value.ToString().Equals("N/A") || row.Cell(10).Value.ToString().Equals("LOA") || row.Cell(10).Value.ToString().Equals("ABSCONDING"))
+                                    {
+                                        cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.DateTime)).Value = DBNull.Value;
+                                    }else{
+                                        cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.DateTime)).Value = row.Cell(10).GetDateTime();
+                                    } 
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> WpusUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls") || file.FileName.EndsWith(".xlsm"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Raw Data");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].wpu " + //42 columns excl. ID
+                        "([track], [week], [sap_id], [examinee_type], [project_name], [LOB], [location], [marks_obtained], [total_marks], [passing_percent], [result])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.NVarChar))
+                                        .Value = row.Cell(1).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.NVarChar))
+                                        .Value = row.Cell(2).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(3).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.NVarChar))
+                                        .Value = row.Cell(5).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.NVarChar))
+                                        .Value = row.Cell(6).Value.ToString(); 
+                                    cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.NVarChar))
+                                        .Value = row.Cell(7).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.NVarChar))
+                                        .Value = row.Cell(8).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(11).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(12).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(13).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.NVarChar))
+                                        .Value = row.Cell(14).Value.ToString();
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> SchedulesUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls") || file.FileName.EndsWith(".xlsm"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Sheet1");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].schedule " + //42 columns excl. ID
+                        "([sap_id], [day], [shift])"
+                        + " VALUES (@1, @2, @3)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Date))
+                                        .Value = row.Cell(3).GetDateTime();
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.NVarChar))
+                                        .Value = row.Cell(4).Value.ToString(); 
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
                                         Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
                                         cmd.Dispose();
                                         cn.Close();
@@ -1962,11 +2484,11 @@ namespace HCL_HRIS.Controllers
 
             return File(filedata, contentType);
         }
-        private int tryGetData(SqlDataReader reader, string columnName){ 
+        private double tryGetData(SqlDataReader reader, string columnName){ 
             if (reader.IsDBNull(reader.GetOrdinal(columnName))){
                return 0;
             } else {
-               return int.Parse(reader[columnName].ToString());
+                return double.Parse(reader[columnName].ToString());
             }
         }
     }

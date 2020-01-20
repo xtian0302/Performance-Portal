@@ -30,8 +30,8 @@
             <div class="card-body" style="padding:3px;">
                 <div class="card" id="qaCard">
                     @*<div class="card-header" style="padding:3px;">
-                            Quality Scores
-                        </div>*@
+                Quality Scores
+            </div>*@
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
                         <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
                             <thead>
@@ -141,8 +141,8 @@
                 </div>
                 <div class="card" id="prodCard" style="margin-top:5px;">
                     @*<div class="card-header" style="padding:3px;">
-                            Productivity Score
-                        </div>*@
+                Productivity Score
+            </div>*@
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
                         <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
                             <thead>
@@ -249,6 +249,183 @@
                         </table>
                     </div>
                 </div>
+
+                <div class="card" id="behaviorCard" style="margin-top:5px;"> 
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="max-width:90px;">Unplanned Leave<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQAbsScore(@ViewBag.absCurr)</h4></td>
+                                    <td style="min-width:66px;">Score</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absPrev)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absCurr)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk1)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk2)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk3)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk4)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk5)</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" id="complianceCard" style="margin-top:5px;">
+                    @*<div class="card-header" style="padding:3px;">
+                Productivity Score
+            </div>*@
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="min-width:93px;">Overall<br />Compliance<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getCompScoredProd(ViewBag.wpu, (int)ViewBag.lms)</h4></td>
+                                    <td style="min-width:66px;">Score</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdPrev, @ViewBag.CompletePercentPrev, @ViewBag.OTCPrev)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProd, @ViewBag.CompletePercent, @ViewBag.OTC)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk1, @ViewBag.CompletePercentWk1, @ViewBag.OTCWk1)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk2, @ViewBag.CompletePercentWk2, @ViewBag.OTCWk2)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk3, @ViewBag.CompletePercentWk3, @ViewBag.OTCWk3)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk4, @ViewBag.CompletePercentWk4, @ViewBag.OTCWk4)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk5, @ViewBag.CompletePercentWk5, @ViewBag.OTCWk5)</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky3"></i></a></td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td rowspan="2" valign="middle" style="max-width:10px;">WPU %<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu)</h4></td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.wpuprev</td>
+                                    <td>@ViewBag.wpu</td>
+                                    <td>@ViewBag.wpuwk1</td>
+                                    <td>@ViewBag.wpuwk2</td>
+                                    <td>@ViewBag.wpuwk3</td>
+                                    <td>@ViewBag.wpuwk4</td>
+                                    <td>@ViewBag.wpuwk5</td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.AveProdPrevRank</td>
+                                    <td>#@ViewBag.AveProdRank</td>
+                                    <td>#@ViewBag.AveProdWk1Rank</td>
+                                    <td>#@ViewBag.AveProdWk2Rank</td>
+                                    <td>#@ViewBag.AveProdWk3Rank</td>
+                                    <td>#@ViewBag.AveProdWk4Rank</td>
+                                    <td>#@ViewBag.AveProdWk5Rank</td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td rowspan="2" valign="middle">LMS<br />Completion<br /> <h4 style="color:#4e73df;margin-top:4px;">@ViewBag.lms</h4></td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.lmspercent</td>
+                                    <td>@ViewBag.lmspercent</td>
+                                    @if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 5)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 4)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 3)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 2)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 1)
+                                    {
+
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else
+                                    {
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    } 
+                                </tr>
+                                <tr class="hideable3">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.CompletePercentPrevRank</td>
+                                    <td>#@ViewBag.CompletePercentRank</td>
+                                    <td>#@ViewBag.CompletePercentWk1Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk2Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk3Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk4Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk5Rank</td>
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -257,153 +434,45 @@
 </div>
 <script>
     $(document).ready(function () {
-        
+
         $('#clicky').click(function () {
             $('.hideable').toggle().animate();
             $(this).toggleClass('fa-window-minimize fa-window-maximize');
         });
+
         $('#clicky2').click(function () {
             $('.hideable2').toggle().animate();
             $(this).toggleClass('fa-window-minimize fa-window-maximize');
         });
-        var uri = '../api/chats';
-        reloadChat();
 
-        $("#tlSend").click(function () {
-            if ($("#chatMessage").val() == "") {
-                return;
-            }
-            // Post New Chat
-            var chat = {
-                chat_from: @ViewBag.user.user_id,
-                chat_message: $("#chatMessage").val(),
-                chat_to: @ViewBag.leader_sap,
-                datetime_read: null,
-                datetime_sent: null,
-            };
-            $.ajax({
-                type: "POST",
-                data: JSON.stringify(chat),
-                url: uri,
-                contentType: "application/json"
-            }).done(function (res) {
-                    clearChat();
-                    console.log('res', res);
-                     $("#chatMessage").val("")
-                    $.getJSON(uri).done(function (data) {
-                            $.each(data, function (key, item) {
-                            // Add a list item for the product.
-                                if (item.chat_from == @ViewBag.leader_sap) {
-                                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
-                                } else {
-                                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
-                                }
-                            });
-                    $("#chatbox").scrollTop( 100000 );
-                    });
-                $("#chatMessage").focus();
-            });
-        });
-    });
-
-    $('#team_click').click(function () {
-        $(this).tab('show');
-        clearChat();
-        reloadGroupChat();
-    });
-    $('#tl_click').click(function () {
-        $(this).tab('show');
-        clearChat();
-        reloadChat();
-    });
-    //Attendance Calendar
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: [ 'dayGrid','bootstrap' ],
-            themeSystem: 'bootstrap',
-            eventOrder: 'eventProperty',
-            fixedWeekCount: false,
-            header: false,
-            eventRender : function(info) {
-                   const props = info.event.extendedProps,
-                      rendering = info.event.rendering;
-                   if(rendering == "background") {
-		            $(info.el).text(info.event.title);
-		            $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "vertical-align": "middle" });
-                 }
-            }
+        $('#clicky3').click(function () {
+            $('.hideable3').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
         });
 
-    calendar.addEvent({
-        title: 'A',
-        start: '2019-12-06',
-        allDay: true,
-        backgroundColor: "Red",
-        textColor: "white",
-        rendering: 'background'
-    });
-    calendar.addEvent({
-        title: '9.5 hrs',
-        start: '2019-12-04',
-        allDay: true,
-        backgroundColor: "Green",
-        textColor: "white",
-        rendering: 'background'
-    });
-         calendar.addEvent({
-        title: '30 mins',
-        start: '2019-12-05',
-        allDay: true,
-        backgroundColor: "Orange",
-        textColor: "white",
-        rendering: 'background'
-    });
-    calendar.render();
-    });
-
-    // Utilities
-    function clearChat(){
-        $('#chatbox > span').remove();
-        $('#chatbox > br').remove();
-    }
-
-    function reloadChat() {
-        var uri = '../api/chats';
-        $.getJSON(uri).done(function (data) {
-            console.log(data);
-            $.each(data, function (key, item) {
-                // Add a list item for the product.
-                if (item.chat_from == @ViewBag.leader_sap) {
-                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name  : </b>' + item.chat_message + '</span><br />');
-                } else {
-                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
-                }
-                $("#chatbox").scrollTop( 100000);
-            });
-        });
-        }
-
-    function reloadGroupChat() {
-        var uri = '../users/GetGroupChats';
-        $.getJSON(uri).done(function (data) {
-            console.log(data);
-            $.each(data, function (key, item) {
-                $("#chatbox").append('<span style="color:gray"><b> ' + item.user.name + '  : </b>' + item.chat_message + '</span><br />');
-                $("#chatbox").scrollTop( 100000);
-            });
-        });
-    } 
-    
-    if ($(location).attr("href").includes("#Prod")) { 
-        $("#qaCard").hide(); 
-    } else if ($(location).attr("href").includes("#Quality")) { 
-        $("#prodCard").hide();
-    }else if ($(location).attr("href").includes("#minimize")){ 
+        if ($(location).attr("href").includes("#Prod")) {
+            $("#qaCard").hide();
+            $("#behaviorCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Quality")) {
+            $("#prodCard").hide();
+            $("#behaviorCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Behavior")) {
+            $("#qaCard").hide();
+            $("#prodCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Compliance")) {
+            $("#qaCard").hide();
+            $("#prodCard").hide();
+            $("#behaviorCard").hide();
+        } else if ($(location).attr("href").includes("#minimize")) {
             $('.hideable').toggle().animate();
             $('#clicky').toggleClass('fa-window-minimize fa-window-maximize');
             $('.hideable2').toggle().animate();
             $('#clicky2').toggleClass('fa-window-minimize fa-window-maximize');
-    }
+            $('.hideable3').toggle().animate();
+            $('#clicky3').toggleClass('fa-window-minimize fa-window-maximize');
+        }
+    });
 </script>

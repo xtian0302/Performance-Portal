@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
@@ -85,6 +86,10 @@ namespace HCL_HRIS.Models
         public static double getQAScoredProd(double bc, double euc, double cc)
         {
             return (getEQScoreBC(bc) * .3) + (getEQScoreEUC(euc) * .3) + (getEQScoreCC(cc) * .4);
+        }
+        public static double getCompScoredProd(double wpu, int lms)
+        {
+            return (getEQWpuScore(wpu) * .5) + (lms * .5) ;
         }
         public static int getEQScoreBC(double BcScore)  
         {
@@ -260,6 +265,73 @@ namespace HCL_HRIS.Models
             {
                 return 0;
             }
+        }
+        public static int getEQWpuScore(double PcentScore)
+        {
+            double score = PcentScore * 100;
+            //if (score == 0)
+            //{
+            //    return 0;
+            //}
+            //else 
+            if (score == 100)
+            {
+                return 5;
+            } 
+            else if (score >= 75)
+            {
+                return 3;
+            } 
+            else if (score < 75)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getEQAbsScore(double PcentScore)
+        {
+            double score = PcentScore * 100;
+            //if (score == 0)
+            //{
+            //    return 0;
+            //}
+            //else 
+            if (score == 0)
+            {
+                return 5;
+            }
+            else if (score < 5)
+            {
+                return 4;
+            }
+            else if (score == 5)
+            {
+                return 3;
+            }
+            else if (score < 10)
+            {
+                return 2;
+            }
+            else if (score >= 10)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getWeekOfMonth(DateTime date)
+        {
+            DateTime beginningOfMonth = new DateTime(date.Year, date.Month, 1);
+
+            while (date.Date.AddDays(1).DayOfWeek != CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek)
+                date = date.AddDays(1);
+
+            return (int)Math.Truncate((double)date.Subtract(beginningOfMonth).TotalDays / 7f) + 1;
         }
 
     }

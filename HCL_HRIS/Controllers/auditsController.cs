@@ -211,25 +211,159 @@ namespace HCL_HRIS.Controllers
                                 //Pass = 0, Fail = 1
                                 if (row.Cell(8).Value.ToString().ToUpper().Equals("PASS")) { 
                                 cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = false;
-                                } else {
+                                } else if(row.Cell(8).Value.ToString().ToUpper().Equals("FAIL")){
                                 cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = true; 
+                                } else {
+                                cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = DBNull.Value; 
                                 }
                                 if (row.Cell(9).Value.ToString().ToUpper().Equals("PASS")) { 
                                 cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = false;
+                                } else if(row.Cell(9).Value.ToString().ToUpper().Equals("FAIL")) {
+                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = true;
                                 } else {
-                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = true; 
+                                cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = DBNull.Value; 
                                 }
                                 if (row.Cell(10).Value.ToString().ToUpper().Equals("PASS")) { 
                                 cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = false;
-                                } else {
+                                } else if(row.Cell(10).Value.ToString().ToUpper().Equals("FAIL")){
                                 cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = true; 
+                                } else {
+                                cmd.Parameters.Add(new SqlParameter("@10", SqlDbType.Bit)).Value = DBNull.Value; 
                                 }
                                 if (row.Cell(11).Value.ToString().ToUpper().Equals("PASS")) { 
                                 cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = false;
-                                } else {
+                                } else if(row.Cell(11).Value.ToString().ToUpper().Equals("FAIL")){
                                 cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = true; 
-                                } 
+                                } else {
+                                cmd.Parameters.Add(new SqlParameter("@11", SqlDbType.Bit)).Value = DBNull.Value; 
+                                }
                                 
+                                insertCount++;
+                                cn.Open();
+                                try
+                                {
+                                    cmd.ExecuteNonQuery();
+                                    Debug.WriteLine("{status:'Line Inserted'}");
+                                    cmd.Dispose();
+                                    cn.Close();
+                                }
+                                catch (Exception e)
+                                {
+                                    cn.Close();
+                                    String str = "{message:'" + e.Message + "'}";
+                                    Debug.WriteLine(str);
+                                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                }
+
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        //- Upload -
+
+        [HttpPost]
+        public JsonResult WpuUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("Raw Data");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].wpu (sap_id,examinee_type,project_name,LOB,location,marks_obtained,total_marks,passing_percent,result)"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                var cmd = new SqlCommand(_sql, cn);
+                                cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.NVarChar))
+                                    .Value = row.Cell(1).Value.ToString();
+                                cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.NVarChar))
+                                    .Value = row.Cell(2).Value.ToString();
+                                cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.NVarChar))
+                                    .Value = row.Cell(3).Value.ToString();
+                                cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Int))
+                                    .Value = Int32.Parse(row.Cell(4).Value.ToString());
+                                cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
+                                    .Value = Int32.Parse(row.Cell(5).Value.ToString());
+                                cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.DateTime))
+                                    .Value = row.Cell(6).GetDateTime();
+                                cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.DateTime))
+                                    .Value = row.Cell(7).GetDateTime();
+                                // DateTime.FromOADate(row.Cell(7).GetDouble() - For Excel DOubles as Dates
+                                //Pass = 0, Fail = 1
+                                if (row.Cell(8).Value.ToString().ToUpper().Equals("PASS"))
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = false;
+                                }
+                                else if (row.Cell(8).Value.ToString().ToUpper().Equals("FAIL"))
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = true;
+                                }
+                                else
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Bit)).Value = DBNull.Value;
+                                }
+                                if (row.Cell(9).Value.ToString().ToUpper().Equals("PASS"))
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = false;
+                                }
+                                else if (row.Cell(9).Value.ToString().ToUpper().Equals("FAIL"))
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = true;
+                                }
+                                else
+                                {
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Bit)).Value = DBNull.Value;
+                                } 
                                 insertCount++;
                                 cn.Open();
                                 try

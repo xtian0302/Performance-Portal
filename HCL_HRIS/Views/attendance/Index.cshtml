@@ -24,84 +24,113 @@
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
-    plugins: [ 'dayGrid','bootstrap' ],
-    themeSystem: 'bootstrap',
-    eventOrder: 'eventProperty',
-    fixedWeekCount: false,
-    eventRender : function(info) {
+        plugins: ['dayGrid', 'bootstrap'],
+        html: true,
+        themeSystem: 'bootstrap',
+        eventOrder: 'eventProperty',
+        fixedWeekCount: false,
+        eventRender : function(info) {
+            const props = info.event.extendedProps,
+            rendering = info.event.rendering;
+            if(rendering == "background") {
+            $(info.el).text(info.event.title);
+                $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "padding-top":"30px"  });
+                $(info.el).append("<br><br> Absent")
+                }
+            }
+    });
 
-    const props = info.event.extendedProps,
-    rendering = info.event.rendering;
-
-    if(rendering == "background") {
-    $(info.el).text(info.event.title);
-    $(info.el).css({ "color": "#ffffff !important", "text-align": "center", "vertical-align": "middle" });
+    //calendar.addEvent({
+    //title: '9pm to 5am ',
+    //start: '2020-01-06',
+    //allDay: true,
+    //backgroundColor: "transparent",
+    //borderColor: "transparent",
+    //textColor: "black"
+    //});
+    //calendar.addEvent({
+    //title: '30 mins Late',
+    //start: '2020-01-06',
+    //allDay: true,
+    //backgroundColor: "Orange",
+    //textColor: "Black"
+    //});
+    //calendar.addEvent({
+    //title: '9 hrs Present',
+    //start: '2020-01-06',
+    //allDay: true,
+    //backgroundColor: "Green",
+    //});
+    //calendar.addEvent({
+    //title: 'Absent',
+    //start: '2020-01-07',
+    //allDay: true,
+    //backgroundColor: "Red",
+    //textColor: "white",
+    //rendering: 'background'
+    //});
+    @foreach (var abs in ViewBag.leaves)
+    {
+        <text>
+            calendar.addEvent({
+            title: '@abs.shift',
+            start: '@abs.day.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "skyblue",
+            textColor: "white"
+            });
+        </text>
     }
-    }
-    });
-
-    calendar.addEvent({
-    title: '9pm to 5am ',
-    start: '2020-01-06',
-    allDay: true,
-    backgroundColor: "transparent",
-    borderColor: "transparent",
-    textColor: "black"
-    });
-    calendar.addEvent({
-    title: '30 mins Late',
-    start: '2020-01-06',
-    allDay: true,
-    backgroundColor: "Orange",
-    textColor: "Black"
-    });
-    calendar.addEvent({
-    title: '9 hrs Present',
-    start: '2020-01-06',
-    allDay: true,
-    backgroundColor: "Green", 
-    }); 
-    calendar.addEvent({
-    title: 'Absent',
-    start: '2020-01-07',
-    allDay: true,
-    backgroundColor: "Red",
-    textColor: "white",
-    rendering: 'background'
-    });     
-        
     @foreach (var mins in ViewBag.minsCollection)
     {
-        <text> 
-            calendar.addEvent({
-            title: '9pm to 5am ',
-            start: '@mins.minsDate.ToString("yyyy-MM-dd")',
-            allDay: true,
-            backgroundColor: "transparent",
-            borderColor: "transparent",
-            textColor: "black"
-            }); 
+        if (Convert.ToString(mins.shift).Equals("")) {
 
+        } else {
+            <text>
             calendar.addEvent({
-            title: '@(mins.minsLogged/60.0) hrs Present ' ,
+                title: '@mins.shift',
+                start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+                allDay: true,
+                backgroundColor: "transparent",
+                borderColor: "transparent",
+                textColor: "black"
+            });
+            </text>
+        }
+
+            if(mins.minsLate > 0) {
+                <text>
+                calendar.addEvent({
+                title: '@(string.Format("{0:0.##}",mins.minsLate)) mins Late',
+                start: '@mins.minsDate.ToString("yyyy-MM-dd")',
+                allDay: true,
+                backgroundColor: "Orange",
+                textColor: "Black"
+                });
+                </text>
+            }
+
+        <text>
+            calendar.addEvent({
+            title: '@(string.Format("{0:0.##}",mins.minsLogged/60.0)) hrs Present ' ,
             start: '@mins.minsDate.ToString("yyyy-MM-dd")',
             allDay: true,
             backgroundColor :"Green"
-            }); 
-        
+            });
+
             calendar.addEvent({
             title: 'BC:@mins.bcRate EUC:@mins.eucRate CC:@mins.ccRate' ,
             start: '@mins.minsDate.ToString("yyyy-MM-dd")',
             allDay: true,
             backgroundColor :"Gray"
-            }); 
+            });
         </text>
     }
     @foreach (var prod in ViewBag.prodCollection)
-    { 
+    {
         <text>
             calendar.addEvent({
-            title: 'Prod : @prod.prodCount' ,
+            title: 'Prod : @prod.prodCount TPH: @string.Format("{0:0.##}",prod.prodCount/((prod.minsLogged/60.0)-1.5))' ,
             start: '@prod.prodDate.ToString("yyyy-MM-dd")',
             allDay: true,
             backgroundColor :"Gray"
@@ -109,8 +138,21 @@
         </text>
     }
 
+    @foreach (var abs in ViewBag.absents)
+    {
+        <text>
+            calendar.addEvent({
+            title: '@abs.shift',
+            start: '@abs.day.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "Red",
+            textColor: "white",
+            rendering: 'background'
+            });
+        </text>
+    }
 
     calendar.render();
     });
 
-    </script>
+</script>

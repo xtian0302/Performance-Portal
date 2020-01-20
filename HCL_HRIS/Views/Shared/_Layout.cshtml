@@ -138,11 +138,11 @@
                 </a>
             </li>
             @*<li class="nav-item">
-                    <a class="nav-link" href="~/Availables/Bucket">
-                        <i class="fa fa-fw fa-archive"></i>
-                        <span>Your Bucket</span>
-                    </a>
-                </li>*@
+            <a class="nav-link" href="~/Availables/Bucket">
+                <i class="fa fa-fw fa-archive"></i>
+                <span>Your Bucket</span>
+            </a>
+        </li>*@
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -168,21 +168,21 @@
             </li>
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Quality
-            </div>
-
-            <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="~/audits/Index">
-                    <i class="fa fa-fw fa-check-square"></i>
-                    <span>Q.A. Audits</span>
-                </a>
-            </li>
             <!-- Divider -->
             @if (role.Equals("Administrator"))
             {
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Quality
+                </div>
+
+                <!-- Nav Item - Charts -->
+                <li class="nav-item">
+                    <a class="nav-link" href="~/audits/Index">
+                        <i class="fa fa-fw fa-check-square"></i>
+                        <span>Q.A. Audits</span>
+                    </a>
+                </li>
                 <hr class="sidebar-divider">
 
                 <!-- Heading -->
@@ -333,7 +333,7 @@
                                         <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                         Settings
                                     </a>*@
-                                <a class="dropdown-item" href="@Url.Action("Index","DPL")">
+                                <a class="dropdown-item" href="@Url.Action("Details","Home")">
                                     <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Activity Log
                                 </a>
@@ -362,7 +362,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>&copy;@DateTime.Today.Year Copyright: HCL - HRIS </span>
+                        <span>&copy;@DateTime.Today.Year Copyright: HCL - Productivity Dashboard </span>
                     </div>
                 </div>
             </footer>

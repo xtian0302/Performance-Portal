@@ -4,11 +4,11 @@
     ViewBag.Title = "Excel Import";
 }
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
 
-            <h4>Excel Uploads</h4>
-            @*<div class="row">
+        <h4>Excel Uploads</h4>
+        @*<div class="row">
                 <div class="col-6">
                     <a href="@Url.Action("DownloadFile")" class="float-left">
                         <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
@@ -20,127 +20,169 @@
                     </div>
                 </div>
             </div>*@
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>Sleep EQ Productivity Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="FileUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" /> &nbsp;
-                            <a href="@Url.Action("DownloadEQProdTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>Users Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="UserUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <a href="@Url.Action("DownloadUsersTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-6 text-center">
+                <form>
+                    <h4>Sleep EQ Productivity Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="FileUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="Upload" class="btn btn-outline-primary" value="Upload" /> &nbsp;
+                        <a href="@Url.Action("DownloadEQProdTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <hr />
-            <div class="row" style="margin-top:25px">
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>Team Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="TeamUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <a href="@Url.Action("DownloadTeamTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>LOB Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="LOBUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <a href="@Url.Action("DownloadLOBTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <hr />
-            <div class="row" style="margin-top:25px">
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>User > Team Update Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="TeamUpdateUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <a href="@Url.Action("DownloadTeamUpdateTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-6 text-center">
-                    <form>
-                        <h4>Team > LOB Update Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="LOBUpdateUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <a href="@Url.Action("DownloadLOBUpdateTemplate")">
-                                <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <hr /> 
-            <div class="row" style="margin-top:25px">
-                <div class="col-6 text-center">
-                    <form>
-                        <h4> Finesse Upload</h4>
-                        <br />
-                        <div class="col-12">
-                            <input type="file" id="FinesseUpload" accept=".xls,.xlsx" />
-                        </div><br />
-                        <div class="col-12">
-                            <input type="button" id="FinessesUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
-                            <span>Finesse Template exported from Vim</span>
-                        </div>
-                    </form>
-                </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4>Users Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="UserUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="UsersUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <a href="@Url.Action("DownloadUsersTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
-         
+
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4>Team Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="TeamUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="TeamsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <a href="@Url.Action("DownloadTeamTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4>LOB Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="LOBUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="LOBsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <a href="@Url.Action("DownloadLOBTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4>User > Team Update Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="TeamUpdateUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="TeamsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <a href="@Url.Action("DownloadTeamUpdateTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4>Team > LOB Update Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="LOBUpdateUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="LOBsUpdateUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <a href="@Url.Action("DownloadLOBUpdateTemplate")">
+                            <i class="fa fa-fw fa-file-download"></i> <span>Download Excel Template</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4> Finesse Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="FinesseUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="FinessesUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Finesse Template exported from Vim</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4> LMS Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="LmsUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="LmsesUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from Training</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4> WPU Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="WpuUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="WpusUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Finesse Template exported from Vim</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4> Schedule Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="ScheduleUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="SchedulesUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Finesse Template exported from Vim</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
 <!--                                Error Modal                                    -->
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -172,15 +214,18 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p><span id="Desc">Your Excel file has been succesfully uploaded to the Database! <span id="insertCount"></span></span></span></p>
+                <p><span id="Desc">Your Excel file has been succesfully uploaded to the Database! <span id="insertCount"></span></span></p>
             </div>
 
             <div class="modal-footer">
-                <a href="@Url.Action("Index")"><button class="btn btn-secondary" type="button" data-dismiss="modal">Done</button></a>
+                <a href="@Url.Action("Index")">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Done</button>
+                </a>
             </div>
         </div>
     </div>
 </div>
+ 
 <script>
     $(document).ready(function () {
         $("#Upload").click(function () {
@@ -198,7 +243,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -225,7 +270,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -252,7 +297,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -263,7 +308,7 @@
                     $('#errorModal').modal('show');
                 }
             });
-        }); 
+        });
         $("#LOBsUpload").click(function () {
             var formData = new FormData();
             var totalFiles = document.getElementById("LOBUpload").files.length;
@@ -279,7 +324,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -306,7 +351,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -318,7 +363,7 @@
                 }
             });
         });
-        
+
         $("#TeamsUpdateUpload").click(function () {
             var formData = new FormData();
             var totalFiles = document.getElementById("TeamUpdateUpload").files.length;
@@ -334,7 +379,7 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
@@ -362,7 +407,89 @@
                 dataType: "json",
                 contentType: false,
                 processData: false,
-                timeout: 600000,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#LmsesUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("LmsUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("LmsUpload").files[i];
+
+                formData.append("LmsUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/LmsesUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#WpusUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("WpuUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("WpuUpload").files[i];
+
+                formData.append("WpuUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/WpusUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+
+        $("#SchedulesUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("ScheduleUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("ScheduleUpload").files[i];
+
+                formData.append("ScheduleUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Home/SchedulesUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
                 success: function (response) {
                     console.log('success! : ' + response.data);
                     $('#insertCount').text(response.Count);
