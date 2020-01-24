@@ -1,0 +1,57 @@
+﻿@model IEnumerable<HCL_HRIS.Models.user>
+@{
+    ViewBag.Title = "Manage Team";
+}
+
+<h2>Manage Team</h2>
+ 
+<table class="table" id="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.sap_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.group_id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.user_role)
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.sap_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.group.group_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.user_role)
+                </td>
+                <td>
+                    @Html.ActionLink("View", "View", new { id = item.user_id })  
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        var table = $('#table').DataTable( {
+            responsive: true, 
+        } );
+    } );
+
+</script>

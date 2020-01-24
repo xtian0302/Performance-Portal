@@ -3,9 +3,6 @@
 @{
 ViewBag.Title = "Home Page";
 
-  if("Team Leader".Equals(ViewBag.user_role)){ 
-            Response.Redirect("~/Home/TeamLead");
-  }
 } 
 <style>
     .fc-bgevent {
@@ -27,7 +24,7 @@ ViewBag.Title = "Home Page";
     <div class="col-md-6" style="min-height:800px;padding:0px">
         <div class="card no-rad-brtr" style="min-height:800px;padding:0px">
             <div class="card-header" style="padding:4.5px;">
-                Agent Dashboard
+                Agent Dashboard of @ViewBag.Name
             </div>
             <div class="card-body" style="padding:3px;">
                 
@@ -93,7 +90,7 @@ ViewBag.Title = "Home Page";
                             <div class="input-group mb-3" style="border-top-left-radius:0px;border-top-right-radius:0px;margin-bottom:0px !important;">
                                 <input type="text" id="chatMessage" required class="form-control" style="border-top-left-radius:0px;" placeholder="Enter Message..." aria-label="Enter Message..." aria-describedby="basic-addon2">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" id="tlSend" style="border-top-right-radius:0px;" type="submit">Send</button>
+                                    <button class="btn btn-outline-secondary disabled"  style="border-top-right-radius:0px;" type="submit" disabled>Send</button>
                                 </div>
                             </div>
                         </form>
@@ -141,7 +138,7 @@ ViewBag.Title = "Home Page";
             </div>
             <div class="card-body" style="padding:3px;font-size:0.75rem;text-align:center;">
                 <span style="font-weight:bold;font-size:large">@DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("en"))</span>
-                <a href="~/attendance/Index" class="btn btn-outline-dark float-right">See All...</a>
+                @*<a href="~/attendance/Index" class="btn btn-outline-dark float-right">See All...</a>*@
                 <div id="calendar" style="width:75%;margin-left:25px;"></div>
             </div>
         </div>

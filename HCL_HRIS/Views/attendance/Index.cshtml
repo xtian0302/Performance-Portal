@@ -71,6 +71,20 @@
     //});
     @foreach (var abs in ViewBag.leaves)
     {
+        if(Convert.ToString(abs.shift).Equals("OFF"))
+        {
+        <text>
+            calendar.addEvent({
+            title: '@abs.shift',
+            start: '@abs.day.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "blue",
+            textColor: "white"
+            });
+        </text>
+        }
+        else
+        { 
         <text>
             calendar.addEvent({
             title: '@abs.shift',
@@ -80,6 +94,7 @@
             textColor: "white"
             });
         </text>
+        }
     }
     @foreach (var mins in ViewBag.minsCollection)
     {

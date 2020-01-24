@@ -167,7 +167,22 @@
                 </a>
             </li>
             <hr class="sidebar-divider">
+            @if (role.Equals("Team Leader"))
+            {
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Team Leader
+                </div>
 
+                <!-- Nav Item - Charts -->
+                <li class="nav-item">
+                    <a class="nav-link" href="~/users/Team">
+                        <i class="fa fa-fw fa-users-cog"></i>
+                        <span>Team</span>
+                    </a>
+                </li>
+                <hr class="sidebar-divider"/>
+            }
             <!-- Divider -->
             @if (role.Equals("Administrator"))
             {

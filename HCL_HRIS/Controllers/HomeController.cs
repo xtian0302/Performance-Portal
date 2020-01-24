@@ -60,6 +60,57 @@ namespace HCL_HRIS.Controllers
             }
             connection.Close();
 
+            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);    
+            connection.Open();
+            reader = command.ExecuteReader();
+            if(reader.HasRows){
+                while (reader.Read()){
+                    ViewBag.top1sap = reader["top1_sap"];
+                    ViewBag.top1name = reader["top1_name"];
+                    ViewBag.top2sap = reader["top2_sap"];
+                    ViewBag.top2name = reader["top2_name"];
+                    ViewBag.top3sap = reader["top3_sap"];
+                    ViewBag.top3name = reader["top3_name"];
+                    ViewBag.top4sap = reader["top4_sap"];
+                    ViewBag.top4name = reader["top4_name"];
+                    ViewBag.top5sap = reader["top5_sap"];
+                    ViewBag.top5name = reader["top5_name"];
+                }
+            }else{
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap =2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            connection.Close();
+
+            command = new SqlCommand("Select rank, (Select Count(*) from rankings where track = 'Sleep EQ') as count from (Select RANK() OVER(ORDER BY score DESC) as rank,sap_id as sapno from rankings where track = 'Sleep EQ') tb where sapno = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"]; 
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
             command = new SqlCommand("get_Absenteeism", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;

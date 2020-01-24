@@ -344,6 +344,8 @@
     <Content Include="Views\Home\OldIndex.cshtml" />
     <Content Include="Views\Home\TeamLead.cshtml" />
     <Content Include="Views\Home\Details.cshtml" />
+    <Content Include="Views\users\Team.cshtml" />
+    <Content Include="Views\users\View.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
