@@ -299,6 +299,7 @@
     <Content Include="Files\Excel_Templates\Team_Update_Template.xlsx" />
     <Content Include="Files\Excel_Templates\Users_Template.xlsx" />
     <Content Include="Files\Excel_Templates\EqProd.xlsx" />
+    <Content Include="App_Data\HCL_HRIS.dacpac" />
     <None Include="packages.config" />
     <Content Include="webfonts\fa-brands-400.eot" />
     <Content Include="webfonts\fa-brands-400.ttf" />
@@ -348,7 +349,6 @@
     <Content Include="Views\users\View.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Files\Uploads\" />
   </ItemGroup>
   <PropertyGroup>
