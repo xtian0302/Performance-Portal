@@ -13,6 +13,10 @@ using HCL_HRIS.Models;
 
 namespace HCL_HRIS.Controllers
 {
+    public class chatObject : chat
+    {
+        public string Name { get; set; }
+    }
     public class chatsController : ApiController
     {
         private HCL_HRISEntities db = new HCL_HRISEntities();
@@ -20,14 +24,60 @@ namespace HCL_HRIS.Controllers
         // GET: api/chats
         [HttpGet]
         public IQueryable<chat> Getchats()
-        { 
+        {
             int? sap_id = Int32.Parse(User.Identity.Name);
-            user usr = db.users.Where(x => x.sap_id == sap_id).First(); 
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
-            int? sup_id = leader.user_id, sup_sap_id = leader.sap_id ;
-            return db.chats.Where(x => (x.chat_from == usr.user_id && x.chat_to == sup_sap_id)||((x.chat_from == sup_id && x.chat_to == usr.sap_id)));
+            int? sup_id = leader.user_id, sup_sap_id = leader.sap_id;
+            return db.chats.Where(x => (x.chat_from == usr.user_id && x.chat_to == sup_sap_id) || ((x.chat_from == sup_id && x.chat_to == usr.sap_id)));
         }
-        
+        // GET: api/chats/GetGroup
+        [Route("api/chats/GetGroup")]
+        [HttpGet]
+        public IQueryable<chatObject> GetGroup()
+        {
+            int? sap_id = Int32.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            int? group_id = usr.group_id;
+            List<chatObject> list = new List<chatObject>();
+            foreach (var chat in db.chats.Where(x => x.group_id == group_id))
+            {
+                chatObject chat1 = new chatObject();
+                chat1.chat_id = chat.chat_id;
+                chat1.chat_from = chat.chat_from;
+                chat1.chat_to = chat.chat_to;
+                chat1.datetime_read = chat.datetime_read;
+                chat1.chat_message = chat.chat_message;
+                chat1.datetime_sent = chat.datetime_sent;
+                chat1.group_id = chat.group_id;
+                chat1.Name = db.users.Where(x => x.user_id == chat.chat_from).First().name;
+                list.Add(chat1);
+            }
+            return list.AsQueryable();
+        }
+        [Route("api/chats/GetTL/{fromID}")]
+        [HttpGet]
+        public IQueryable<chatObject> GetTL(int fromID)
+        {
+            int toID = Int32.Parse(User.Identity.Name); 
+            user tl = db.users.Where(x => x.sap_id == toID).First();
+            user agent = db.users.Where(x => x.user_id == fromID).First();
+            List<chatObject> list = new List<chatObject>();
+            foreach (var chat in db.chats.Where(x => (x.chat_from == fromID && x.chat_to == toID) ||(x.chat_from == tl.user_id && x.chat_to == agent.sap_id)))
+            {
+                chatObject chat1 = new chatObject();
+                chat1.chat_id = chat.chat_id;
+                chat1.chat_from = chat.chat_from;
+                chat1.chat_to = chat.chat_to;
+                chat1.datetime_read = chat.datetime_read;
+                chat1.chat_message = chat.chat_message;
+                chat1.datetime_sent = chat.datetime_sent;
+                chat1.group_id = chat.group_id;
+                chat1.Name = db.users.Where(x => x.user_id == chat.chat_from).First().name;
+                list.Add(chat1);
+            }
+            return list.AsQueryable();
+        }
         // GET: api/chats/5
         [ResponseType(typeof(chat))]
         public async Task<IHttpActionResult> Getchat(int id)

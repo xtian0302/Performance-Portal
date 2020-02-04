@@ -20,6 +20,7 @@ namespace HCL_HRIS.Models
         public HCL_HRISEntities()
             : base("name=HCL_HRISEntities")
         {
+            //this.Configuration.LazyLoadingEnabled = false;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

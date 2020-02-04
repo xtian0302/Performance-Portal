@@ -25,7 +25,8 @@ namespace HCL_HRIS.Models
         [Display(Name = "Team")]
         public Nullable<int> group_id { get; set; }  
         [Display(Name = "Role")]
-        public string user_role { get; set; } 
+        public string user_role { get; set; }
+        [ScriptIgnore]
         public virtual group group { get; set; }
     }
 

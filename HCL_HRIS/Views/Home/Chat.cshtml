@@ -1,0 +1,135 @@
+﻿@model HCL_HRIS.Models.chat
+<link href="~/Content/Chat.css" rel="stylesheet" />
+@{
+    ViewBag.Title = "Chat";
+} 
+ 
+<div class="container bootstrap snippet">
+    <div class="tile tile-alt" id="messages-main">
+        <div class="ms-menu">
+            
+
+            <div class="list-group lg-alt" style="overflow-y:auto;height:600px">
+                @foreach (var agent in ViewBag.agentsList)
+                { 
+                    <a class="list-group-item media agent" id="agent" href="#" sap="@agent.sap_id" agentid ="@agent.user_id">
+                        <div class="pull-left" style="padding-right:25px;">
+                        </div>
+                        <div class="media-body">
+                            <span>
+                                <i class="fa fa-user-alt" style="font-size:x-large;"></i>
+                                <span class="list-group-item-heading " style="font-size:small">@agent.name</span>
+                            </span>
+                        </div>
+                    </a>
+                } 
+
+            </div>
+
+
+        </div>
+
+        <div class="ms-body" id="chatbox" style="overflow-y:auto;height:600px">
+            <div class="action-header clearfix fixed-top position-sticky" style="z-index:2">
+
+                <div class="pull-left hidden-xs">
+                    <span id="AgentName"></span>
+                </div>
+
+            </div>
+
+            <div style="min-height:100%;" id="chatLocation"></div>
+             
+            @*<span style="font-size:large;padding:5px;">You :</span>
+            <div class="message-feed media" style="padding-top:5px;">
+                <div class="pull-left">
+                </div>
+                <div class="media-body">
+                    <div class="mf-content">
+                        Quisque consequat arcu eget odio cursus, ut tempor arcu vestibulum. Etiam ex arcu, porta a urna non, lacinia pellentesque orci. Proin semper sagittis erat, eget condimentum sapien viverra et. Mauris volutpat magna nibh, et condimentum est rutrum a. Nunc sed turpis mi. In eu massa a sem pulvinar lobortis.
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-feed right">
+                <div class="pull-right">
+                    <span style="font-size:large;">Davil :</span>
+                </div>
+                <div class="media-body">
+                    <div class="mf-content">
+                        Mauris volutpat magna nibh, et condimentum est rutrum a. Nunc sed turpis mi. In eu massa a sem pulvinar lobortis.
+                    </div>*@
+                    @*<small class="mf-date"><i class="fa fa-clock-o"></i> 20/02/2015 at 09:30</small>*@
+                @*</div>
+            </div>*@
+
+
+            <div class="msb-reply fixed-bottom position-sticky">
+                <textarea id ="chatMessage" placeholder="What's on your mind..."></textarea>
+                <button id="tlSend"><i class="fa fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script> 
+    var agentID = "";
+    var agentSAP = "";
+    $(document).ready(function () {
+        clearChat(); 
+
+        $(".agent").click(function () { 
+            agentID = $(this).attr("agentid"); 
+            agentSAP = $(this).attr("sap"); 
+            $("#AgentName").text($(this).text());
+            var uri = '../api/chats/GetTL/' + agentID;
+            clearChat();  
+            reloadChat(uri);
+        });
+        $("#tlSend").click(function () {
+            if ($("#chatMessage").val() == "") {
+                return;
+            } 
+            var uri = '../api/chats';
+            // Post New Chat 
+                var chat = {
+                    chat_from: @ViewBag.user.user_id,
+                    chat_message: $("#chatMessage").val(),
+                    chat_to: agentSAP,
+                    datetime_read: null,
+                    datetime_sent: null,
+                };
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(chat),
+                    url: uri,
+                    contentType: "application/json"
+                }).done(function (res) {
+                    clearChat();
+                    console.log('res', res);
+                    $("#chatMessage").val("")
+                    var uri = '../api/chats/GetTL/' + agentID;
+                    reloadChat(uri);
+                }); 
+        });
+    });
+    function clearChat(){
+        $('#chatLocation > div.message-feed').remove(); 
+        $('#chatLocation > span').remove(); 
+    }
+    function reloadChat(uri){
+        $.getJSON(uri).done(function (data) {
+                        console.log(data);
+                        $.each(data, function (key, item) {
+                            if (item.chat_from == @ViewBag.user.user_id) {
+                                $("#chatLocation").append('<div class="message-feed right"> <div class="pull-right"> <span style="font-size:smaller;padding:5px;color:gray;">' + item.Name + ':</span> </div> <div class="media-body"> <div class="mf-content">' + item.chat_message + ' </div></div></div>');
+                            } else {
+                                $("#chatLocation").append('<span style="font-size:smaller;padding:5px;color:black;">' + item.Name + ' :</span><div class="message-feed media" style="padding-top:5px;"> <div class="pull-left"> </div> <div class="media-body"> <div class="mf-content">' + item.chat_message +' </div> </div> </div>');
+                            }
+                            
+                            $("#chatLocation").scrollTop(100000); 
+                            @*<small class="mf-date"><i class="fa fa-clock-o"></i> 20/02/2015 at 09:30</small>*@
+                            $("#chatMessage").focus(); 
+                        });
+                    });
+    }
+</script>

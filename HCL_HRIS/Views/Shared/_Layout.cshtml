@@ -92,7 +92,7 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background: rgba( 255, 255, 255, .8 ) url('/Images/loading.gif') 50% 50% no-repeat;
+            background: rgba( 255, 255, 255, .8 ) url('../Images/loading.gif') 50% 50% no-repeat;
         }
 
         /* When the body has the loading class, we turn
@@ -165,10 +165,11 @@
                     <i class="fa fa-fw fa-chart-line"></i>
                     <span>Performance</span>
                 </a>
-            </li>
-            <hr class="sidebar-divider">
+            </li> 
             @if (role.Equals("Team Leader"))
             {
+                <hr class="sidebar-divider">
+
                 <!-- Heading -->
                 <div class="sidebar-heading">
                     Team Leader
@@ -181,11 +182,23 @@
                         <span>Team</span>
                     </a>
                 </li>
-                <hr class="sidebar-divider"/>
+                <hr class="sidebar-divider" />
+
+                <!-- Nav Item - Charts -->
+                <li class="nav-item">
+                    <a class="nav-link" href="~/Home/Chat">
+                        <i class="fa fa-fw fa-mail-bulk"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+
             }
-            <!-- Divider -->
             @if (role.Equals("Administrator"))
             {
+                <hr class="sidebar-divider" />
+
+                <!-- Divider -->
+
                 <!-- Heading -->
                 <div class="sidebar-heading">
                     Quality

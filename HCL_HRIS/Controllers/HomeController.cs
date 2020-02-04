@@ -19,13 +19,25 @@ namespace HCL_HRIS.Controllers
         private HCL_HRISEntities db = new HCL_HRISEntities();
         public async Task<ActionResult> Index()
         {
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            if(usr.user_role.Equals("Team Leader"))
+            {
+                return RedirectToAction("TeamLead", "Home"); 
+            }
             SqlConnection connection = Utilities.getConn();
 
             SqlCommand command = new SqlCommand("get_Errors", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
             connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
+            SqlDataReader reader =await command.ExecuteReaderAsync();
 
             List<string> BCList = new List<string>();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
@@ -43,26 +55,21 @@ namespace HCL_HRIS.Controllers
             } else {
                 ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
             } 
-
-            connection.Close(); 
+             
             command = new SqlCommand("get_Comp", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            connection.Open();
-            reader = command.ExecuteReader();
+             
+            reader =await command.ExecuteReaderAsync();
             if(reader.HasRows){
                 while (reader.Read()){ 
                     ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString()))); 
                 }
             }else{
                 ViewBag.lms = 0; 
-            }
-            connection.Close();
-
-            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);    
-            connection.Open();
-            reader = command.ExecuteReader();
+            } 
+            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);     
+            reader =await command.ExecuteReaderAsync();
             if(reader.HasRows){
                 while (reader.Read()){
                     ViewBag.top1sap = reader["top1_sap"];
@@ -87,15 +94,13 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top4name = "Agent4";
                 ViewBag.top5sap = 5;
                 ViewBag.top5name = "Agent5";
-            }
-            connection.Close();
+            } 
 
             command = new SqlCommand("Select rank, (Select Count(*) from rankings where track = 'Sleep EQ') as count from (Select RANK() OVER(ORDER BY score DESC) as rank,sap_id as sapno from rankings where track = 'Sleep EQ') tb where sapno = @1", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
-                .Value = Int32.Parse(User.Identity.Name);
-            connection.Open();
-            reader = command.ExecuteReader();
+                .Value = Int32.Parse(User.Identity.Name); 
+            reader =await command.ExecuteReaderAsync();
             if (reader.HasRows)
             {
                 while (reader.Read())
@@ -108,29 +113,22 @@ namespace HCL_HRIS.Controllers
             {
                 ViewBag.myRank = 0;
                 ViewBag.outOf = 0;
-            }
-            connection.Close();
-
+            } 
             command = new SqlCommand("get_Absenteeism", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            connection.Open();
-            reader = command.ExecuteReader();
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            reader =await command.ExecuteReaderAsync();
 
             while (reader.Read())
             { 
                 ViewBag.absCurr =tryGetData(reader,"AbsenteeismCurr");
                 ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
-            }
-            connection.Close();
-
+            } 
             command = new SqlCommand("get_WPU", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            connection.Open();
-            reader = command.ExecuteReader();  
+             
+            reader =await command.ExecuteReaderAsync();  
                 while (reader.Read()){
                 ViewBag.wpuprev = reader["prevmonth"];
                 if (reader.IsDBNull(reader.GetOrdinal("monthmarks"))) {
@@ -139,14 +137,12 @@ namespace HCL_HRIS.Controllers
                     ViewBag.wpu = reader["monthmarks"];
                 }
                 ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
-            } 
-            connection.Close();
+            }  
 
-            command = new SqlCommand("get_Prod", connection);
+            command = new SqlCommand("get_Prodfast", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
-            connection.Open();
-            reader = command.ExecuteReader();
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;  
+            reader =await command.ExecuteReaderAsync();
             double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
             while (reader.Read())
             { //  Current Month Preaderroductivity
@@ -167,16 +163,14 @@ namespace HCL_HRIS.Controllers
             ViewBag.ProdScore = string.Format("{0:0.#}", ViewBag.ProdScore);
             ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
             reader.Close();
-            command.Dispose();
-            connection.Close();
+            command.Dispose(); 
 
            
 
             command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-            connection.Open();
-            reader = command.ExecuteReader(); 
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            reader =await command.ExecuteReaderAsync(); 
             List<MinsPerDay> minsCollection = new List<MinsPerDay>();
             while (reader.Read()){
                 MinsPerDay mins = new MinsPerDay();
@@ -201,7 +195,7 @@ namespace HCL_HRIS.Controllers
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
 
-            reader = command.ExecuteReader();
+            reader =await command.ExecuteReaderAsync();
 
             List<Absents> leaves = new List<Absents>();
             while (reader.Read())
@@ -219,7 +213,7 @@ namespace HCL_HRIS.Controllers
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
 
-            reader = command.ExecuteReader();
+            reader =await command.ExecuteReaderAsync();
 
             List<Absents> absents = new List<Absents>();
             while (reader.Read())
@@ -260,12 +254,9 @@ namespace HCL_HRIS.Controllers
             ViewBag.absents = absents;
             ViewBag.leaves = leaves;
 
-            int sap_id = Int32.Parse(User.Identity.Name.Trim()); 
-            user usr = db.users.Where(x => x.sap_id == sap_id).First();
-            ViewBag.name = usr.name.Trim();
-            ViewBag.user = usr;
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
             ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
             ViewBag.leader_name = leader.name.Trim();
             ViewBag.leader_mail = leader.nt_login + "@hcl.com";
             ViewBag.manager = usr.group.track.user.name;
@@ -292,6 +283,90 @@ namespace HCL_HRIS.Controllers
             reader.Close();
             command.Dispose();
             connection.Close();
+
+            command = new SqlCommand("get_TeamRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.scoreRank = reader["scoreRank"];
+                ViewBag.prodRank = reader["prodRank"];
+                ViewBag.qualityRank = reader["qualityRank"];
+                ViewBag.behaviorRank = reader["behaviorRank"];
+                ViewBag.complianceRank = reader["complianceRank"];
+                ViewBag.total = reader["total"];
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+
+            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);    
+            connection.Open();
+            reader = command.ExecuteReader();
+            if(reader.HasRows){
+                while (reader.Read()){
+                    ViewBag.top1sap = reader["top1_sap"];
+                    ViewBag.top1name = reader["top1_name"];
+                    ViewBag.top2sap = reader["top2_sap"];
+                    ViewBag.top2name = reader["top2_name"];
+                    ViewBag.top3sap = reader["top3_sap"];
+                    ViewBag.top3name = reader["top3_name"];
+                    ViewBag.top4sap = reader["top4_sap"];
+                    ViewBag.top4name = reader["top4_name"];
+                    ViewBag.top5sap = reader["top5_sap"];
+                    ViewBag.top5name = reader["top5_name"];
+                }
+            }else{
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap =2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            connection.Close();
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if(reader.HasRows){
+                while (reader.Read()){ 
+                ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString()))); 
+                }
+            }else{
+                ViewBag.lms = 0; 
+            }
+            connection.Close();
+            command = new SqlCommand("Select top 1 * from group_scores where leader_sap = @sap_id order by group_scores_id desc", connection);
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if(reader.HasRows){
+                while (reader.Read()){
+                    ViewBag.group_score = reader["group_score"];
+                    ViewBag.group_prod = reader["group_prod"];
+                    ViewBag.group_quality = reader["group_quality"];
+                    ViewBag.group_behavior = reader["group_behavior"];
+                    ViewBag.group_compliance = reader["group_compliance"];  
+                }
+            }else
+            {
+                ViewBag.group_score = 0;
+                ViewBag.group_prod = 0;
+                ViewBag.group_quality = 0;
+                ViewBag.group_behavior = 0;
+                ViewBag.group_compliance = 0;
+            }
+            connection.Close();
             ViewBag.minsCollection = minsCollection;
 
             int sap_id = Int32.Parse(User.Identity.Name.Trim());
@@ -301,7 +376,9 @@ namespace HCL_HRIS.Controllers
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
             ViewBag.leader_sap = leader.sap_id;
             ViewBag.leader_name = leader.name.Trim();
-            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager = usr.group.track.user.name; 
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com"; 
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
         public ActionResult Import()
@@ -658,6 +735,15 @@ namespace HCL_HRIS.Controllers
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
 
+        public ActionResult Chat()
+        {
+            int sap_id = Int32.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            List<user> agentsList = db.users.Where(x => x.group.user.user_id == usr.user_id).ToList<user>();
+            ViewBag.agentsList = agentsList;
+            ViewBag.user = usr;
+            return View();
+        }
         public async Task<ActionResult> Details()
         {
             SqlConnection connection = Utilities.getConn();

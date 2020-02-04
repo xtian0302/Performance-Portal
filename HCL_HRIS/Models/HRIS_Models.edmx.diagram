@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="c514bf48e158483589b274ab7a091b10" Name="Diagram1" ShowGrid="true" ZoomLevel="58">
+      <Diagram DiagramId="c514bf48e158483589b274ab7a091b10" Name="Diagram1" ShowGrid="true" ZoomLevel="56">
         <EntityTypeShape EntityType="HCL_HRISModel.user" Width="1.5" PointX="0.5" PointY="0.625" IsExpanded="true" />
         <EntityTypeShape EntityType="HCL_HRISModel.chat" Width="1.5" PointX="2.5" PointY="0.625" />
         <EntityTypeShape EntityType="HCL_HRISModel.announcement" Width="1.5" PointX="4.375" PointY="0.625" />

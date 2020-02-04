@@ -149,6 +149,7 @@ ViewBag.Title = "Home Page";
     </div>
 </div>
 <script>
+    var chatType = 'TL';
     $(document).ready(function () {
 
         $('#clicky').click(function () {
@@ -167,44 +168,60 @@ ViewBag.Title = "Home Page";
                 return;
             }
             // Post New Chat
-            var chat = {
-                chat_from: @ViewBag.user.user_id,
-                chat_message: $("#chatMessage").val(),
-                chat_to: @ViewBag.leader_sap,
-                datetime_read: null,
-                datetime_sent: null,
-            };
-            $.ajax({
-                type: "POST",
-                data: JSON.stringify(chat),
-                url: uri,
-                contentType: "application/json"
-            }).done(function (res) {
+            if (chatType == 'TL') {
+                var chat = {
+                    chat_from: @ViewBag.user.user_id,
+                    chat_message: $("#chatMessage").val(),
+                    chat_to: @ViewBag.leader_sap,
+                    datetime_read: null,
+                    datetime_sent: null,
+                };
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(chat),
+                    url: uri,
+                    contentType: "application/json"
+                }).done(function (res) {
                     clearChat();
                     console.log('res', res);
-                     $("#chatMessage").val("")
-                    $.getJSON(uri).done(function (data) {
-                            $.each(data, function (key, item) {
-                            // Add a list item for the product.
-                                if (item.chat_from == @ViewBag.leader_sap) {
-                                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
-                                } else {
-                                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
-                                }
-                            });
-                    $("#chatbox").scrollTop( 100000 );
-                    });
-                $("#chatMessage").focus();
-            });
+                    $("#chatMessage").val("")
+                    reloadChat();
+                    $("#chatMessage").focus();
+                });
+            } else if(chatType == 'Team')  {
+                var chat = {
+                    chat_from: @ViewBag.user.user_id,
+                    chat_message: $("#chatMessage").val(),
+                    chat_to: 0,
+                    datetime_read: null,
+                    datetime_sent: null,
+                    group_id: @ViewBag.user.group_id
+                };
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(chat),
+                    url: uri,
+                    contentType: "application/json"
+                }).done(function (res) {
+                    clearChat();
+                    console.log('res', res);
+                    $("#chatMessage").val("")
+                    reloadGroupChat();
+                    $("#chatMessage").focus();
+                });
+
+            }
         });
     });
 
-    $('#team_click').click(function () {
+ $('#team_click').click(function () {
+        chatType = 'Team';
         $(this).tab('show');
         clearChat();
         reloadGroupChat();
     });
     $('#tl_click').click(function () {
+        chatType = 'TL';
         $(this).tab('show');
         clearChat();
         reloadChat();
@@ -256,18 +273,34 @@ ViewBag.Title = "Home Page";
 
  @foreach (var abs in ViewBag.leaves)
     {
+        if(Convert.ToString(abs.shift).Equals("OFF"))
+        {
         <text>
             calendar.addEvent({
             title: '@abs.shift',
             start: '@abs.day.ToString("yyyy-MM-dd")',
             allDay: true,
-            backgroundColor: "skyblue",
+            backgroundColor: "#2a4796",
             textColor: "white",
             rendering: 'background'
             });
         </text>
+        }
+        else
+        {
+        <text>
+            calendar.addEvent({
+            title: '@abs.shift',
+            start: '@abs.day.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "#858796",
+            textColor: "white",
+            rendering: 'background'
+            });
+        </text>
+        }
     }
-   @foreach (var mins in ViewBag.minsCollection) { 
+   @foreach (var mins in ViewBag.minsCollection) {
         if (mins.minsLate > 0) {
             <text>
                 calendar.addEvent({
@@ -314,28 +347,27 @@ ViewBag.Title = "Home Page";
         $('#chatbox > br').remove();
     }
 
-    function reloadChat() {
+     function reloadChat() {
         var uri = '../api/chats';
         $.getJSON(uri).done(function (data) {
             console.log(data);
             $.each(data, function (key, item) {
                 // Add a list item for the product.
-                if (item.chat_from == @ViewBag.leader_sap) {
-                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name  : </b>' + item.chat_message + '</span><br />');
+                if (item.chat_from == @ViewBag.leader_id) {
+                    $("#chatbox").append('<span ><b> @ViewBag.leader_name  : </b>' + item.chat_message + '</span><br />');
                 } else {
-                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
+                    $("#chatbox").append('<span style="color:gray"> @ViewBag.name : ' + item.chat_message + '</span><br />');
                 }
                 $("#chatbox").scrollTop( 100000);
             });
         });
         }
-
     function reloadGroupChat() {
-        var uri = '../users/GetGroupChats';
+        var uri = '../api/chats/GetGroup';
         $.getJSON(uri).done(function (data) {
             console.log(data);
             $.each(data, function (key, item) {
-                $("#chatbox").append('<span style="color:gray"><b> ' + item.user.name + '  : </b>' + item.chat_message + '</span><br />');
+                $("#chatbox").append('<span style="color:black"><b> ' + item.Name + '  : </b>' + item.chat_message + '</span><br />');
                 $("#chatbox").scrollTop( 100000);
             });
         });

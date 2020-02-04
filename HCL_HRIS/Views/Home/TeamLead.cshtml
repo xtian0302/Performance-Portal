@@ -40,41 +40,45 @@
                                     <td colspan="4" style="padding:5px;background-color:#2a4796;color:whitesmoke;">As of @DateTime.Now.ToLongDateString() Performance</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3">SCORE <br /> <h1 style="font-weight:bold;font-size:95px;margin-top:15px;"><a href="@Url.Action("Details")#minimize" style="text-decoration:none;color:whitesmoke;">4.2</a></h1></td>
-                                    <td>Rank <br /><br /> <h1 style="font-weight:bold;"><a href="#" style="text-decoration:none;color:whitesmoke;">3rd</a> </h1> Of 5</td>
+                                    <td colspan="3">SCORE <br /> <h1 style="font-weight:bold;font-size:95px;margin-top:15px;"><a href="@Url.Action("Details")#minimize" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_score</a></h1></td>
+                                    <td>Rank <br /><br /> <h1 style="font-weight:bold;"><a href="#" style="text-decoration:none;color:whitesmoke;">@ViewBag.scoreRank</a> </h1> Of @ViewBag.total</td>
                                 </tr>
                                 <tr>
-                                    <td><span style="font-style:oblique;">Team<br />Prod </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Prod" style="text-decoration:none;color:whitesmoke;">4.1</a></h4> 3rd of 5</td>
-                                    <td><span style="font-style:oblique;">Team<br />Quality </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Quality" style="text-decoration:none;color:whitesmoke;">4.2</a></h4> 3rd of 5</td>
-                                    <td><span style="font-style:oblique;">Team<br />Behavior </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">4.3</a></h4> 3rd of 5</td>
-                                    <td><span style="font-style:oblique;">Team<br />Compliance </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">4.2
-                                        </a></h4> 3rd of 5</td>
+                                    <td><span style="font-style:oblique;">Team<br />Prod </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Prod" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_prod</a></h4> @ViewBag.prodRank of @ViewBag.total</td>
+                                    <td><span style="font-style:oblique;">Team<br />Quality </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Quality" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_quality</a></h4> @ViewBag.qualityRank of @ViewBag.total</td>
+                                    <td><span style="font-style:oblique;">Team<br />Behavior </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_behavior</a></h4> @ViewBag.behaviorRank of @ViewBag.total</td>
+                                    <td>
+                                        <span style="font-style:oblique;">Team<br />Compliance </span><br /> <h4 style="font-weight:bold;">
+                                            <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">
+                                                @ViewBag.group_compliance
+                                            </a>
+                                        </h4>  @ViewBag.complianceRank of @ViewBag.total
+                                    </td>
                                 </tr>
                         </table>
                         @*For Team Leads*@
                         <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
-                                <tr>
-                                    <td><span style="font-style:oblique;">Team Attrition</span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">4.1</a></h4> 3rd of 5</td>
-                                    <td><span style="font-style:oblique;">Attendance (self) </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">4.2</a></h4> 3rd of 5</td>
-                                    <td><span style="font-style:oblique;">Compliance (self) </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">4.3</a></h4> 3rd of 5</td>
-                                </tr>
-                            </table>
+                            <tr>
+                                <td><span style="font-style:oblique;">Team Attrition</span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">5</a></h4> @*3rd of 5*@</td>
+                                <td><span style="font-style:oblique;">Attendance (self) </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">5</a></h4> @*3rd of 5*@</td>
+                                <td><span style="font-style:oblique;">Compliance (self) </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">@ViewBag.lms</a></h4> @*3rd of 5*@</td>
+                            </tr>
+                        </table>
                         <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
                             <tr>
                                 <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">MANAGER</td>
                                 <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">SUPPORT</td>
                             </tr>
                             <tr>
-                                <td style="padding:6px;background-color:#4e73df;" colspan="2">@ViewBag.manager</td>
-                                <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3">Kimberley Pascual (QA) <br />Donna Salting (WF) <br />Mary Pachica (Trainer) <br />Gianina Ciriaco (HR) <br /></td>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.manager_mail" target="_top" style="color:whitesmoke;">@ViewBag.manager</a></td>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3"><a href="mailto:kimberley.pascual@hcl.com" target="_top" style="color:whitesmoke;">Kimberley Pascual (QA)</a> <br /><a href="mailto:donnajayne.salting@hcl.com" target="_top" style="color:whitesmoke;">Donna Salting (WF)</a> <br /><a href="mailto:marose.pachica@hcl.com" target="_top" style="color:whitesmoke;">Ma. Rose Pachica (Trainer)</a> <br /><a href="mailto:GianinaMaria.Ciriaco@hcl.com" target="_top" style="color:whitesmoke;">Gianina Ciriaco (HR)</a> <br /></td>
                             </tr>
                             <tr>
                                 <td style="font-weight:bolder;padding:6px;background-color:#2a4796  ;" colspan="2">TEAM LEAD</td>
                             </tr>
                             <tr>
-                                <td style="padding:6px;background-color:#4e73df;" colspan="2">@ViewBag.leader_name</td>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.leader_mail" target="_top" style="color:whitesmoke;">@ViewBag.leader_name</a></td>
                             </tr>
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -142,11 +146,11 @@
                     </div>
                     <div class="card-body" style="padding:4.5px;font-size:0.75rem;">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item font-weight-bold">1. Agent 1</li>
-                            <li class="list-group-item">2. Agent 2</li>
-                            <li class="list-group-item">3. Agent 3</li>
-                            <li class="list-group-item">4. Agent 4</li>
-                            <li class="list-group-item">5. Agent 5</li>
+                            <li class="list-group-item font-weight-bold">@ViewBag.top1sap - @ViewBag.top1name</li>
+                            <li class="list-group-item">@ViewBag.top2sap - @ViewBag.top2name</li>
+                            <li class="list-group-item">@ViewBag.top3sap - @ViewBag.top3name</li>
+                            <li class="list-group-item">@ViewBag.top4sap - @ViewBag.top4name</li>
+                            <li class="list-group-item">@ViewBag.top5sap - @ViewBag.top5name</li>
                         </ul>
                     </div>
                 </div>
@@ -174,6 +178,7 @@
     </div>
 </div>
 <script>
+    var chatType = 'TL';
     $(document).ready(function () {
         var line = $('#lineChart');
         var data = {
@@ -244,44 +249,70 @@
                 return;
             }
             // Post New Chat
-            var chat = {
-                chat_from: @ViewBag.user.user_id,
-                chat_message: $("#chatMessage").val(),
-                chat_to: @ViewBag.leader_sap,
-                datetime_read: null,
-                datetime_sent: null,
-            };
-            $.ajax({
-                type: "POST",
-                data: JSON.stringify(chat),
-                url: uri,
-                contentType: "application/json"
-            }).done(function (res) {
+            if (chatType == 'TL') {
+                var chat = {
+                    chat_from: @ViewBag.user.user_id,
+                    chat_message: $("#chatMessage").val(),
+                    chat_to: @ViewBag.leader_sap,
+                    datetime_read: null,
+                    datetime_sent: null,
+                };
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(chat),
+                    url: uri,
+                    contentType: "application/json"
+                }).done(function (res) {
                     clearChat();
                     console.log('res', res);
-                     $("#chatMessage").val("")
+                    $("#chatMessage").val("")
                     $.getJSON(uri).done(function (data) {
-                            $.each(data, function (key, item) {
+                        $.each(data, function (key, item) {
                             // Add a list item for the product.
-                                if (item.chat_from == @ViewBag.leader_sap) {
-                                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
-                                } else {
-                                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
-                                }
-                            });
-                    $("#chatbox").scrollTop( 100000 );
+                            if (item.chat_from == @ViewBag.leader_sap) {
+                                $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
+                            } else {
+                                $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
+                            }
+                        });
+                        $("#chatbox").scrollTop(100000);
                     });
-                $("#chatMessage").focus();
-            });
+                    $("#chatMessage").focus();
+                });
+            } else if(chatType == 'Team')  {
+                var chat = {
+                    chat_from: @ViewBag.user.user_id,
+                    chat_message: $("#chatMessage").val(),
+                    chat_to: 0,
+                    datetime_read: null,
+                    datetime_sent: null,
+                    group_id: @ViewBag.user.group_id
+                };
+                $.ajax({
+                    type: "POST",
+                    data: JSON.stringify(chat),
+                    url: uri,
+                    contentType: "application/json"
+                }).done(function (res) {
+                    clearChat();
+                    console.log('res', res);
+                    $("#chatMessage").val("")
+                    reloadGroupChat();
+                    $("#chatMessage").focus();
+                });
+
+            }
         });
     });
 
     $('#team_click').click(function () {
+        chatType = 'Team';
         $(this).tab('show');
         clearChat();
         reloadGroupChat();
     });
     $('#tl_click').click(function () {
+        chatType = 'TL';
         $(this).tab('show');
         clearChat();
         reloadChat();
@@ -368,13 +399,12 @@
             });
         });
         }
-
     function reloadGroupChat() {
-        var uri = '../users/GetGroupChats';
+        var uri = '../api/chats/GetGroup';
         $.getJSON(uri).done(function (data) {
             console.log(data);
             $.each(data, function (key, item) {
-                $("#chatbox").append('<span style="color:gray"><b> ' + item.user.name + '  : </b>' + item.chat_message + '</span><br />');
+                $("#chatbox").append('<span style="color:black"><b> ' + item.Name + '  : </b>' + item.chat_message + '</span><br />');
                 $("#chatbox").scrollTop( 100000);
             });
         });

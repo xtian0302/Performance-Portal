@@ -516,13 +516,25 @@ namespace HCL_HRIS.Controllers
             int? sap_id = Int32.Parse(User.Identity.Name);
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             int? group_id = usr.group_id;
-            return db.chats.Where(x =>  x.group_id == group_id);
+            return db.chats.Where(x => x.group_id == group_id);
         }
+
+        // GET: users/GetMemChats
+        [HttpGet]
+        public IQueryable<chat> GetMemChats(int sap_id)
+        {
+            int? my_sap = Int32.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == my_sap).First();
+            user leader = db.users.Where(x => x.sap_id == sap_id).First();
+            int? sup_id = leader.user_id, sup_sap_id = leader.sap_id;
+            return db.chats.Where(x => (x.chat_from == usr.user_id && x.chat_to == sup_sap_id) || ((x.chat_from == sup_id && x.chat_to == usr.sap_id)));
+        }
+
         private double tryGetData(SqlDataReader reader, string columnName){ 
             if (reader.IsDBNull(reader.GetOrdinal(columnName))){
                return 0;
             } else {
-                return double.Parse(reader[columnName].ToString());
+               return double.Parse(reader[columnName].ToString());
             }
         }
     }
