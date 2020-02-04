@@ -51,67 +51,18 @@ namespace HCL_HRIS.Controllers
         }
 
         public async Task<ActionResult> View(int? id)
-        {
-
-           
+        { 
             user usr = db.users.Where(x => x.user_id == id).First();
             int sap_id = usr.sap_id;
-            SqlConnection connection = Utilities.getConn();
-
-            SqlCommand command = new SqlCommand("get_Errors", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
+            SqlConnection connection = Utilities.getConn(); 
+            //queries start here
+            //Get top 5 agents of track 
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0; 
+            SqlCommand command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);
             connection.Open();
-            SqlDataReader reader = command.ExecuteReader();
-
-            List<string> BCList = new List<string>();
-            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            while (reader.Read())
-            {
-                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
-                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
-                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
-                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
-            }
-            reader.Close();
-            command.Dispose();
-            //------------------------ BC EUC CC ViewBag ----------------------------00:P1} 
-            if (totalAuditCurrMos != 0)
-            {
-                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
-            }
-            else
-            {
-                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
-            }
-
-            connection.Close();
-            command = new SqlCommand("get_Comp", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-
-            connection.Open();
-            reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
-                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
-                }
-            }
-            else
-            {
-                ViewBag.lms = 0;
-            }
-            connection.Close();
-
-            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);
-            connection.Open();
-            reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
+            SqlDataReader reader =await command.ExecuteReaderAsync();
+            if(reader.HasRows){
+                while (reader.Read()){
                     ViewBag.top1sap = reader["top1_sap"];
                     ViewBag.top1name = reader["top1_name"];
                     ViewBag.top2sap = reader["top2_sap"];
@@ -123,12 +74,10 @@ namespace HCL_HRIS.Controllers
                     ViewBag.top5sap = reader["top5_sap"];
                     ViewBag.top5name = reader["top5_name"];
                 }
-            }
-            else
-            {
+            }else{
                 ViewBag.top1sap = 1;
                 ViewBag.top1name = "Agent1";
-                ViewBag.top2sap = 2;
+                ViewBag.top2sap =2;
                 ViewBag.top2name = "Agent2";
                 ViewBag.top3sap = 3;
                 ViewBag.top3name = "Agent3";
@@ -136,136 +85,114 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top4name = "Agent4";
                 ViewBag.top5sap = 5;
                 ViewBag.top5name = "Agent5";
-            }
-            connection.Close();
+            } 
 
+            //Get ranking of this agent against other agents
             command = new SqlCommand("Select rank, (Select Count(*) from rankings where track = 'Sleep EQ') as count from (Select RANK() OVER(ORDER BY score DESC) as rank,sap_id as sapno from rankings where track = 'Sleep EQ') tb where sapno = @1", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
-                .Value = sap_id;
-            connection.Open();
-            reader = command.ExecuteReader();
+                .Value = sap_id; 
+            reader =await command.ExecuteReaderAsync();
             if (reader.HasRows)
             {
                 while (reader.Read())
                 {
                     ViewBag.myRank = reader["rank"];
-                    ViewBag.outOf = reader["count"];
+                    ViewBag.outOf = reader["count"]; 
                 }
             }
             else
             {
                 ViewBag.myRank = 0;
                 ViewBag.outOf = 0;
-            }
-            connection.Close();
+            } 
 
-            command = new SqlCommand("get_Absenteeism", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-
-            connection.Open();
-            reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
-                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
-            }
-            connection.Close();
-
+            //get WPU Scores
             command = new SqlCommand("get_WPU", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-
-            connection.Open();
-            reader = command.ExecuteReader();
-            while (reader.Read())
-            {
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id; 
+            reader =await command.ExecuteReaderAsync();  
+                while (reader.Read()){
                 ViewBag.wpuprev = reader["prevmonth"];
-                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
-                {
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks"))) {
                     ViewBag.wpu = 0.0;
-                }
-                else
-                {
+                } else { 
                     ViewBag.wpu = reader["monthmarks"];
                 }
                 ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
-            }
-            connection.Close();
+            }  
 
-            command = new SqlCommand("get_Prod", connection);
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-            connection.Open();
-            reader = command.ExecuteReader();
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;  
+            reader =await command.ExecuteReaderAsync();
             double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
             while (reader.Read())
-            { //  Current Month Preaderroductivity
-                aveprod = tryGetData(reader, "AveProd");
-                if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0)
-                {
+            {   aveprod = tryGetData(reader, "AveProd");
+                if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0){
                     cmplt = 0;
-                }
-                else
-                {
+                } else {
                     cmplt = Double.Parse(reader["Completes"].ToString()) / Double.Parse(reader["Concludes"].ToString());
                 }
-                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLA")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLA")))
-                {
+                if (!reader.IsDBNull(reader.GetOrdinal("WithinSLA")) || !reader.IsDBNull(reader.GetOrdinal("NotWithinSLA"))){
                     otc = Double.Parse(reader["WithinSLA"].ToString()) / (Double.Parse(reader["WithinSLA"].ToString()) + Double.Parse(reader["NotWithinSLA"].ToString()));
-                }
-                else
-                {
+                } else {
                     otc = 0;
                 }
+                ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString()); 
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
             }
-            ViewBag.ProdScore = HCL_HRIS.Models.Calculations.getOverallScoredProd(aveprod, cmplt, otc);
-            ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3) + (ViewBag.lms * 0.05) + (ViewBag.WpuScore * 0.05) + (ViewBag.AbsScore * 0.15));
+            reader.Close();
+            command.Dispose(); 
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0){
+               ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0-((double)bcErrorCurrMos/(double)totalAuditCurrMos), 1.0-((double)eucErrorCurrMos/(double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            } else {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
+            }
+            ViewBag.ProdScore = HCL_HRIS.Models.Calculations.getOverallScoredProd(aveprod,cmplt,otc);
+            ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3) + (ViewBag.lms*0.05) + (ViewBag.WpuScore * 0.05) + (ViewBag.AbsScore * 0.15));
             ViewBag.ProdScore = string.Format("{0:0.#}", ViewBag.ProdScore);
             ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
-            reader.Close();
-            command.Dispose();
-            connection.Close();
-
-
-
+           
+            //get Attendance Calendar Data
             command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-            connection.Open();
-            reader = command.ExecuteReader();
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id; 
+            reader =await command.ExecuteReaderAsync(); 
             List<MinsPerDay> minsCollection = new List<MinsPerDay>();
-            while (reader.Read())
-            {
+            while (reader.Read()){
                 MinsPerDay mins = new MinsPerDay();
                 mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
                 DateTime day = Convert.ToDateTime(reader["Date"]);
                 mins.minsDate = day;
-                DateTime login = Convert.ToDateTime(reader["Login"]);
+                DateTime login = Convert.ToDateTime(reader["Login"]); 
                 string shift = reader["Shift"].ToString();
                 mins.shift = shift;
-                try
-                {
+                try { 
                     mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
-                }
-                catch (Exception e)
-                {
+                }catch(Exception e){
                     Debug.WriteLine(e.Message);
                     Debug.WriteLine(" String in Question :" + shift);
                 }
                 minsCollection.Add(mins);
-            }
+            } 
             reader.Close();
             command.Dispose();
 
+            //Get Leaves for attendance calendar data
             command = new SqlCommand("get_Leaves", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
 
-            reader = command.ExecuteReader();
-
+            reader =await command.ExecuteReaderAsync(); 
             List<Absents> leaves = new List<Absents>();
             while (reader.Read())
             {
@@ -278,12 +205,11 @@ namespace HCL_HRIS.Controllers
             reader.Close();
             command.Dispose();
 
+            //Get Absents for attendance calendar data
             command = new SqlCommand("get_Absents", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id;
-
-            reader = command.ExecuteReader();
-
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = sap_id; 
+            reader =await command.ExecuteReaderAsync(); 
             List<Absents> absents = new List<Absents>();
             while (reader.Read())
             {
@@ -291,56 +217,53 @@ namespace HCL_HRIS.Controllers
                 abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
                 string shift = reader["Shift"].ToString();
                 abs.shift = shift;
-                int hours1 = 0, hours2 = 0;
-                try
-                {
+                int hours1 = 0 , hours2 = 0;
+                try{ 
                     hours1 = int.Parse(abs.shift.Substring(0, 2));
                     hours2 = int.Parse(abs.shift.Substring(6, 2));
-                }
-                catch (Exception e)
+                }catch(Exception e)
                 {
                     Debug.WriteLine(e.Message);
                 }
-                if ((hours1 + 16) == 24)
-                {
+                if ((hours1 + 16) == 24) {
                     abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
                     abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
                 }
-                else if ((hours1 + 16) > 24)
-                {
-                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
-                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
-                }
-                else if ((hours2 + 16) > 24)
-                {
+                else if ((hours1 + 16) > 24){
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)-24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)-24).ToString("D2")); 
+                }else if((hours2 + 16) > 24) {
                     abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
                     abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
-                }
-                else
-                {
+                } else {
                     abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
-                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2")); 
                 }
                 absents.Add(abs);
             }
             reader.Close();
-            command.Dispose();
+            command.Dispose(); 
+            connection.Close(); 
+            //Close connection
+            //End of queries
 
-            connection.Close();
+            //Return to View Calendar Collection
             ViewBag.minsCollection = minsCollection;
             ViewBag.absents = absents;
             ViewBag.leaves = leaves;
-              
-            ViewBag.name = usr.name.Trim();
-            ViewBag.user = usr;
+
+            //Return to View User information
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
             ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
             ViewBag.leader_name = leader.name.Trim();
             ViewBag.leader_mail = leader.nt_login + "@hcl.com";
             ViewBag.manager = usr.group.track.user.name;
             ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
             ViewBag.user_role = usr.user_role;
-            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync()); 
         }
         // GET: users/Details/5
         public async Task<ActionResult> Details(int? id)

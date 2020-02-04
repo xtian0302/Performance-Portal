@@ -19,57 +19,29 @@ namespace HCL_HRIS.Controllers
         private HCL_HRISEntities db = new HCL_HRISEntities();
         public async Task<ActionResult> Index()
         {
-            if (!Request.IsAuthenticated)
-            {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated) {
                 return RedirectToAction("Login", "Users");
             }
+            // get user identity for queries
             int sap_id = Int32.Parse(User.Identity.Name.Trim());
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();
             ViewBag.user = usr;
-            if(usr.user_role.Equals("Team Leader"))
-            {
+
+            //check if user is agent. if team lead redirect to tl page
+            if(usr.user_role.Equals("Team Leader")) {
                 return RedirectToAction("TeamLead", "Home"); 
             }
-            SqlConnection connection = Utilities.getConn();
 
-            SqlCommand command = new SqlCommand("get_Errors", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn(); 
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0; 
+            SqlCommand command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);
             connection.Open();
             SqlDataReader reader =await command.ExecuteReaderAsync();
-
-            List<string> BCList = new List<string>();
-            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            while (reader.Read()){
-                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
-                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
-                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
-                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString()); 
-            }
-            reader.Close();
-            command.Dispose();
-            //------------------------ BC EUC CC ViewBag ----------------------------00:P1} 
-            if (totalAuditCurrMos != 0){
-               ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0-((double)bcErrorCurrMos/(double)totalAuditCurrMos), 1.0-((double)eucErrorCurrMos/(double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
-            } else {
-                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
-            } 
-             
-            command = new SqlCommand("get_Comp", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-             
-            reader =await command.ExecuteReaderAsync();
-            if(reader.HasRows){
-                while (reader.Read()){ 
-                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString()))); 
-                }
-            }else{
-                ViewBag.lms = 0; 
-            } 
-            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);     
-            reader =await command.ExecuteReaderAsync();
             if(reader.HasRows){
                 while (reader.Read()){
                     ViewBag.top1sap = reader["top1_sap"];
@@ -96,6 +68,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             } 
 
+            //Get ranking of this agent against other agents
             command = new SqlCommand("Select rank, (Select Count(*) from rankings where track = 'Sleep EQ') as count from (Select RANK() OVER(ORDER BY score DESC) as rank,sap_id as sapno from rankings where track = 'Sleep EQ') tb where sapno = @1", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -114,20 +87,11 @@ namespace HCL_HRIS.Controllers
                 ViewBag.myRank = 0;
                 ViewBag.outOf = 0;
             } 
-            command = new SqlCommand("get_Absenteeism", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
-            reader =await command.ExecuteReaderAsync();
 
-            while (reader.Read())
-            { 
-                ViewBag.absCurr =tryGetData(reader,"AbsenteeismCurr");
-                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
-            } 
+            //get WPU Scores
             command = new SqlCommand("get_WPU", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-             
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
             reader =await command.ExecuteReaderAsync();  
                 while (reader.Read()){
                 ViewBag.wpuprev = reader["prevmonth"];
@@ -139,14 +103,14 @@ namespace HCL_HRIS.Controllers
                 ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
             }  
 
+            //Get Prod, Quality, Absenteeism and LMS Scores
             command = new SqlCommand("get_Prodfast", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;  
             reader =await command.ExecuteReaderAsync();
             double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
             while (reader.Read())
-            { //  Current Month Preaderroductivity
-                    aveprod = tryGetData(reader, "AveProd");
+            {   aveprod = tryGetData(reader, "AveProd");
                 if (Double.Parse(reader["Completes"].ToString()) == 0 || Double.Parse(reader["Concludes"].ToString()) == 0){
                     cmplt = 0;
                 } else {
@@ -157,16 +121,33 @@ namespace HCL_HRIS.Controllers
                 } else {
                     otc = 0;
                 }
+                try { 
+                ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }catch(Exception e) {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString()); 
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose(); 
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0){
+               ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0-((double)bcErrorCurrMos/(double)totalAuditCurrMos), 1.0-((double)eucErrorCurrMos/(double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            } else {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(0, 0, 0);
             }
             ViewBag.ProdScore = HCL_HRIS.Models.Calculations.getOverallScoredProd(aveprod,cmplt,otc);
             ViewBag.OverallScore = string.Format("{0:0.##}", (ViewBag.ProdScore * 0.45) + (ViewBag.QAScore * 0.3) + (ViewBag.lms*0.05) + (ViewBag.WpuScore * 0.05) + (ViewBag.AbsScore * 0.15));
             ViewBag.ProdScore = string.Format("{0:0.#}", ViewBag.ProdScore);
             ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
-            reader.Close();
-            command.Dispose(); 
-
            
-
+            //get Attendance Calendar Data
             command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
@@ -191,12 +172,12 @@ namespace HCL_HRIS.Controllers
             reader.Close();
             command.Dispose();
 
+            //Get Leaves for attendance calendar data
             command = new SqlCommand("get_Leaves", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
 
-            reader =await command.ExecuteReaderAsync();
-
+            reader =await command.ExecuteReaderAsync(); 
             List<Absents> leaves = new List<Absents>();
             while (reader.Read())
             {
@@ -209,12 +190,11 @@ namespace HCL_HRIS.Controllers
             reader.Close();
             command.Dispose();
 
+            //Get Absents for attendance calendar data
             command = new SqlCommand("get_Absents", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            reader =await command.ExecuteReaderAsync();
-
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name; 
+            reader =await command.ExecuteReaderAsync(); 
             List<Absents> absents = new List<Absents>();
             while (reader.Read())
             {
@@ -247,13 +227,17 @@ namespace HCL_HRIS.Controllers
                 absents.Add(abs);
             }
             reader.Close();
-            command.Dispose();
-
+            command.Dispose(); 
             connection.Close(); 
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
             ViewBag.minsCollection = minsCollection;
             ViewBag.absents = absents;
             ViewBag.leaves = leaves;
 
+            //Return to View User information
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
             ViewBag.leader_sap = leader.sap_id;
             ViewBag.leader_id = leader.user_id;
@@ -262,6 +246,8 @@ namespace HCL_HRIS.Controllers
             ViewBag.manager = usr.group.track.user.name;
             ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
             ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
         public async Task<ActionResult> TeamLead()
@@ -281,14 +267,12 @@ namespace HCL_HRIS.Controllers
                 minsCollection.Add(mins);
             }
             reader.Close();
-            command.Dispose();
-            connection.Close();
+            command.Dispose(); 
 
             command = new SqlCommand("get_TeamRanks", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-            connection.Open();
-            reader = command.ExecuteReader();
+            reader = await command.ExecuteReaderAsync();
             while (reader.Read())
             {
                 ViewBag.scoreRank = reader["scoreRank"];
@@ -329,28 +313,22 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top4name = "Agent4";
                 ViewBag.top5sap = 5;
                 ViewBag.top5name = "Agent5";
-            }
-            connection.Close();
+            } 
             command = new SqlCommand("get_Comp", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            connection.Open();
-            reader = command.ExecuteReader();
-            if(reader.HasRows){
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows){
                 while (reader.Read()){ 
                 ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString()))); 
                 }
             }else{
                 ViewBag.lms = 0; 
-            }
-            connection.Close();
+            } 
             command = new SqlCommand("Select top 1 * from group_scores where leader_sap = @sap_id order by group_scores_id desc", connection);
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
-            connection.Open();
-            reader = command.ExecuteReader();
-            if(reader.HasRows){
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows){
                 while (reader.Read()){
                     ViewBag.group_score = reader["group_score"];
                     ViewBag.group_prod = reader["group_prod"];

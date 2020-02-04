@@ -155,57 +155,10 @@ ViewBag.Title = "Home Page";
         $('#clicky2').click(function () {
             $('.hideable2').toggle().animate();
             $(this).toggleClass('fa-window-minimize fa-window-maximize');
-        });
-        var uri = '../api/chats';
-        reloadChat();
-
-        $("#tlSend").click(function () {
-            if ($("#chatMessage").val() == "") {
-                return;
-            }
-            // Post New Chat
-            var chat = {
-                chat_from: @ViewBag.user.user_id,
-                chat_message: $("#chatMessage").val(),
-                chat_to: @ViewBag.leader_sap,
-                datetime_read: null,
-                datetime_sent: null,
-            };
-            $.ajax({
-                type: "POST",
-                data: JSON.stringify(chat),
-                url: uri,
-                contentType: "application/json"
-            }).done(function (res) {
-                    clearChat();
-                    console.log('res', res);
-                     $("#chatMessage").val("")
-                    $.getJSON(uri).done(function (data) {
-                            $.each(data, function (key, item) {
-                            // Add a list item for the product.
-                                if (item.chat_from == @ViewBag.leader_sap) {
-                                    $("#chatbox").append('<span style="color:gray"><b> @ViewBag.leader_name : </b>' + item.chat_message + '</span><br />');
-                                } else {
-                                    $("#chatbox").append('<span> @ViewBag.name : ' + item.chat_message + '</span><br />');
-                                }
-                            });
-                    $("#chatbox").scrollTop( 100000 );
-                    });
-                $("#chatMessage").focus();
-            });
-        });
+        }); 
+         
     });
 
-    $('#team_click').click(function () {
-        $(this).tab('show');
-        clearChat();
-        reloadGroupChat();
-    });
-    $('#tl_click').click(function () {
-        $(this).tab('show');
-        clearChat();
-        reloadChat();
-    });
     //Attendance Calendar
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -253,16 +206,32 @@ ViewBag.Title = "Home Page";
 
  @foreach (var abs in ViewBag.leaves)
     {
+        if(Convert.ToString(abs.shift).Equals("OFF"))
+        {
         <text>
             calendar.addEvent({
             title: '@abs.shift',
             start: '@abs.day.ToString("yyyy-MM-dd")',
             allDay: true,
-            backgroundColor: "skyblue",
+            backgroundColor: "#2a4796",
             textColor: "white",
             rendering: 'background'
             });
         </text>
+        }
+        else
+        {
+        <text>
+            calendar.addEvent({
+            title: '@abs.shift',
+            start: '@abs.day.ToString("yyyy-MM-dd")',
+            allDay: true,
+            backgroundColor: "#858796",
+            textColor: "white",
+            rendering: 'background'
+            });
+        </text>
+        }
     }
    @foreach (var mins in ViewBag.minsCollection) { 
         if (mins.minsLate > 0) {
