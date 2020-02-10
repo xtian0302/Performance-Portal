@@ -181,6 +181,94 @@
                 </form>
             </div>
         </div>
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4> PPMC L1 Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="PPMCL1OverallUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="PPMCL1OverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from PPMC Prod</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4> PPMC L2 Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="PPMCL2OverallUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="PPMCL2OverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from PPMC Prod</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4> Kaiser Closet Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="KaiserClosetOverallUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="KaiserClosetOverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from PPMC Prod</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 text-center">
+                <form>
+                    <h4> Kaiser SMC Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="KaiserSMCOverallUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="KaiserSMCOverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from PPMC Prod</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr />
+        <div class="row" style="margin-top:25px">
+            <div class="col-6 text-center">
+                <form>
+                    <h4> Kaiser Others Upload</h4>
+                    <br />
+                    <div class="col-12">
+                        <input type="file" id="KaiserOthersOverallUpload" accept=".xls,.xlsx" />
+                    </div><br />
+                    <div class="col-12">
+                        <input type="button" id="KaiserOthersOverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                        <span>Report from PPMC Prod</span>
+                    </div>
+                </form>
+            </div> 
+                <div class="col-6 text-center">
+                    <form>
+                        <h4> PPMC BPM Upload</h4>
+                        <br />
+                        <div class="col-12">
+                            <input type="file" id="PPMCBPMOverallUpload" accept=".xls,.xlsx" />
+                        </div><br />
+                        <div class="col-12">
+                            <input type="button" id="PPMCBPMOverallsUpload" class="btn btn-outline-primary" value="Upload" />&nbsp;
+                            <span>Report from PPMC Prod</span>
+                        </div>
+                    </form>
+                </div> 
+        </div>
+        
     </div>
 </div> 
 <!--                                Error Modal                                    -->
@@ -485,6 +573,171 @@
             $.ajax({
                 type: "POST",
                 url: '../Home/SchedulesUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+
+        $("#PPMCL1OverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("PPMCL1OverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("PPMCL1OverallUpload").files[i];
+
+                formData.append("PPMCL1OverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/PPMCL1OverallsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+
+        $("#PPMCL2OverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("PPMCL2OverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("PPMCL2OverallUpload").files[i];
+
+                formData.append("PPMCL2OverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/PPMCL2OverallsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+
+        $("#KaiserClosetOverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("KaiserClosetOverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("KaiserClosetOverallUpload").files[i];
+
+                formData.append("KaiserClosetOverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/KaiserClosetOverallsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#KaiserSMCOverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("KaiserSMCOverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("KaiserSMCOverallUpload").files[i];
+
+                formData.append("KaiserSMCOverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/KaiserSMCOverallsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#KaiserOthersOverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("KaiserOthersOverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("KaiserOthersOverallUpload").files[i];
+
+                formData.append("KaiserOthersOverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/KaiserOthersOverallsUpload',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                timeout: 9999999,
+                success: function (response) {
+                    console.log('success! : ' + response.data);
+                    $('#insertCount').text(response.Count);
+                    $('#successModal').modal('show');
+                },
+                error: function (error) {
+                    console.log("error : " + error.data);
+                    $('#errorModal').modal('show');
+                }
+            });
+        });
+        $("#PPMCBPMOverallsUpload").click(function () {
+            var formData = new FormData();
+            var totalFiles = document.getElementById("PPMCBPMOverallUpload").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("PPMCBPMOverallUpload").files[i];
+
+                formData.append("PPMCBPMOverallUpload", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '../Home/PPMCBPMOverallsUpload',
                 data: formData,
                 dataType: "json",
                 contentType: false,

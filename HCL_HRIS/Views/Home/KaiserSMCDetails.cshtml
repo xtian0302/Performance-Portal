@@ -1,0 +1,437 @@
+﻿@using System.Globalization;
+@model IEnumerable<HCL_HRIS.Models.announcement>
+@{
+    ViewBag.Title = "Performance - Scorecard";
+} 
+
+<style>
+    .fc-bgevent {
+        color: white !important;
+        font-weight: bolder;
+        opacity: 1 !important;
+    }
+
+    .fc-title {
+        font-weight: bold;
+        text-align: center !important;
+    }
+
+    .fc-content {
+        text-align: center;
+    }
+</style>
+<div class="row ">
+    <div class="col-1"></div>
+    <div class="col-10" style="min-height:400px;padding:0px">
+        <div class="card no-rad-brtr" style="min-height:400px;padding:0px">
+            <div class="card-header" style="padding:4.5px;">
+                Scorecard as of @DateTime.Now.ToLongDateString()
+            </div>
+            <div class="card-body" style="padding:3px;">
+                <div class="card" id="qaCard">
+                    @*<div class="card-header" style="padding:3px;">
+                Quality Scores
+            </div>*@
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="max-width:93px;">Overall Quality<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCCurr), double.Parse(ViewBag.EUCCurr), double.Parse(ViewBag.CCCurr))</h4></td>
+                                    <td style="min-width:68px;">Score</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCPrev), double.Parse(ViewBag.EUCPrev), double.Parse(ViewBag.CCPrev))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCCurr), double.Parse(ViewBag.EUCCurr), double.Parse(ViewBag.CCCurr))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk1), double.Parse(ViewBag.EUCWk1), double.Parse(ViewBag.CCWk1))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk2), double.Parse(ViewBag.EUCWk2), double.Parse(ViewBag.CCWk2))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk3), double.Parse(ViewBag.EUCWk3), double.Parse(ViewBag.CCWk3))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk4), double.Parse(ViewBag.EUCWk4), double.Parse(ViewBag.CCWk4))</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getQAScoredProd(double.Parse(ViewBag.BCWk5), double.Parse(ViewBag.EUCWk5), double.Parse(ViewBag.CCWk5))</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky"></i></a></td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td rowspan="2" valign="middle">BC<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreBC(double.Parse(ViewBag.BCCurr))</h4></td>
+                                    <td>Score</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCPrev))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCCurr))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCWk1))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCWk2))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCWk3))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCWk4))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.BCWk5))</td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td rowspan="2" valign="middle">EUC<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreEUC(double.Parse(ViewBag.EUCCurr))</h4></td>
+                                    <td>Score</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCPrev))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCCurr))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCWk1))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCWk2))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCWk3))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCWk4))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.EUCWk5))</td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.eucPrevRank</td>
+                                    <td>#@ViewBag.eucCurrRank</td>
+                                    <td>#@ViewBag.eucWk1Rank</td>
+                                    <td>#@ViewBag.eucWk2Rank</td>
+                                    <td>#@ViewBag.eucWk3Rank</td>
+                                    <td>#@ViewBag.eucWk4Rank</td>
+                                    <td>#@ViewBag.eucWk5Rank</td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td rowspan="2" valign="middle">CC<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQScoreCC(double.Parse(ViewBag.CCCurr))</h4></td>
+                                    <td>Score</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCPrev))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCCurr))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCWk1))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCWk2))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCWk3))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCWk4))</td>
+                                    <td>@string.Format("{0:P0}", double.Parse(ViewBag.CCWk5))</td>
+                                </tr>
+                                <tr class="hideable">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.ccPrevRank</td>
+                                    <td>#@ViewBag.ccCurrRank</td>
+                                    <td>#@ViewBag.ccWk1Rank</td>
+                                    <td>#@ViewBag.ccWk2Rank</td>
+                                    <td>#@ViewBag.ccWk3Rank</td>
+                                    <td>#@ViewBag.ccWk4Rank</td>
+                                    <td>#@ViewBag.ccWk5Rank</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="card" id="prodCard" style="margin-top:5px;">
+                    @*<div class="card-header" style="padding:3px;">
+                Productivity Score
+            </div>*@
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="max-width:90px;">Overall Productivity<br /> <h4 style="color:#4e73df;margin-top:4px;">@ViewBag.ProdScore </h4></td>
+                                    <td style="min-width:66px;">Score</td>
+                                    <td></td>
+                                    <td>@ViewBag.ProdScore</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky2"></i></a></td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td rowspan="2" valign="middle" style="max-width:10px;">Ave. Production<br /> <h4 style="color:#4e73df;margin-top:4px;">@ViewBag.AveProdScore</h4></td>
+                                    <td>Score</td>
+                                    <td></td>
+                                    <td>@ViewBag.AveProd</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr class="hideable2">
+                                    <td>Rank</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr> 
+                                 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" id="behaviorCard" style="margin-top:5px;"> 
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="max-width:90px;">Unplanned Leave<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQAbsScore(@ViewBag.absCurr)</h4></td>
+                                    <td style="min-width:66px;">Score</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absPrev)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absCurr)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk1)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk2)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk3)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk4)</td>
+                                    <td>@string.Format("{0:P0}", ViewBag.absWk5)</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" id="complianceCard" style="margin-top:5px;">
+                    @*<div class="card-header" style="padding:3px;">
+                Productivity Score
+            </div>*@
+                    <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th style="padding-left:0px;padding-right:0px;">Prev<br />Month</th>
+                                    <th style="padding-left:0px;padding-right:0px;">Current<br />Month</th>
+                                    <th>WK1</th>
+                                    <th>WK2</th>
+                                    <th>WK3</th>
+                                    <th>WK4</th>
+                                    <th>WK5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2" valign="middle" style="min-width:93px;">Overall<br />Compliance<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpu, (int)ViewBag.lms)</h4></td>
+                                    <td style="min-width:66px;">Score</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuprev, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpu, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk1, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk2, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk3, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk4, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk5, (int)ViewBag.lms)</td>
+                                </tr>
+                                <tr>
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.bcPrevRank</td>
+                                    <td>#@ViewBag.bcCurrRank</td>
+                                    <td>#@ViewBag.bcWk1Rank</td>
+                                    <td>#@ViewBag.bcWk2Rank</td>
+                                    <td>#@ViewBag.bcWk3Rank</td>
+                                    <td>#@ViewBag.bcWk4Rank</td>
+                                    <td>#@ViewBag.bcWk5Rank</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="9" style="padding:0px 5px 3px 3px;margin:0px;"><a href="#"><i class="fa fa-window-minimize float-right" id="clicky3"></i></a></td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td rowspan="2" valign="middle" style="max-width:10px;">WPU %<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu)</h4></td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.wpuprev</td>
+                                    <td>@ViewBag.wpu</td>
+                                    <td>@ViewBag.wpuwk1</td>
+                                    <td>@ViewBag.wpuwk2</td>
+                                    <td>@ViewBag.wpuwk3</td>
+                                    <td>@ViewBag.wpuwk4</td>
+                                    <td>@ViewBag.wpuwk5</td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.AveProdPrevRank</td>
+                                    <td>#@ViewBag.AveProdRank</td>
+                                    <td>#@ViewBag.AveProdWk1Rank</td>
+                                    <td>#@ViewBag.AveProdWk2Rank</td>
+                                    <td>#@ViewBag.AveProdWk3Rank</td>
+                                    <td>#@ViewBag.AveProdWk4Rank</td>
+                                    <td>#@ViewBag.AveProdWk5Rank</td>
+                                </tr>
+                                <tr class="hideable3">
+                                    <td rowspan="2" valign="middle">LMS<br />Completion<br /> <h4 style="color:#4e73df;margin-top:4px;">@ViewBag.lms</h4></td>
+                                    <td>Score</td>
+                                    <td>@ViewBag.lmspercent</td>
+                                    <td>@ViewBag.lmspercent</td>
+                                    @if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 5)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 4)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 3)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 2)
+                                    {
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else if (HCL_HRIS.Models.Calculations.getWeekOfMonth(DateTime.Now) == 1)
+                                    {
+
+                                        <td>@ViewBag.lmspercent</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    }
+                                    else
+                                    {
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    } 
+                                </tr>
+                                <tr class="hideable3">
+                                    <td>Rank</td>
+                                    <td>#@ViewBag.CompletePercentPrevRank</td>
+                                    <td>#@ViewBag.CompletePercentRank</td>
+                                    <td>#@ViewBag.CompletePercentWk1Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk2Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk3Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk4Rank</td>
+                                    <td>#@ViewBag.CompletePercentWk5Rank</td>
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script>
+    $(document).ready(function () {
+
+        $('#clicky').click(function () {
+            $('.hideable').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
+        });
+
+        $('#clicky2').click(function () {
+            $('.hideable2').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
+        });
+
+        $('#clicky3').click(function () {
+            $('.hideable3').toggle().animate();
+            $(this).toggleClass('fa-window-minimize fa-window-maximize');
+        });
+
+        if ($(location).attr("href").includes("#Prod")) {
+            $("#qaCard").hide();
+            $("#behaviorCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Quality")) {
+            $("#prodCard").hide();
+            $("#behaviorCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Behavior")) {
+            $("#qaCard").hide();
+            $("#prodCard").hide();
+            $("#complianceCard").hide();
+        } else if ($(location).attr("href").includes("#Compliance")) {
+            $("#qaCard").hide();
+            $("#prodCard").hide();
+            $("#behaviorCard").hide();
+        } else if ($(location).attr("href").includes("#minimize")) {
+            $('.hideable').toggle().animate();
+            $('#clicky').toggleClass('fa-window-minimize fa-window-maximize');
+            $('.hideable2').toggle().animate();
+            $('#clicky2').toggleClass('fa-window-minimize fa-window-maximize');
+            $('.hideable3').toggle().animate();
+            $('#clicky3').toggleClass('fa-window-minimize fa-window-maximize');
+        }
+    });
+</script>

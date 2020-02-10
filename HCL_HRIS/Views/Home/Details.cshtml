@@ -315,13 +315,13 @@
                                 <tr>
                                     <td rowspan="2" valign="middle" style="min-width:93px;">Overall<br />Compliance<br /> <h4 style="color:#4e73df;margin-top:4px;">@HCL_HRIS.Models.Calculations.getCompScoredProd(ViewBag.wpu, (int)ViewBag.lms)</h4></td>
                                     <td style="min-width:66px;">Score</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdPrev, @ViewBag.CompletePercentPrev, @ViewBag.OTCPrev)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProd, @ViewBag.CompletePercent, @ViewBag.OTC)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk1, @ViewBag.CompletePercentWk1, @ViewBag.OTCWk1)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk2, @ViewBag.CompletePercentWk2, @ViewBag.OTCWk2)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk3, @ViewBag.CompletePercentWk3, @ViewBag.OTCWk3)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk4, @ViewBag.CompletePercentWk4, @ViewBag.OTCWk4)</td>
-                                    <td>@HCL_HRIS.Models.Calculations.getOverallScoredProd(@ViewBag.AveProdWk5, @ViewBag.CompletePercentWk5, @ViewBag.OTCWk5)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuprev, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpu, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk1, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk2, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk3, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk4, (int)ViewBag.lms)</td>
+                                    <td>@HCL_HRIS.Models.Calculations.getCompScoredProd((double)ViewBag.wpuwk5, (int)ViewBag.lms)</td>
                                 </tr>
                                 <tr>
                                     <td>Rank</td>

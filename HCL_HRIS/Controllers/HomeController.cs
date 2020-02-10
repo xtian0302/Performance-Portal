@@ -34,7 +34,27 @@ namespace HCL_HRIS.Controllers
             if(usr.user_role.Equals("Team Leader")) {
                 return RedirectToAction("TeamLead", "Home"); 
             }
+            if (!usr.user_role.Equals("Administrator"))
+            { 
+                if (usr.sub_department.Equals("PPMC") || usr.sub_department.Equals("PPMC IB/BPM")){
+                    return RedirectToAction("PPMCIndex", "Home");
+                } else if (usr.sub_department.Equals("PPMC IB L2")){
+                    return RedirectToAction("PPMCL2Index", "Home"); 
+                } else if (usr.sub_department.Equals("Kaiser Closet")){
+                    return RedirectToAction("KaiserClosetIndex", "Home"); 
+                } else if (usr.sub_department.Equals("Kaiser SMC Resupply")){
+                    return RedirectToAction("KaiserSMCIndex", "Home");
+                } 
+                else if (usr.sub_department.Equals("Kaiser BU/ AH")|| usr.sub_department.Equals("Kaiser BU/AH") || usr.sub_department.Equals("Kaiser Pickup"))
+                {
+                    return RedirectToAction("KaiserOthersIndex", "Home");
+                }
+                else if (usr.sub_department.Equals("PPMC BPM"))
+                {
+                    return RedirectToAction("PPMCBPMIndex", "Home");
+                }
 
+            }
             //queries start here
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn(); 
@@ -66,8 +86,8 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top4name = "Agent4";
                 ViewBag.top5sap = 5;
                 ViewBag.top5name = "Agent5";
-            } 
-
+            }
+            ViewBag.Top5 = await Services.DataAccess.query_Top5Async(connection);
             //Get ranking of this agent against other agents
             command = new SqlCommand("Select rank, (Select Count(*) from rankings where track = 'Sleep EQ') as count from (Select RANK() OVER(ORDER BY score DESC) as rank,sap_id as sapno from rankings where track = 'Sleep EQ') tb where sapno = @1", connection);
             command.Parameters
@@ -250,6 +270,264 @@ namespace HCL_HRIS.Controllers
             //Return to view list of announcements
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
+
+        public async Task<ActionResult> PPMCIndex()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            //check if user is agent. if team lead redirect to tl page
+            if (usr.user_role.Equals("Team Leader"))
+            {
+                return RedirectToAction("TeamLead", "Home");
+            }
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmcl1_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)  {
+                while (reader.Read()) {
+                    if(i == 1) {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }else if(i == 2) { 
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }else if(i == 3) { 
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }else if(i == 4) { 
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }else if(i == 5) { 
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    } 
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            } 
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select ave_calls_handled_score, aht_score, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {  
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"]; 
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("aht_score")) * .3) + (reader.GetInt32(reader.GetOrdinal("cash_col_score")) * .3));
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            { 
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+
         public async Task<ActionResult> TeamLead()
         {
             SqlConnection connection = Utilities.getConn();
@@ -359,6 +637,1310 @@ namespace HCL_HRIS.Controllers
             ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
+
+        public async Task<ActionResult> KaiserClosetIndex()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr; 
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_closet_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)  {
+                while (reader.Read()) {
+                    if(i == 1) {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }else if(i == 2) { 
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }else if(i == 3) { 
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }else if(i == 4) { 
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }else if(i == 5) { 
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    } 
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            } 
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select ave_prod_score, otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {  
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"]; 
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("otc_score")) * .6));
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            { 
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> KaiserSMCIndex()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_smc_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    if (i == 1)
+                    {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }
+                    else if (i == 2)
+                    {
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }
+                    else if (i == 3)
+                    {
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }
+                    else if (i == 4)
+                    {
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }
+                    else if (i == 5)
+                    {
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"];
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score"))) );
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            {
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+
+        public async Task<ActionResult> KaiserOthersIndex()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_others_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    if (i == 1)
+                    {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }
+                    else if (i == 2)
+                    {
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }
+                    else if (i == 3)
+                    {
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }
+                    else if (i == 4)
+                    {
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }
+                    else if (i == 5)
+                    {
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"];
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score"))));
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            {
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+
+        public async Task<ActionResult> PPMCBPMIndex()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmc_bpm_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    if (i == 1)
+                    {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }
+                    else if (i == 2)
+                    {
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }
+                    else if (i == 3)
+                    {
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }
+                    else if (i == 4)
+                    {
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }
+                    else if (i == 5)
+                    {
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select bpm_score,otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"];
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("bpm_score"))*.5)+ (reader.GetInt32(reader.GetOrdinal("otc_score")) * .5) );
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            {
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> PPMCL2Index()
+        {
+
+            //Check if user is logged in else return to login page
+            if (!Request.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            //check if user is agent. if team lead redirect to tl page
+            if (usr.user_role.Equals("Team Leader"))
+            {
+                return RedirectToAction("TeamLead", "Home");
+            }
+
+            //queries start here
+            //Get top 5 agents of track
+            SqlConnection connection = Utilities.getConn();
+            double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
+            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmcl2_overall order by rank)tb", connection);
+            connection.Open();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            int i = 1;
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    if (i == 1)
+                    {
+                        ViewBag.top1sap = reader["sapno"];
+                        ViewBag.top1name = reader["name"];
+                    }
+                    else if (i == 2)
+                    {
+                        ViewBag.top2sap = reader["sapno"];
+                        ViewBag.top2name = reader["name"];
+                    }
+                    else if (i == 3)
+                    {
+                        ViewBag.top3sap = reader["sapno"];
+                        ViewBag.top3name = reader["name"];
+                    }
+                    else if (i == 4)
+                    {
+                        ViewBag.top4sap = reader["sapno"];
+                        ViewBag.top4name = reader["name"];
+                    }
+                    else if (i == 5)
+                    {
+                        ViewBag.top5sap = reader["sapno"];
+                        ViewBag.top5name = reader["name"];
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                ViewBag.top1sap = 1;
+                ViewBag.top1name = "Agent1";
+                ViewBag.top2sap = 2;
+                ViewBag.top2name = "Agent2";
+                ViewBag.top3sap = 3;
+                ViewBag.top3name = "Agent3";
+                ViewBag.top4sap = 4;
+                ViewBag.top4name = "Agent4";
+                ViewBag.top5sap = 5;
+                ViewBag.top5name = "Agent5";
+            }
+            //Get ranking of this agent against other agents
+            command = new SqlCommand("Select ave_calls_handled_score, aht_score, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1", connection);
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.myRank = reader["rank"];
+                    ViewBag.outOf = reader["count"];
+                    ViewBag.OverallScore = reader["eom_score"];
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("aht_score")) * .3) + (reader.GetInt32(reader.GetOrdinal("cash_col_score")) * .3));
+
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+
+            //get WPU Scores
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                ViewBag.WpuScore = HCL_HRIS.Models.Calculations.getEQWpuScore(ViewBag.wpu);
+            }
+
+            //Get Prod, Quality, Absenteeism and LMS Scores
+            command = new SqlCommand("get_Prodfast", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            double aveprod = 0.0, cmplt = 0.0, otc = 0.0;
+            while (reader.Read())
+            {
+                try
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                }
+                catch (Exception e)
+                {
+                    ViewBag.lms = 0;
+                }
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.AbsScore = HCL_HRIS.Models.Calculations.getEQAbsScore(ViewBag.absCurr);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Calculate Scores for Viewing
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos), 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.QAScore = HCL_HRIS.Models.Calculations.getQAScoredProd(1, 1, 1);
+            }
+            ViewBag.QAScore = string.Format("{0:0.#}", ViewBag.QAScore);
+
+            //get Attendance Calendar Data
+            command = new SqlCommand("get_MinsPerDay", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<MinsPerDay> minsCollection = new List<MinsPerDay>();
+            while (reader.Read())
+            {
+                MinsPerDay mins = new MinsPerDay();
+                mins.minsLogged = (int.Parse(reader["Minutes"].ToString()));
+                DateTime day = Convert.ToDateTime(reader["Date"]);
+                mins.minsDate = day;
+                DateTime login = Convert.ToDateTime(reader["Login"]);
+                string shift = reader["Shift"].ToString();
+                mins.shift = shift;
+                try
+                {
+                    mins.minsLate = login.Subtract(day.AddHours(double.Parse(shift.Substring(0, 2))).AddMinutes(double.Parse(shift.Substring(3, 2)))).TotalMinutes;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                    Debug.WriteLine(" String in Question :" + shift);
+                }
+                minsCollection.Add(mins);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Leaves for attendance calendar data
+            command = new SqlCommand("get_Leaves", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> leaves = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["shift"].ToString();
+                abs.shift = shift;
+                leaves.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+
+            //Get Absents for attendance calendar data
+            command = new SqlCommand("get_Absents", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            reader = await command.ExecuteReaderAsync();
+            List<Absents> absents = new List<Absents>();
+            while (reader.Read())
+            {
+                Absents abs = new Absents();
+                abs.day = reader.GetDateTime(reader.GetOrdinal("day"));
+                string shift = reader["Shift"].ToString();
+                abs.shift = shift;
+                int hours1 = 0, hours2 = 0;
+                try
+                {
+                    hours1 = int.Parse(abs.shift.Substring(0, 2));
+                    hours2 = int.Parse(abs.shift.Substring(6, 2));
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                if ((hours1 + 16) == 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), "00");
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours1 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16) - 24).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else if ((hours2 + 16) > 24)
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16) - 24).ToString("D2"));
+                }
+                else
+                {
+                    abs.shift = abs.shift.Replace(hours1.ToString("D2"), ((hours1 + 16)).ToString("D2"));
+                    abs.shift = abs.shift.Replace(hours2.ToString("D2"), ((hours2 + 16)).ToString("D2"));
+                }
+                absents.Add(abs);
+            }
+            reader.Close();
+            command.Dispose();
+            connection.Close();
+            //Close connection
+            //End of queries
+
+            //Return to View Calendar Collection
+            ViewBag.minsCollection = minsCollection;
+            ViewBag.absents = absents;
+            ViewBag.leaves = leaves;
+
+            //Return to View User information
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_id = leader.user_id;
+            ViewBag.leader_name = leader.name.Trim();
+            ViewBag.leader_mail = leader.nt_login + "@hcl.com";
+            ViewBag.manager = usr.group.track.user.name;
+            ViewBag.manager_mail = usr.group.track.user.nt_login + "@hcl.com";
+            ViewBag.user_role = usr.user_role;
+
+            //Return to view list of announcements
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+         
         public ActionResult Import()
         {
             return View();
@@ -723,7 +2305,33 @@ namespace HCL_HRIS.Controllers
             return View();
         }
         public async Task<ActionResult> Details()
-        {
+        {  
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            if (!usr.user_role.Equals("Administrator"))
+            {
+                if (usr.sub_department.Equals("PPMC") || usr.sub_department.Equals("PPMC IB/BPM"))
+                {
+                    return RedirectToAction("PPMCDetails", "Home");
+                } else if (usr.sub_department.Equals("PPMC IB L2")){
+                    return RedirectToAction("PPMCL2Details", "Home"); 
+                } else if (usr.sub_department.Equals("Kaiser Closet")){
+                    return RedirectToAction("KaiserClosetDetails", "Home"); 
+                } else if (usr.sub_department.Equals("Kaiser SMC Resupply")) {
+                    return RedirectToAction("KaiserSMCDetails", "Home");
+                }
+                else if (usr.sub_department.Equals("Kaiser BU/ AH") || usr.sub_department.Equals("Kaiser BU/AH") || usr.sub_department.Equals("Kaiser Pickup"))
+                {
+                    return RedirectToAction("KaiserOthersDetails", "Home");
+                }
+                else if (usr.sub_department.Equals("PPMC BPM"))
+                {
+                    return RedirectToAction("PPMCBPMDetails", "Home");
+                }
+            }
             SqlConnection connection = Utilities.getConn();
 
             SqlCommand command = new SqlCommand("get_Errors", connection);
@@ -1051,7 +2659,7 @@ namespace HCL_HRIS.Controllers
             command = new SqlCommand("get_ProdRanks", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-
+            command.CommandTimeout = 0;
             connection.Open();
             reader = command.ExecuteReader();
 
@@ -1137,9 +2745,312 @@ namespace HCL_HRIS.Controllers
                 } 
             } 
             connection.Close();
-
+             
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> PPMCL2Details()
+        {
+            // get user identity for queries
             int sap_id = Int32.Parse(User.Identity.Name.Trim());
             user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("aht_score")) * .3) + (reader.GetInt32(reader.GetOrdinal("cash_col_score")) * .3));
+                    ViewBag.AveCallsScore = reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score"));
+                    ViewBag.AveCalls = reader.GetDecimal(reader.GetOrdinal("ave_calls_handled"));
+                    ViewBag.AHTScore = reader.GetInt32(reader.GetOrdinal("aht_score"));
+                    ViewBag.AHT = reader.GetDecimal(reader.GetOrdinal("aht"));
+                    ViewBag.CashColScore = reader.GetInt32(reader.GetOrdinal("cash_col_score"));
+                    ViewBag.CashCol = string.Format("{0:P0}", reader.GetDecimal(reader.GetOrdinal("cash_col")));
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+            
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
             ViewBag.name = usr.name.Trim();
             ViewBag.user = usr;
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
@@ -1148,6 +3059,1520 @@ namespace HCL_HRIS.Controllers
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
 
+        public async Task<ActionResult> KaiserClosetDetails()
+        {
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select ave_prod,ave_prod_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("otc_score")) * .6));
+                    ViewBag.AveProdScore = reader.GetInt32(reader.GetOrdinal("ave_prod_score"));
+                    ViewBag.AveProd = reader.GetDecimal(reader.GetOrdinal("ave_prod")); 
+                    ViewBag.OtcScore = reader.GetInt32(reader.GetOrdinal("otc_score"));
+                    ViewBag.Otc = string.Format("{0:P0}", reader.GetDecimal(reader.GetOrdinal("otc")));
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+
+        public async Task<ActionResult> PPMCBPMDetails()
+        {
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select bpm, bpm_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("bpm_score")) * .5) + (reader.GetInt32(reader.GetOrdinal("otc_score")) * .5));
+                    ViewBag.BPMScore = reader.GetInt32(reader.GetOrdinal("bpm_score"));
+                    ViewBag.BPMProd = reader.GetDecimal(reader.GetOrdinal("bpm"));
+                    ViewBag.OtcScore = reader.GetInt32(reader.GetOrdinal("otc_score"));
+                    ViewBag.Otc = string.Format("{0:P0}", reader.GetDecimal(reader.GetOrdinal("otc")));
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> KaiserSMCDetails()
+        {
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score"))));
+                    ViewBag.AveProdScore = reader.GetInt32(reader.GetOrdinal("ave_prod_score"));
+                    ViewBag.AveProd = reader.GetDecimal(reader.GetOrdinal("ave_prod"));  
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> KaiserOthersDetails()
+        {
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_prod_score"))));
+                    ViewBag.AveProdScore = reader.GetInt32(reader.GetOrdinal("ave_prod_score"));
+                    ViewBag.AveProd = reader.GetDecimal(reader.GetOrdinal("ave_prod"));  
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
+        public async Task<ActionResult> PPMCDetails()
+        {
+            // get user identity for queries
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+
+            SqlConnection connection = Utilities.getConn();
+
+            SqlCommand command = new SqlCommand("get_Errors", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+
+            List<string> BCList = new List<string>();
+            double bcErrorPrevMos = 0, eucErrorPrevMos = 0, ccErrorPrevMos = 0, totalAuditPrevMos = 0, eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0, bcErrorWk1 = 0, eucErrorWk1 = 0, ccErrorWk1 = 0, totalAuditWk1 = 0, bcErrorWk2 = 0, eucErrorWk2 = 0, ccErrorWk2 = 0, totalAuditWk2 = 0, eucErrorWk3 = 0, ccErrorWk3 = 0, bcErrorWk3 = 0, totalAuditWk3 = 0, bcErrorWk4 = 0, eucErrorWk4 = 0, ccErrorWk4 = 0, totalAuditWk4 = 0, bcErrorWk5 = 0, eucErrorWk5 = 0, ccErrorWk5 = 0, totalAuditWk5 = 0;
+            while (reader.Read())
+            {
+                bcErrorPrevMos = int.Parse(reader["bcErrorPrevMos"].ToString());
+                eucErrorPrevMos = int.Parse(reader["eucErrorPrevMos"].ToString());
+                ccErrorPrevMos = int.Parse(reader["ccErrorPrevMos"].ToString());
+                totalAuditPrevMos = int.Parse(reader["totalAuditPrevMos"].ToString());
+                bcErrorCurrMos = int.Parse(reader["bcErrorCurrMos"].ToString());
+                eucErrorCurrMos = int.Parse(reader["eucErrorCurrMos"].ToString());
+                ccErrorCurrMos = int.Parse(reader["ccErrorCurrMos"].ToString());
+                totalAuditCurrMos = int.Parse(reader["totalAuditCurrMos"].ToString());
+                bcErrorWk1 = int.Parse(reader["bcErrorWk1"].ToString());
+                eucErrorWk1 = int.Parse(reader["eucErrorWk1"].ToString());
+                ccErrorWk1 = int.Parse(reader["ccErrorWk1"].ToString());
+                totalAuditWk1 = int.Parse(reader["totalAuditWk1"].ToString());
+                bcErrorWk2 = int.Parse(reader["bcErrorWk2"].ToString());
+                eucErrorWk2 = int.Parse(reader["eucErrorWk2"].ToString());
+                ccErrorWk2 = int.Parse(reader["ccErrorWk2"].ToString());
+                totalAuditWk2 = int.Parse(reader["totalAuditWk2"].ToString());
+                bcErrorWk3 = int.Parse(reader["bcErrorWk3"].ToString());
+                eucErrorWk3 = int.Parse(reader["eucErrorWk3"].ToString());
+                ccErrorWk3 = int.Parse(reader["ccErrorWk3"].ToString());
+                totalAuditWk3 = int.Parse(reader["totalAuditWk3"].ToString());
+                bcErrorWk4 = int.Parse(reader["bcErrorWk4"].ToString());
+                eucErrorWk4 = int.Parse(reader["eucErrorWk4"].ToString());
+                ccErrorWk4 = int.Parse(reader["ccErrorWk4"].ToString());
+                totalAuditWk4 = int.Parse(reader["totalAuditWk4"].ToString());
+                bcErrorWk5 = int.Parse(reader["bcErrorWk5"].ToString());
+                eucErrorWk5 = int.Parse(reader["eucErrorWk5"].ToString());
+                ccErrorWk5 = int.Parse(reader["ccErrorWk5"].ToString());
+                totalAuditWk5 = int.Parse(reader["totalAuditWk5"].ToString());
+            }
+            reader.Close();
+            command.Dispose();
+            //------------------------ BC EUC CC ViewBag ----------------------------00:P1}
+            if (totalAuditPrevMos != 0)
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 1.0 - ((double)bcErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 1.0 - ((double)eucErrorPrevMos / (double)totalAuditPrevMos));
+                ViewBag.CCPrev = string.Format("{0:0.00}", 1.0 - ((double)ccErrorPrevMos / (double)totalAuditPrevMos));
+            }
+            else
+            {
+                ViewBag.BCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.EUCPrev = string.Format("{0:0.00}", 0);
+                ViewBag.CCPrev = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditCurrMos != 0)
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 1.0 - ((double)bcErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 1.0 - ((double)eucErrorCurrMos / (double)totalAuditCurrMos));
+                ViewBag.CCCurr = string.Format("{0:0.00}", 1.0 - ((double)ccErrorCurrMos / (double)totalAuditCurrMos));
+            }
+            else
+            {
+                ViewBag.BCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.EUCCurr = string.Format("{0:0.00}", 0);
+                ViewBag.CCCurr = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk1 != 0)
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk1 / (double)totalAuditWk1));
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk1 / (double)totalAuditWk1));
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk1 / (double)totalAuditWk1));
+            }
+            else
+            {
+                ViewBag.BCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk1 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk1 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk2 != 0)
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk2 / (double)totalAuditWk2));
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk2 / (double)totalAuditWk2));
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk2 / (double)totalAuditWk2));
+            }
+            else
+            {
+                ViewBag.BCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk2 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk2 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk3 != 0)
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk3 / (double)totalAuditWk3));
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk3 / (double)totalAuditWk3));
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk3 / (double)totalAuditWk3));
+            }
+            else
+            {
+                ViewBag.BCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk3 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk3 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk4 != 0)
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk4 / (double)totalAuditWk4));
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk4 / (double)totalAuditWk4));
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk4 / (double)totalAuditWk4));
+            }
+            else
+            {
+                ViewBag.BCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk4 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk4 = string.Format("{0:0.00}", 0);
+            }
+            if (totalAuditWk5 != 0)
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 1.0 - ((double)bcErrorWk5 / (double)totalAuditWk5));
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 1.0 - ((double)eucErrorWk5 / (double)totalAuditWk5));
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 1.0 - ((double)ccErrorWk5 / (double)totalAuditWk5));
+            }
+            else
+            {
+                ViewBag.BCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.EUCWk5 = string.Format("{0:0.00}", 0);
+                ViewBag.CCWk5 = string.Format("{0:0.00}", 0);
+            }
+
+            connection.Close();
+
+            command = new SqlCommand("Select ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1", connection);
+            connection.Open();
+            command.Parameters
+                .Add(new SqlParameter("@1", SqlDbType.Int))
+                .Value = Int32.Parse(User.Identity.Name);
+            reader = await command.ExecuteReaderAsync();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.ProdScore = string.Format("{0:0.#}", (reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score")) * .4) + (reader.GetInt32(reader.GetOrdinal("aht_score")) * .3) + (reader.GetInt32(reader.GetOrdinal("cash_col_score")) * .3));
+                    ViewBag.AveCallsScore = reader.GetInt32(reader.GetOrdinal("ave_calls_handled_score"));
+                    ViewBag.AveCalls = reader.GetDecimal(reader.GetOrdinal("ave_calls_handled"));
+                    ViewBag.AHTScore = reader.GetInt32(reader.GetOrdinal("aht_score"));
+                    ViewBag.AHT = reader.GetDecimal(reader.GetOrdinal("aht"));
+                    ViewBag.CashColScore = reader.GetInt32(reader.GetOrdinal("cash_col_score"));
+                    ViewBag.CashCol = string.Format("{0:P0}", reader.GetDecimal(reader.GetOrdinal("cash_col")));
+                }
+            }
+            else
+            {
+                ViewBag.myRank = 0;
+                ViewBag.outOf = 0;
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_QualityRanks", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sapid", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.bcPrevRank = int.Parse(reader["bc_prev_rank"].ToString());
+                ViewBag.bcCurrRank = int.Parse(reader["bc_curr_rank"].ToString());
+                ViewBag.bcWk1Rank = int.Parse(reader["bc_wk1_rank"].ToString());
+                ViewBag.bcWk2Rank = int.Parse(reader["bc_wk2_rank"].ToString());
+                ViewBag.bcWk3Rank = int.Parse(reader["bc_wk3_rank"].ToString());
+                ViewBag.bcWk4Rank = int.Parse(reader["bc_wk4_rank"].ToString());
+                ViewBag.bcWk5Rank = int.Parse(reader["bc_wk5_rank"].ToString());
+                ViewBag.eucPrevRank = int.Parse(reader["euc_prev_rank"].ToString());
+                ViewBag.eucCurrRank = int.Parse(reader["euc_curr_rank"].ToString());
+                ViewBag.eucWk1Rank = int.Parse(reader["euc_wk1_rank"].ToString());
+                ViewBag.eucWk2Rank = int.Parse(reader["euc_wk2_rank"].ToString());
+                ViewBag.eucWk3Rank = int.Parse(reader["euc_wk3_rank"].ToString());
+                ViewBag.eucWk4Rank = int.Parse(reader["euc_wk4_rank"].ToString());
+                ViewBag.eucWk5Rank = int.Parse(reader["euc_wk5_rank"].ToString());
+                ViewBag.ccPrevRank = int.Parse(reader["cc_prev_rank"].ToString());
+                ViewBag.ccCurrRank = int.Parse(reader["cc_curr_rank"].ToString());
+                ViewBag.ccWk1Rank = int.Parse(reader["cc_wk1_rank"].ToString());
+                ViewBag.ccWk2Rank = int.Parse(reader["cc_wk2_rank"].ToString());
+                ViewBag.ccWk3Rank = int.Parse(reader["cc_wk3_rank"].ToString());
+                ViewBag.ccWk4Rank = int.Parse(reader["cc_wk4_rank"].ToString());
+                ViewBag.ccWk5Rank = int.Parse(reader["cc_wk5_rank"].ToString());
+            }
+            connection.Close();
+
+            command = new SqlCommand("get_Absenteeism", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                ViewBag.absPrev = tryGetData(reader, "AbsenteeismPrev");
+                ViewBag.absCurr = tryGetData(reader, "AbsenteeismCurr");
+                ViewBag.absWk1 = tryGetData(reader, "AbsenteeismWk1");
+                ViewBag.absWk2 = tryGetData(reader, "AbsenteeismWk2");
+                ViewBag.absWk3 = tryGetData(reader, "AbsenteeismWk3");
+                ViewBag.absWk4 = tryGetData(reader, "AbsenteeismWk4");
+                ViewBag.absWk5 = tryGetData(reader, "AbsenteeismWk5");
+            }
+            connection.Close();
+            
+            command = new SqlCommand("get_Comp", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    ViewBag.lms = double.Parse(string.Format("{0:0.#}", decimal.Parse(reader["LmsScore"].ToString())));
+                    ViewBag.lmspercent = reader["LmsPercent"];
+                }
+            }
+            else
+            {
+                ViewBag.lms = 0;
+                ViewBag.lmspercent = "0%";
+            }
+            connection.Close();
+            command = new SqlCommand("get_WPU", connection);
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+
+            connection.Open();
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                ViewBag.wpuprev = reader["prevmonth"];
+                if (reader.IsDBNull(reader.GetOrdinal("monthmarks")))
+                {
+                    ViewBag.wpu = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpu = reader["monthmarks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week1marks")))
+                {
+                    ViewBag.wpuwk1 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk1 = reader["week1marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week2marks")))
+                {
+                    ViewBag.wpuwk2 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk2 = reader["week2marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week3marks")))
+                {
+                    ViewBag.wpuwk3 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk3 = reader["week3marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week4marks")))
+                {
+                    ViewBag.wpuwk4 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk4 = reader["week4marks"];
+                }
+                if (reader.IsDBNull(reader.GetOrdinal("week5marks")))
+                {
+                    ViewBag.wpuwk5 = 0.0;
+                }
+                else
+                {
+                    ViewBag.wpuwk5 = reader["week5marks"];
+                }
+            }
+            connection.Close();
+
+            ViewBag.name = usr.name.Trim();
+            ViewBag.user = usr;
+            user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
+            ViewBag.leader_sap = leader.sap_id;
+            ViewBag.leader_name = leader.name.Trim();
+            return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
+        }
         [HttpPost]
         public async Task<JsonResult> EqUpload()
         {
@@ -2496,7 +5921,703 @@ namespace HCL_HRIS.Controllers
             Debug.WriteLine(line);
             return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public async Task<JsonResult> KaiserClosetOverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].kaiser_closet_overall " + //42 columns excl. ID
+                        "([sap_id], [ave_prod], [ave_prod_score], [otc], [otc_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @4, @5, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString()); 
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(10).Value.ToString()); 
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(23).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(24).Value.ToString());
 
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> PPMCBPMOverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].ppmc_bpm_overall " + //42 columns excl. ID
+                        "([sap_id], [bpm], [bpm_score], [otc], [otc_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @4, @5, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(6).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(22).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(23).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> KaiserSMCOverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].kaiser_smc_overall " + //42 columns excl. ID
+                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());  
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(21).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(22).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> KaiserOthersOverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].kaiser_others_overall " + //42 columns excl. ID
+                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());  
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(21).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(22).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> PPMCL1OverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].ppmcl1_overall " + //42 columns excl. ID
+                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString()); 
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(6).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(10).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(11).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(24).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(25).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public async Task<JsonResult> PPMCL2OverallsUpload()
+        {
+            int insertCount = 0;
+            for (int i = 0; i < Request.Files.Count; i++)
+            {
+                var file = Request.Files[i];
+                var fileName = Path.GetFileName(file.FileName);
+                var path = Path.Combine(Server.MapPath("~/Files/Uploads/"), fileName);
+                file.SaveAs(path);
+                if (file.ContentLength > 0)
+                {
+                    if (file.FileName.EndsWith(".xlsx") || file.FileName.EndsWith(".xls"))
+                    {
+                        XLWorkbook Workbook = new XLWorkbook();
+                        try
+                        {
+                            Workbook = new XLWorkbook(file.InputStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Check your file. {ex.Message}");
+                        }
+                        IXLWorksheet WorkSheet = null;
+                        try
+                        {
+                            WorkSheet = Workbook.Worksheet("dump");
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("sheet not found!");
+                        }
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        WorkSheet.FirstRow().Delete();//if you want to remove 1st row
+                        string _sql = string.Format("INSERT INTO [dbo].ppmcl2_overall " + //42 columns excl. ID
+                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9)");
+                        using (SqlConnection cn = Utilities.getConn())
+                        {
+                            foreach (var row in WorkSheet.RowsUsed())
+                            {
+                                //do something here
+                                if (row.Cell(1).GetString().Equals("-") || row.Cell(1).GetString().Equals(""))
+                                {
+                                    Debug.WriteLine("- Empty row encountered");
+                                }
+                                else
+                                {
+                                    var cmd = new SqlCommand(_sql, cn);
+                                    cmd.Parameters.Add(new SqlParameter("@1", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(1).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(6).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(10).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Int))
+                                        .Value = Decimal.Parse(row.Cell(11).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(24).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
+                                        .Value = Int32.Parse(row.Cell(25).Value.ToString());
+
+                                    insertCount++;
+                                    cn.Open();
+                                    try
+                                    {
+                                        await cmd.ExecuteNonQueryAsync();
+                                        Debug.WriteLine("{status:'Line Inserted " + insertCount + "'}");
+                                        cmd.Dispose();
+                                        cn.Close();
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        cn.Close();
+                                        String str = "{message:'" + e.Message + "'}";
+                                        Debug.WriteLine(str);
+                                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                Workbook.Dispose();
+                            }
+                            String str2 = "{status:'OK',Count:'" + insertCount + "'}";
+                            Debug.WriteLine("{status:'Upload Complete'}");
+                            file = null;
+                            GC.Collect();
+                            return Json(JObject.Parse(str2).ToString(), JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        String str = "{message:'Only.xlsx and .xls files are allowed'}";
+                        Debug.WriteLine(str);
+                        return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    String str = "{message:'Not a valid file'}";
+                    Debug.WriteLine(str);
+                    return Json(JObject.Parse(str).ToString(), JsonRequestBehavior.AllowGet);
+                }
+            }
+
+            String line = "{message:'No Valid File Found'}";
+            Debug.WriteLine(line);
+            return Json(JObject.Parse(line).ToString(), JsonRequestBehavior.AllowGet);
+        }
         public ActionResult DownloadEQProdTemplate()
         {
             string filename = "EqProd.xlsx";
