@@ -18,7 +18,16 @@ namespace HCL_HRIS.Controllers
         // GET: tracks
         public async Task<ActionResult> Index()
         {
-            return View(await db.tracks.ToListAsync());
+            int id = int.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == id).First();
+            if (usr.user_role == "Administrator" || usr.user_role == "Manager")
+            {
+                return View(await db.tracks.ToListAsync());
+            }
+            else
+            {
+                return new HttpNotFoundResult("You are not Allowed Access to this Page");
+            }
         }
 
         // GET: tracks/Details/5

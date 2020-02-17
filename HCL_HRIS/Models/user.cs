@@ -46,6 +46,7 @@ namespace HCL_HRIS.Models
         public string typing { get; set; }
         public string aptitude { get; set; }
         public string group_policy { get; set; }
+        public Nullable<bool> agreement_read { get; set; }
     
         public virtual group group { get; set; }
     }

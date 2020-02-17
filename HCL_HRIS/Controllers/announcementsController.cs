@@ -18,6 +18,9 @@ namespace HCL_HRIS.Controllers
         // GET: announcements
         public async Task<ActionResult> Index()
         {
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First(); 
+            ViewBag.user = usr;
             return View(await db.announcements.ToListAsync());
         }
 

@@ -81,8 +81,9 @@
     <link href="~/Content/fullcalendar-daygrid.css" rel="stylesheet" />
     <link href="~/Content/fullcalendar-bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/Chart.min.css" rel="stylesheet" />
-    <link href="~/Content/jquery-ui.min.css" rel="stylesheet" /> 
+    <link href="~/Content/jquery-ui.min.css" rel="stylesheet" />
     <script src="~/Scripts/jquery.min.js"></script>
+    <script src="~/Scripts/pdfobject.min.js"></script>
     <style>
         .modalload {
             display: none;
@@ -146,123 +147,144 @@
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Reports
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="~/attendance/Index">
-                    <i class="fa fa-fw fa-calendar-day"></i>
-                    <span>Attendance</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link" href="~/Home/Details">
-                    <i class="fa fa-fw fa-chart-line"></i>
-                    <span>Performance</span>
-                </a>
-            </li> 
-            @if (role.Equals("Team Leader"))
+            @if (!role.Equals("Manager"))
             {
-                <hr class="sidebar-divider">
+                if (!role.Equals("GM"))
+                {
+                    <!-- Heading -->
+                    <div class="sidebar-heading">
+                        Reports
+                    </div>
 
-                <!-- Heading -->
-                <div class="sidebar-heading">
-                    Team Leader
-                </div>
+                    <!-- Nav Item - Pages Collapse Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/attendance/Index">
+                            <i class="fa fa-fw fa-calendar-day"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </li>
+                }
+             }
+                @if (role.Equals("Agent"))
+                {
+                    <!-- Nav Item - Utilities Collapse Menu -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Home/Details">
+                            <i class="fa fa-fw fa-chart-line"></i>
+                            <span>Performance</span>
+                        </a>
+                    </li>
+                }
+                @if (role.Equals("Team Leader") || role.Equals("Manager"))
+                {
+                    if (role.Equals("Team Leader"))
+                    {
+                        <hr class="sidebar-divider">
+                        <!-- Heading -->
+                        <div class="sidebar-heading">
+                            Team Leader
+                        </div>
 
-                <!-- Nav Item - Charts -->
-                <li class="nav-item">
-                    <a class="nav-link" href="~/users/Team">
-                        <i class="fa fa-fw fa-users-cog"></i>
-                        <span>Team</span>
-                    </a>
-                </li>
-                <hr class="sidebar-divider" />
+                        <!-- Nav Item - Charts -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/users/Team">
+                                <i class="fa fa-fw fa-users-cog"></i>
+                                <span>Team</span>
+                            </a>
+                        </li>
+                        <hr class="sidebar-divider" />
+                    }
 
-                <!-- Nav Item - Charts -->
-                <li class="nav-item">
-                    <a class="nav-link" href="~/Home/Chat">
-                        <i class="fa fa-fw fa-mail-bulk"></i>
-                        <span>Chat</span>
-                    </a>
-                </li>
+                    <!-- Nav Item - Charts -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Home/Chat">
+                            <i class="fa fa-fw fa-mail-bulk"></i>
+                            <span>Chat</span>
+                        </a>
+                    </li>
 
-            }
-            @if (role.Equals("Administrator"))
-            {
-                <hr class="sidebar-divider" />
+
+                    <hr class="sidebar-divider" />
+                }
 
                 <!-- Divider -->
-
                 <!-- Heading -->
-                <div class="sidebar-heading">
-                    Quality
+                @if (role.Equals("QA"))
+                {
+                    <div class="sidebar-heading">
+                        Quality
+                    </div>
+
+                    <!-- Nav Item - Charts -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/audits/Index">
+                            <i class="fa fa-fw fa-check-square"></i>
+                            <span>Q.A. Audits</span>
+                        </a>
+                    </li>
+                    <hr class="sidebar-divider">
+                }
+                @if (role.Equals("Administrator") || role.Equals("Manager"))
+                {
+                    <!-- Heading -->
+                    <div class="sidebar-heading">
+                        Admin
+                    </div>
+
+
+
+                    <!-- Nav Item - Charts -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Users/Index">
+                            <i class="fa fa-fw fa-user-alt"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/groups/Index">
+                            <i class="fa fa-fw fa-user-friends"></i>
+                            <span>Group Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/tracks/Index">
+                            <i class="fa fa-fw fa-users"></i>
+                            <span>Track Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Announcements/Index">
+                            <i class="fa fa-fw fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Home/Import">
+                            <i class="fa fa-fw fa-file-excel"></i>
+                            <span>Excel Import</span>
+                        </a>
+                    </li>
+                }
+                @if (role.Equals("GM"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Announcements/Index">
+                            <i class="fa fa-fw fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                }
+                <!-- Divider -->
+                <hr class="sidebar-divider d-none d-md-block">
+
+                <!-- Sidebar Toggler (Sidebar) -->
+                <div class="text-center d-none d-md-inline">
+                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
                 </div>
+                <div style="width: auto; background-color: #728ea7;">
 
-                <!-- Nav Item - Charts -->
-                <li class="nav-item">
-                    <a class="nav-link" href="~/audits/Index">
-                        <i class="fa fa-fw fa-check-square"></i>
-                        <span>Q.A. Audits</span>
-                    </a>
-                </li>
-                <hr class="sidebar-divider">
-
-                <!-- Heading -->
-                <div class="sidebar-heading">
-                    Admin
                 </div>
-
-
-
-                <!-- Nav Item - Charts -->
-                <li class="nav-item">
-                    <a class="nav-link" href="~/Users/Index">
-                        <i class="fa fa-fw fa-user-alt"></i>
-                        <span>User Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="~/groups/Index">
-                        <i class="fa fa-fw fa-user-friends"></i>
-                        <span>Group Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="~/tracks/Index">
-                        <i class="fa fa-fw fa-users"></i>
-                        <span>Track Management</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="~/Announcements/Index">
-                        <i class="fa fa-fw fa-bullhorn"></i>
-                        <span>Announcements</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="~/Home/Import">
-                        <i class="fa fa-fw fa-file-excel"></i>
-                        <span>Excel Import</span>
-                    </a>
-                </li>
-            }
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-            <div style="width: auto; background-color: #728ea7;">
-
-            </div>
-        </ul>
+            </ul>
         <!-- End of Sidebar -->
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">

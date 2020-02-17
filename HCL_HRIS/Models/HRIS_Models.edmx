@@ -145,6 +145,7 @@
           <Property Name="typing" Type="nvarchar(max)" />
           <Property Name="aptitude" Type="nvarchar(max)" />
           <Property Name="group_policy" Type="nvarchar(max)" />
+          <Property Name="agreement_read" Type="bit" />
         </EntityType>
         <Function Name="fn_GetTotalWorkingDaysUsingLoop" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int">
           <Parameter Name="DateFrom" Type="date" Mode="In" />
@@ -209,6 +210,7 @@
           <Property Name="typing" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="aptitude" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="group_policy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="agreement_read" Type="Boolean" />
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
@@ -486,6 +488,7 @@
           <EntitySetMapping Name="users">
             <EntityTypeMapping TypeName="HCL_HRISModel.user">
               <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="agreement_read" ColumnName="agreement_read" />
                 <ScalarProperty Name="group_policy" ColumnName="group_policy" />
                 <ScalarProperty Name="aptitude" ColumnName="aptitude" />
                 <ScalarProperty Name="typing" ColumnName="typing" />

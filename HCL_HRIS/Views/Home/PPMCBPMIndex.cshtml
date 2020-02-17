@@ -1,12 +1,13 @@
 ﻿@using System.Globalization;
 @model IEnumerable<HCL_HRIS.Models.announcement>
 @{
-ViewBag.Title = "Home Page";
+    ViewBag.Title = "Home Page";
 
-  if("Team Leader".Equals(ViewBag.user_role)){ 
-            Response.Redirect("~/Home/TeamLead");
-  }
-} 
+    if ("Team Leader".Equals(ViewBag.user_role))
+    {
+        Response.Redirect("~/Home/TeamLead");
+    }
+}
 <style>
     .fc-bgevent {
         color: white !important;
@@ -30,11 +31,11 @@ ViewBag.Title = "Home Page";
                 Agent Dashboard
             </div>
             <div class="card-body" style="padding:3px;">
-                
+
                 <div class="card" style="margin-top:5px;">
                     @*<div class="card-header" style="padding:3px;">
-                Productivity Score
-            </div>*@
+                            Productivity Score
+                        </div>*@
                     <div class="card-body" style="padding:3px;font-size:0.75rem; overflow-x:auto;">
                         <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
                             <thead>
@@ -50,27 +51,27 @@ ViewBag.Title = "Home Page";
                                 <tr>
                                     <td><span style="font-style:oblique;">Prod </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Prod" style="text-decoration:none;color:whitesmoke;">@ViewBag.ProdScore</a></h4></td>
                                     <td><span style="font-style:oblique;">Quality </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Quality" style="text-decoration:none;color:whitesmoke;">@ViewBag.QAScore</a></h4></td>
-                                    <td><span style="font-style:oblique;">Behavior </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Behavior" style="text-decoration:none;color:whitesmoke;">@ViewBag.AbsScore</a></h4></td> 
-                                    <td><span style="font-style:oblique;">Compliance </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Compliance" style="text-decoration:none;color:whitesmoke;">@((ViewBag.lms*.5)+(ViewBag.WpuScore*.5))</a></h4></td>
+                                    <td><span style="font-style:oblique;">Behavior </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Behavior" style="text-decoration:none;color:whitesmoke;">@ViewBag.AbsScore</a></h4></td>
+                                    <td><span style="font-style:oblique;">Compliance </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Compliance" style="text-decoration:none;color:whitesmoke;">@((ViewBag.lms * .5) + (ViewBag.WpuScore * .5))</a></h4></td>
                                 </tr>
                             </tbody>
-                        </table> 
-                                <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
-                                <tr>
-                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">MANAGER</td>
-                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">SUPPORT</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.manager_mail" target="_top" style="color:whitesmoke;">@ViewBag.manager</a></td>
-                                    <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3"><a href="mailto:kimberley.pascual@hcl.com" target="_top" style="color:whitesmoke;">Kimberley Pascual (QA)</a> <br /><a href="mailto:donnajayne.salting@hcl.com" target="_top" style="color:whitesmoke;">Donna Salting (WF)</a> <br /><a href="mailto:marose.pachica@hcl.com" target="_top" style="color:whitesmoke;">Ma. Rose Pachica (Trainer)</a> <br /><a href="mailto:GianinaMaria.Ciriaco@hcl.com" target="_top" style="color:whitesmoke;">Gianina Ciriaco (HR)</a> <br /></td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:bolder;padding:6px;background-color:#2a4796  ;" colspan="2">TEAM LEAD</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.leader_mail" target="_top" style="color:whitesmoke;">@ViewBag.leader_name</a></td>
-                                </tr> 
-                                </table>
+                        </table>
+                        <table class="table-bordered table text-center" style="color:black;overflow-x:scroll;padding-bottom:0px;margin-bottom:0px;font-size:large;background-color:#93a9eb;color:ghostwhite;font-weight:bold;table-layout: fixed;">
+                            <tr>
+                                <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">MANAGER</td>
+                                <td style="font-weight:bolder;padding:6px;background-color:#2a4796;" colspan="2">SUPPORT</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.manager_mail" target="_top" style="color:whitesmoke;">@ViewBag.manager</a></td>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2" rowspan="3"><a href="mailto:kimberley.pascual@hcl.com" target="_top" style="color:whitesmoke;">Kimberley Pascual (QA)</a> <br /><a href="mailto:donnajayne.salting@hcl.com" target="_top" style="color:whitesmoke;">Donna Salting (WF)</a> <br /><a href="mailto:marose.pachica@hcl.com" target="_top" style="color:whitesmoke;">Ma. Rose Pachica (Trainer)</a> <br /><a href="mailto:GianinaMaria.Ciriaco@hcl.com" target="_top" style="color:whitesmoke;">Gianina Ciriaco (HR)</a> <br /></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bolder;padding:6px;background-color:#2a4796  ;" colspan="2">TEAM LEAD</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px;background-color:#4e73df;" colspan="2"><a href="mailto:@ViewBag.leader_mail" target="_top" style="color:whitesmoke;">@ViewBag.leader_name</a></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
                 <div class="col-12 card no-rad-bltl" style="min-height:35%;padding:0px;border-top-right-radius: 0px !important;">
@@ -121,7 +122,7 @@ ViewBag.Title = "Home Page";
                 </div>
                 <div class="col-6 card no-rad-bltl" style="padding:0px;border-bottom-right-radius: 0px !important;">
                     <div class="card-header" style="padding:4.5px;">
-                        Track Top 5 Performers
+                        Track Top 5<a href="#" id="showInc" style="float:right;"><span>Incentive Scheme</span></a>
                     </div>
                     <div class="card-body" style="padding:4.5px;font-size:0.75rem;">
                         <ul class="list-group list-group-flush">
@@ -145,12 +146,36 @@ ViewBag.Title = "Home Page";
                 <div id="calendar" style="width:75%;margin-left:25px;"></div>
             </div>
         </div>
- 
+
+    </div>
+</div>
+<div class="modal fade" id="incModal" tabindex="-1" role="dialog" aria-labelledby="incModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:80% !important;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incModalLabel"><span id="Title">Sleep E.Q. Incentive Scheme </span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="height:500px;">
+                    <object data="../Files/PDF/PPMC.pdf" type="application/pdf" id="ScanPdf" width="100%" height="100%"></object>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
     </div>
 </div>
 <script>
     var chatType = 'TL';
     $(document).ready(function () {
+        $('#showInc').click(function () {
+            $('#incModal').modal('show');
+        });
 
         $('#clicky').click(function () {
             $('.hideable').toggle().animate();

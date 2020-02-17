@@ -96,7 +96,7 @@ namespace HCL_HRIS.Models
             double score = BcScore * 100;
             if (score == 0)
             {
-                return 0;
+                return 5;
             }
             else if (score == 100)
             {
@@ -128,7 +128,7 @@ namespace HCL_HRIS.Models
             double score = EucScore * 100;
             if (score == 0)
             {
-                return 0;
+                return 5;
             }
             else if (score == 100)
             {
@@ -160,7 +160,7 @@ namespace HCL_HRIS.Models
             double score = CcScore * 100;
             if (score == 0)
             {
-                return 0;
+                return 5;
             }
             else if (score >= 99.5)
             {
@@ -268,13 +268,13 @@ namespace HCL_HRIS.Models
         }
         public static int getEQWpuScore(double PcentScore)
         {
-            double score = PcentScore * 100;
+            double score = PcentScore ;
             //if (score == 0)
             //{
             //    return 0;
             //}
             //else 
-            if (score == 100)
+            if (score >= 100)
             {
                 return 5;
             } 

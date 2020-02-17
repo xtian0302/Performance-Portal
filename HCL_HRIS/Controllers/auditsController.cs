@@ -23,7 +23,7 @@ namespace HCL_HRIS.Controllers
         // GET: audits
         public async Task<ActionResult> Index()
         {
-            return View(await db.audits.OrderByDescending(x => x.audit_id).ToListAsync());
+            return View(await db.audits.OrderByDescending(x => x.audit_id).Take(1000).ToListAsync());
         }
         // GET: audits/Import
         public ActionResult Import()

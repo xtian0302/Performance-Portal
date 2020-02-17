@@ -2,10 +2,6 @@
 @model IEnumerable<HCL_HRIS.Models.announcement>
 @{
 ViewBag.Title = "Home Page";
-
-  if("Team Leader".Equals(ViewBag.user_role)){ 
-            Response.Redirect("~/Home/TeamLead");
-  }
 } 
 <style>
     .fc-bgevent {
@@ -121,7 +117,7 @@ ViewBag.Title = "Home Page";
                 </div>
                 <div class="col-6 card no-rad-bltl" style="padding:0px;border-bottom-right-radius: 0px !important;">
                     <div class="card-header" style="padding:4.5px;">
-                        Track Top 5 Performers
+                        Track Top 5<a href="#" id="showInc" style="float:right;"><span >Incentive Scheme</span></a>
                     </div>
                     <div class="card-body" style="padding:4.5px;font-size:0.75rem;">
                         <ul class="list-group list-group-flush">
@@ -148,10 +144,49 @@ ViewBag.Title = "Home Page";
  
     </div>
 </div>
-<script>
-    var chatType = 'TL';
-    $(document).ready(function () {
 
+<div class="modal fade" id="incModal" tabindex="-1" role="dialog" aria-labelledby="incModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:80% !important;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incModalLabel"><span id="Title">Sleep E.Q. Incentive Scheme </span></h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body"> 
+                <div style="height:500px;">
+                    <object data="../Files/PDF/SleepEQ.pdf" type="application/pdf" id="ScanPdf" width="100%" height="100%"> 
+                    </object>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function loadPdf() {
+            var viewer = document.getElementById("ScanPdf");
+            var parent = viewer.parentElement;
+            var oldStyle = viewer.style;
+            var newViewer = document.createElement("object");
+            viewer.remove(); 
+            newViewer.setAttribute("data", "../Files/PDF/SleepEQ.pdf");
+            newViewer.setAttribute("width", "100%");
+            newViewer.setAttribute("height", "100%");
+            newViewer.setAttribute("id", "ScanPdf");
+            parent.appendChild(newViewer);
+    }
+
+    var chatType = 'TL'; 
+    $(document).ready(function () {
+        $('#showInc').click(function () {
+            $('#incModal').modal('show');
+            loadPdf();
+        });
         $('#clicky').click(function () {
             $('.hideable').toggle().animate();
             $(this).toggleClass('fa-window-minimize fa-window-maximize');
@@ -209,7 +244,6 @@ ViewBag.Title = "Home Page";
                     reloadGroupChat();
                     $("#chatMessage").focus();
                 });
-
             }
         });
     });

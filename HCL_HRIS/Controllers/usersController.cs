@@ -25,7 +25,7 @@ namespace HCL_HRIS.Controllers
         {
             int id = int.Parse(User.Identity.Name);
             user usr = db.users.Where(x => x.sap_id == id).First();
-            if (usr.user_role == "Administrator")
+            if (usr.user_role == "Administrator"|| usr.user_role == "Manager")
             {
                 return View(await db.users.ToListAsync());
             }

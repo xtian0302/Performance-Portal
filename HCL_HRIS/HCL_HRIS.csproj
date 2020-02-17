@@ -263,6 +263,7 @@
     <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.easing.js" />
     <Content Include="Scripts\jquery.min.js" />
+    <Content Include="Scripts\pdfobject.min.js" />
     <Content Include="Scripts\sb-admin-2.min.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -303,6 +304,8 @@
     <Content Include="Files\Excel_Templates\Users_Template.xlsx" />
     <Content Include="Files\Excel_Templates\EqProd.xlsx" />
     <Content Include="App_Data\HCL_HRIS.dacpac" />
+    <Content Include="Files\PDF\SleepEQ.pdf" />
+    <Content Include="Files\PDF\PPMC.pdf" />
     <None Include="packages.config" />
     <Content Include="webfonts\fa-brands-400.eot" />
     <Content Include="webfonts\fa-brands-400.ttf" />
@@ -363,6 +366,9 @@
     <Content Include="Views\Home\KaiserOthersDetails.cshtml" />
     <Content Include="Views\Home\PPMCBPMIndex.cshtml" />
     <Content Include="Views\Home\PPMCBPMDetails.cshtml" />
+    <Content Include="Views\Home\Manager.cshtml" />
+    <Content Include="Views\Home\GeneralManager.cshtml" />
+    <Content Include="Views\Home\Agreement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Files\Uploads\" />

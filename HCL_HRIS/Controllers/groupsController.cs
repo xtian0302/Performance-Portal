@@ -18,8 +18,17 @@ namespace HCL_HRIS.Controllers
 
         // GET: groups
         public async Task<ActionResult> Index()
-        {  
-            return View(await db.groups.ToListAsync());
+        {
+            int id = int.Parse(User.Identity.Name);
+            user usr = db.users.Where(x => x.sap_id == id).First();
+            if (usr.user_role == "Administrator" || usr.user_role == "Manager")
+            {
+                return View(await db.groups.ToListAsync());
+            }
+            else
+            {
+                return new HttpNotFoundResult("You are not Allowed Access to this Page");
+            }
         }
 
         // GET: groups/Details/5
