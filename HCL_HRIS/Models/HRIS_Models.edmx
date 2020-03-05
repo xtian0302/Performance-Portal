@@ -146,6 +146,13 @@
           <Property Name="aptitude" Type="nvarchar(max)" />
           <Property Name="group_policy" Type="nvarchar(max)" />
           <Property Name="agreement_read" Type="bit" />
+          <Property Name="email" Type="nvarchar(max)" />
+          <Property Name="201" Type="nvarchar(max)" />
+          <Property Name="basicreq" Type="nvarchar(max)" />
+          <Property Name="bgv_result" Type="nvarchar(max)" />
+          <Property Name="police_nbi" Type="nvarchar(max)" />
+          <Property Name="versant_tin" Type="nvarchar(max)" />
+          <Property Name="bgv_status" Type="nvarchar(max)" />
         </EntityType>
         <Function Name="fn_GetTotalWorkingDaysUsingLoop" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int">
           <Parameter Name="DateFrom" Type="date" Mode="In" />
@@ -211,6 +218,13 @@
           <Property Name="aptitude" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="group_policy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="agreement_read" Type="Boolean" />
+          <Property Name="email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="C201" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="basicreq" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="bgv_result" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="police_nbi" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="versant_tin" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="bgv_status" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityContainer Name="HCL_HRISEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="users" EntityType="Self.user" />
@@ -488,6 +502,13 @@
           <EntitySetMapping Name="users">
             <EntityTypeMapping TypeName="HCL_HRISModel.user">
               <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="bgv_status" ColumnName="bgv_status" />
+                <ScalarProperty Name="versant_tin" ColumnName="versant_tin" />
+                <ScalarProperty Name="police_nbi" ColumnName="police_nbi" />
+                <ScalarProperty Name="bgv_result" ColumnName="bgv_result" />
+                <ScalarProperty Name="basicreq" ColumnName="basicreq" />
+                <ScalarProperty Name="C201" ColumnName="201" />
+                <ScalarProperty Name="email" ColumnName="email" />
                 <ScalarProperty Name="agreement_read" ColumnName="agreement_read" />
                 <ScalarProperty Name="group_policy" ColumnName="group_policy" />
                 <ScalarProperty Name="aptitude" ColumnName="aptitude" />

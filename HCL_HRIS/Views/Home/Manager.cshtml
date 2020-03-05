@@ -40,19 +40,19 @@
                                     <td colspan="4" style="padding:5px;background-color:#2a4796;color:whitesmoke;">As of @DateTime.Now.ToLongDateString() Performance</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3">SCORE <br /> <h1 style="font-weight:bold;font-size:95px;margin-top:15px;"><a href="@Url.Action("Details")#minimize" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_score</a></h1></td>
-                                    <td>Rank <br /><br /> <h1 style="font-weight:bold;"><a href="#" style="text-decoration:none;color:whitesmoke;">@ViewBag.scoreRank</a> </h1> Of @ViewBag.total</td>
+                                    <td colspan="3">TRACK SCORE <br /> <h1 style="font-weight:bold;font-size:95px;margin-top:15px;"><a href="@Url.Action("Details")#minimize" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_score</a></h1></td>
+                                     
                                 </tr>
                                 <tr>
-                                    <td><span style="font-style:oblique;">Track<br />Prod </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Prod" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_prod</a></h4> @ViewBag.prodRank of @ViewBag.total</td>
-                                    <td><span style="font-style:oblique;">Track<br />Quality </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Quality" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_quality</a></h4> @ViewBag.qualityRank of @ViewBag.total</td>
-                                    <td><span style="font-style:oblique;">Track<br />Behavior </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_behavior</a></h4> @ViewBag.behaviorRank of @ViewBag.total</td>
+                                    <td><span style="font-style:oblique;">Track<br />Prod </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Prod" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_prod</a></h4> </td>
+                                    <td><span style="font-style:oblique;">Track<br />Quality </span><br /> <h4 style="font-weight:bold;"><a href="@Url.Action("Details")#Quality" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_quality</a></h4> </td>
+                                    <td><span style="font-style:oblique;">Track<br />Behavior </span><br /> <h4 style="font-weight:bold;"> <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">@ViewBag.group_behavior</a></h4> </td>
                                     <td>
                                         <span style="font-style:oblique;">Track<br />Compliance </span><br /> <h4 style="font-weight:bold;">
                                             <a href="@Url.Action("Details")" style="text-decoration:none;color:whitesmoke;">
                                                 @ViewBag.group_compliance
                                             </a>
-                                        </h4>  @ViewBag.complianceRank of @ViewBag.total
+                                        </h4> 
                                     </td>
                                 </tr>
                         </table>

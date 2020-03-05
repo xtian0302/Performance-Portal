@@ -334,5 +334,349 @@ namespace HCL_HRIS.Models
             return (int)Math.Truncate((double)date.Subtract(beginningOfMonth).TotalDays / 7f) + 1;
         }
 
+        public static int getPPMC1_ACH(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 40)
+            {
+                return 5;
+            }
+            else if (score >= 34)
+            {
+                return 4;
+            }
+            else if (score >= 28)
+            {
+                return 3;
+            }
+            else if (score >= 22)
+            {
+                return 2;
+            }
+            else if (score < 22)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getPPMC1_AHT(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score < 470)
+            {
+                return 5;
+            }
+            else if (score <= 490)
+            {
+                return 4;
+            }
+            else if (score <= 500)
+            {
+                return 3;
+            }
+            else if (score <= 520)
+            {
+                return 2;
+            }
+            else if (score > 520)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getPPMC1_CashCol(double score)
+        {
+            score = score * 100;
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 110)
+            {
+                return 5;
+            }
+            else if (score >= 105)
+            {
+                return 4;
+            }
+            else if (score >= 100)
+            {
+                return 3;
+            }
+            else if (score >= 90)
+            {
+                return 2;
+            }
+            else if (score < 90)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public static int getPPMC2_ACH(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 28)
+            {
+                return 5;
+            }
+            else if (score >= 26)
+            {
+                return 4;
+            }
+            else if (score >= 24)
+            {
+                return 3;
+            }
+            else if (score >= 22)
+            {
+                return 2;
+            }
+            else if (score < 22)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getPPMC2_AHT(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score < 650)
+            {
+                return 5;
+            }
+            else if (score <= 680)
+            {
+                return 4;
+            }
+            else if (score <= 700)
+            {
+                return 3;
+            }
+            else if (score <= 720)
+            {
+                return 2;
+            }
+            else if (score > 720)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getPPMC2_CashCol(double score)
+        {
+            score = score * 100;
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 110)
+            {
+                return 5;
+            }
+            else if (score >= 105)
+            {
+                return 4;
+            }
+            else if (score >= 100)
+            {
+                return 3;
+            }
+            else if (score >= 90)
+            {
+                return 2;
+            }
+            else if (score < 90)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public static int getKaiserSMC_AveP(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 76.5)
+            {
+                return 5;
+            }
+            else if (score >= 73.31)
+            {
+                return 4;
+            }
+            else if (score >= 63.75)
+            {
+                return 3;
+            }
+            else if (score >= 57.37)
+            {
+                return 2;
+            }
+            else if (score < 57.37)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public static int getKaiserCloset_AveP(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 47.52)
+            {
+                return 5;
+            }
+            else if (score >= 45.54)
+            {
+                return 4;
+            }
+            else if (score >= 39.6)
+            {
+                return 3;
+            }
+            else if (score >= 35.64)
+            {
+                return 2;
+            }
+            else if (score < 35.64)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getKaiserCloset_OTC(double score)
+        {
+            score = score * 100;
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 98)
+            {
+                return 5;
+            }
+            else if (score >= 97)
+            {
+                return 4;
+            }
+            else if (score >= 95)
+            {
+                return 3;
+            } 
+            else if (score < 95)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public static int getKaiserOrphan_AveP(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 37)
+            {
+                return 5;
+            }
+            else if (score >= 32.01)
+            {
+                return 4;
+            }
+            else if (score >= 32)
+            {
+                return 3;
+            }
+            else if (score >= 27)
+            {
+                return 2;
+            }
+            else if (score < 27)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        public static int getKaiserBUKP_AveP(double score)
+        {
+            if (score == 0)
+            {
+                return 0;
+            }
+            else if (score > 20)
+            {
+                return 5;
+            }
+            else if (score >= 15)
+            {
+                return 4;
+            }
+            else if (score >= 15)
+            {
+                return 3;
+            }
+            else if (score >= 12)
+            {
+                return 2;
+            }
+            else if (score < 12)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }

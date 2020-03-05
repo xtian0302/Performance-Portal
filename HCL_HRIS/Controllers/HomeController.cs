@@ -354,7 +354,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmcl1_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from ppmcl1_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from ppmcl1_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -393,7 +393,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             } 
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select ave_calls_handled_score, aht_score, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 (select sum(ave_calls_handled_score)/nullif(count(ave_calls_handled_score),0) from ppmcl1_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as ave_calls_handled_score, (select sum(aht_score)/nullif(count(aht_score),0) from ppmcl1_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as aht_score,(select sum(cash_col_score)/nullif(count(cash_col_score),0) from ppmcl1_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1 order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -758,7 +758,10 @@ namespace HCL_HRIS.Controllers
             return View(await db.announcements.OrderBy(x => x.announcement_id).Take(3).ToListAsync());
         }
         public async Task<ActionResult> Manager()
-        {
+        { 
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+
             SqlConnection connection = Utilities.getConn();
             SqlCommand command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -775,10 +778,41 @@ namespace HCL_HRIS.Controllers
             }
             reader.Close();
             command.Dispose();
+            string trackMatch = "";
+            if(usr.sub_department.Contains("Sleep EQ")){
+                trackMatch = "Sleep EQ";
+            }else if (usr.sub_department.Contains("PPMC")) {
+                trackMatch = "PPMC";
+            }else if (usr.sub_department.Contains("Kaiser")) {
+                trackMatch = "Kaiser";
+            }
 
-            command = new SqlCommand("get_TeamRanks", connection);
+            command = new SqlCommand("select sum(group_score)/count(group_score) as track_score,sum(group_prod)/count(group_score) as track_prod,sum(group_quality)/count(group_score) as track_quality,sum(group_behavior)/count(group_behavior) as track_behavior,sum(group_compliance)/count(group_compliance) as track_compliance  from (select (select top 1 group_score from group_scores where leader_sap = sapno order by date desc) as group_score,(select top 1 group_prod from group_scores where leader_sap = sapno order by date desc) as group_prod,(select top 1 group_quality from group_scores where leader_sap = sapno order by date desc) as group_quality,(select top 1 group_behavior from group_scores where leader_sap = sapno order by date desc) as group_behavior,(select top 1 group_compliance from group_scores where leader_sap = sapno order by date desc) as group_compliance from (select distinct(leader_sap) as sapno from group_scores where track LIKE '%"+trackMatch+"%') tb) tbl",connection);
+            reader = await command.ExecuteReaderAsync();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ViewBag.group_score = string.Format("{0:0.#}", reader["track_score"]);
+                        ViewBag.group_prod = string.Format("{0:0.#}", reader["track_prod"]);
+                        ViewBag.group_quality = string.Format("{0:0.#}", reader["track_quality"]);
+                        ViewBag.group_behavior = string.Format("{0:0.#}", reader["track_behavior"]);
+                        ViewBag.group_compliance = string.Format("{0:0.#}", reader["track_compliance"]);
+                    }
+                } else {
+                    ViewBag.group_score = 0;
+                    ViewBag.group_prod = 0;
+                    ViewBag.group_quality = 0;
+                    ViewBag.group_behavior = 0;
+                    ViewBag.group_compliance = 0;
+                } 
+            reader.Close();
+            command.Dispose(); 
+
+           command = new SqlCommand("get_TeamRanks", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
             command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
+            command.Parameters.Add("@track", SqlDbType.VarChar).Value = usr.sub_department;
             reader = await command.ExecuteReaderAsync();
             while (reader.Read())
             {
@@ -790,40 +824,95 @@ namespace HCL_HRIS.Controllers
                 ViewBag.total = reader["total"];
             }
             reader.Close();
-            command.Dispose();
-            connection.Close();
-
-            command = new SqlCommand("Select top 1 * from top5 order by date desc", connection);
-            connection.Open();
-            reader = command.ExecuteReader();
-            if (reader.HasRows)
+            command.Dispose(); 
+             
+            command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,score from rankings order by score desc)tb", connection);
+            reader = await command.ExecuteReaderAsync();
+                int i = 1;
+                if (reader.HasRows)  {
+                    while (reader.Read()) {
+                        if(i == 1) {
+                            ViewBag.top1sap = reader["sapno"];
+                            ViewBag.top1name = reader["name"];
+                        }else if(i == 2) { 
+                            ViewBag.top2sap = reader["sapno"];
+                            ViewBag.top2name = reader["name"];
+                        }else if(i == 3) { 
+                            ViewBag.top3sap = reader["sapno"];
+                            ViewBag.top3name = reader["name"];
+                        }else if(i == 4) { 
+                            ViewBag.top4sap = reader["sapno"];
+                            ViewBag.top4name = reader["name"];
+                        }else if(i == 5) { 
+                            ViewBag.top5sap = reader["sapno"];
+                            ViewBag.top5name = reader["name"];
+                        } 
+                        i++;
+                    }
+                }else{
+                    ViewBag.top1sap = 1;
+                    ViewBag.top1name = "Agent1";
+                    ViewBag.top2sap = 2;
+                    ViewBag.top2name = "Agent2";
+                    ViewBag.top3sap = 3;
+                    ViewBag.top3name = "Agent3";
+                    ViewBag.top4sap = 4;
+                    ViewBag.top4name = "Agent4";
+                    ViewBag.top5sap = 5;
+                    ViewBag.top5name = "Agent5";
+                } 
+            if (usr.sub_department.Equals("PPMC") || usr.sub_department.Equals("Kaiser BU/AH") || usr.sub_department.Equals("Kaiser Pickup") || usr.sub_department.Equals("PPMC BPM") || usr.sub_department.Equals("Kaiser BU/ AH") || usr.sub_department.Equals("Kaiser SMC Resupply") || usr.sub_department.Equals("Kaiser Closet") || usr.sub_department.Equals("PPMC IB/BPM") || usr.sub_department.Equals("PPMC IB L2"))
             {
-                while (reader.Read())
+                String track = "";
+                if(usr.sub_department == "PPMC" || usr.sub_department.Equals("PPMC IB/BPM"))
                 {
-                    ViewBag.top1sap = reader["top1_sap"];
-                    ViewBag.top1name = reader["top1_name"];
-                    ViewBag.top2sap = reader["top2_sap"];
-                    ViewBag.top2name = reader["top2_name"];
-                    ViewBag.top3sap = reader["top3_sap"];
-                    ViewBag.top3name = reader["top3_name"];
-                    ViewBag.top4sap = reader["top4_sap"];
-                    ViewBag.top4name = reader["top4_name"];
-                    ViewBag.top5sap = reader["top5_sap"];
-                    ViewBag.top5name = reader["top5_name"];
+                    track = "ppmcl1_overall";
+                } else if (usr.sub_department.Equals("PPMC IB L2")) {
+                    track = "ppmcl2_overall";
+                }  else if (usr.sub_department.Equals("Kaiser Closet"))  {
+                    track = "kaiser_closet_overall";
+                } else if (usr.sub_department.Equals("Kaiser SMC Resupply")) {
+                    track = "kaiser_smc_overall";
+                } else if (usr.sub_department.Equals("Kaiser BU/ AH") || usr.sub_department.Equals("Kaiser BU/AH") || usr.sub_department.Equals("Kaiser Pickup")){
+                    track = "kaiser_others_overall";
+                } else if (usr.sub_department.Equals("PPMC BPM")) {
+                    track = "ppmc_bpm_overall";
                 }
-            }
-            else
-            {
-                ViewBag.top1sap = 1;
-                ViewBag.top1name = "Agent1";
-                ViewBag.top2sap = 2;
-                ViewBag.top2name = "Agent2";
-                ViewBag.top3sap = 3;
-                ViewBag.top3name = "Agent3";
-                ViewBag.top4sap = 4;
-                ViewBag.top4name = "Agent4";
-                ViewBag.top5sap = 5;
-                ViewBag.top5name = "Agent5";
+                command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from "+track+" order by rank)tb", connection);
+                reader = await command.ExecuteReaderAsync();
+                i = 1;
+                if (reader.HasRows)  {
+                    while (reader.Read()) {
+                        if(i == 1) {
+                            ViewBag.top1sap = reader["sapno"];
+                            ViewBag.top1name = reader["name"];
+                        }else if(i == 2) { 
+                            ViewBag.top2sap = reader["sapno"];
+                            ViewBag.top2name = reader["name"];
+                        }else if(i == 3) { 
+                            ViewBag.top3sap = reader["sapno"];
+                            ViewBag.top3name = reader["name"];
+                        }else if(i == 4) { 
+                            ViewBag.top4sap = reader["sapno"];
+                            ViewBag.top4name = reader["name"];
+                        }else if(i == 5) { 
+                            ViewBag.top5sap = reader["sapno"];
+                            ViewBag.top5name = reader["name"];
+                        } 
+                        i++;
+                    }
+                }else{
+                    ViewBag.top1sap = 1;
+                    ViewBag.top1name = "Agent1";
+                    ViewBag.top2sap = 2;
+                    ViewBag.top2name = "Agent2";
+                    ViewBag.top3sap = 3;
+                    ViewBag.top3name = "Agent3";
+                    ViewBag.top4sap = 4;
+                    ViewBag.top4name = "Agent4";
+                    ViewBag.top5sap = 5;
+                    ViewBag.top5name = "Agent5";
+                } 
             }
             command = new SqlCommand("get_Comp", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -839,34 +928,10 @@ namespace HCL_HRIS.Controllers
             else
             {
                 ViewBag.lms = 0;
-            }
-            command = new SqlCommand("Select top 1 * from group_scores where leader_sap = @sap_id order by group_scores_id desc", connection);
-            command.Parameters.Add("@sap_id", SqlDbType.VarChar).Value = User.Identity.Name;
-            reader = await command.ExecuteReaderAsync();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
-                    ViewBag.group_score = reader["group_score"];
-                    ViewBag.group_prod = reader["group_prod"];
-                    ViewBag.group_quality = reader["group_quality"];
-                    ViewBag.group_behavior = reader["group_behavior"];
-                    ViewBag.group_compliance = reader["group_compliance"];
-                }
-            }
-            else
-            {
-                ViewBag.group_score = 0;
-                ViewBag.group_prod = 0;
-                ViewBag.group_quality = 0;
-                ViewBag.group_behavior = 0;
-                ViewBag.group_compliance = 0;
-            }
+            } 
             connection.Close();
             ViewBag.minsCollection = minsCollection;
-
-            int sap_id = Int32.Parse(User.Identity.Name.Trim());
-            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+             
             ViewBag.name = usr.name.Trim();
             ViewBag.user = usr;
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
@@ -879,6 +944,9 @@ namespace HCL_HRIS.Controllers
         }
         public async Task<ActionResult> GeneralManager()
         {
+            int sap_id = Int32.Parse(User.Identity.Name.Trim());
+            user usr = db.users.Where(x => x.sap_id == sap_id).First();
+
             SqlConnection connection = Utilities.getConn();
             SqlCommand command = new SqlCommand("get_MinsPerDay", connection);
             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -985,8 +1053,6 @@ namespace HCL_HRIS.Controllers
             connection.Close();
             ViewBag.minsCollection = minsCollection;
 
-            int sap_id = Int32.Parse(User.Identity.Name.Trim());
-            user usr = db.users.Where(x => x.sap_id == sap_id).First();
             ViewBag.name = usr.name.Trim();
             ViewBag.user = usr;
             user leader = db.users.Where(x => x.user_id == usr.group.group_leader).First();
@@ -1015,7 +1081,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_closet_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from kaiser_closet_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from kaiser_closet_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -1054,7 +1120,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             } 
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select ave_prod_score, otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 (select sum(ave_prod_score)/nullif(count(ave_prod_score),0) from kaiser_closet_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as ave_prod_score, (select sum(otc_score)/nullif(count(otc_score),0) from kaiser_closet_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1 order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -1265,7 +1331,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_smc_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from kaiser_smc_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from kaiser_smc_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -1315,7 +1381,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             }
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 (select sum(ave_prod_score)/nullif(count(ave_prod_score),0) from kaiser_smc_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1  order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -1527,7 +1593,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from kaiser_others_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from kaiser_others_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from kaiser_others_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -1577,7 +1643,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             }
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 (select sum(ave_prod_score)/nullif(count(ave_prod_score),0) from kaiser_others_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1  order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -1790,7 +1856,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmc_bpm_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from ppmc_bpm_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from ppmc_bpm_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -1840,7 +1906,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             }
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select bpm_score,otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 (select sum(bpm_score)/nullif(count(bpm_score),0) from ppmc_bpm_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as bpm_score,(select sum(otc_score)/nullif(count(otc_score),0) from ppmc_bpm_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1  order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -2058,7 +2124,7 @@ namespace HCL_HRIS.Controllers
             //Get top 5 agents of track
             SqlConnection connection = Utilities.getConn();
             double eucErrorCurrMos = 0, ccErrorCurrMos = 0, bcErrorCurrMos = 0, totalAuditCurrMos = 0;
-            SqlCommand command = new SqlCommand("Select (Select name from users  where sap_id = sapno) as name, sapno from (Select top 5 sap_id as sapno,rank from ppmcl2_overall order by rank)tb", connection);
+            SqlCommand command = new SqlCommand("select top 5 name, sapno from (Select  (Select name from users  where sap_id = sapno) as name, sapno, (select top 1 rank from ppmcl2_overall where sap_id= sapno order by date desc) as rank from (Select distinct sap_id as sapno from ppmcl2_overall where rank != 0)tb)pio order by rank", connection);
             connection.Open();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             int i = 1;
@@ -2108,7 +2174,7 @@ namespace HCL_HRIS.Controllers
                 ViewBag.top5name = "Agent5";
             }
             //Get ranking of this agent against other agents
-            command = new SqlCommand("Select ave_calls_handled_score, aht_score, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1  (select sum(ave_calls_handled_score)/nullif(count(ave_calls_handled_score),0) from ppmcl2_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as ave_calls_handled_score, (select sum(aht_score)/nullif(count(aht_score),0) from ppmcl2_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as aht_score,(select sum(cash_col_score)/nullif(count(cash_col_score),0) from ppmcl2_overall where date > GETDATE()-DAY(GETDATE())+1 and sap_id = @1) as cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1  order by date desc", connection);
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
                 .Value = Int32.Parse(User.Identity.Name);
@@ -3258,7 +3324,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl2_overall) as count from ppmcl2_overall where sap_id = @1 order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -3564,7 +3630,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select ave_prod,ave_prod_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 ave_prod,ave_prod_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from kaiser_closet_overall) as count from kaiser_closet_overall where sap_id = @1 order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -3868,7 +3934,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select bpm, bpm_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 bpm, bpm_score,otc, otc_score, eom_score, rank as rank, (select max(rank) from ppmc_bpm_overall) as count from ppmc_bpm_overall where sap_id = @1 order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -4171,7 +4237,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_smc_overall) as count from kaiser_smc_overall where sap_id = @1 order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -4472,7 +4538,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 ave_prod,ave_prod_score, eom_score, rank as rank, (select max(rank) from kaiser_others_overall) as count from kaiser_others_overall where sap_id = @1  order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -4773,7 +4839,7 @@ namespace HCL_HRIS.Controllers
 
             connection.Close();
 
-            command = new SqlCommand("Select ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1", connection);
+            command = new SqlCommand("Select top 1 ave_calls_handled,ave_calls_handled_score,aht, aht_score, cash_col, cash_col_score, eom_score, rank as rank, (select max(rank) from ppmcl1_overall) as count from ppmcl1_overall where sap_id = @1  order by date desc", connection);
             connection.Open();
             command.Parameters
                 .Add(new SqlParameter("@1", SqlDbType.Int))
@@ -5170,8 +5236,8 @@ namespace HCL_HRIS.Controllers
                         }
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].users " + //42 columns excl. ID
-                        "([sap_id], [name], [password], [user_role], [designation], [division], [status], [sub_department], [phase], [band], [tenurity], [hcl_hire_date], [abay_start_date], [cms_id], [citrix], [nt_login], [finesse_extension], [finesse_names], [finesse_enterprise_names], [badge_id], [birth_date], [address], [contact_number], [nda], [nho/policies_sign_off], [bgv], [versant], [typing], [aptitude], [group_policy])"
-                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20, @21, @22, @23, @24, @25, @26, @27, @28, @29, @30)");
+                        "([sap_id], [name], [password], [user_role], [designation], [division], [status], [sub_department], [phase], [band], [tenurity], [hcl_hire_date], [abay_start_date], [cms_id], [citrix], [nt_login], [finesse_extension], [finesse_names], [finesse_enterprise_names], [badge_id], [birth_date], [address], [contact_number], [nda], [nho/policies_sign_off], [bgv], [versant], [typing], [aptitude], [group_policy], [email], [201], [basicreq], [bgv_result], [police_nbi], [versant_tin], [bgv_status])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20, @21, @22, @23, @24, @25, @26, @27, @28, @29, @30, @31, @32, @33, @34, @35, @36, @37)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -5289,8 +5355,22 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@29", SqlDbType.NVarChar))
                                         .Value = row.Cell(36).Value.ToString();
                                     cmd.Parameters.Add(new SqlParameter("@30", SqlDbType.NVarChar))
-                                        .Value = row.Cell(37).Value.ToString(); 
+                                        .Value = row.Cell(37).Value.ToString();
 
+                                    cmd.Parameters.Add(new SqlParameter("@31", SqlDbType.NVarChar))
+                                        .Value = row.Cell(38).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@32", SqlDbType.NVarChar))
+                                        .Value = row.Cell(39).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@33", SqlDbType.NVarChar))
+                                        .Value = row.Cell(40).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@34", SqlDbType.NVarChar))
+                                        .Value = row.Cell(44).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@35", SqlDbType.NVarChar))
+                                        .Value = row.Cell(45).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@36", SqlDbType.NVarChar))
+                                        .Value = row.Cell(49).Value.ToString();
+                                    cmd.Parameters.Add(new SqlParameter("@37", SqlDbType.NVarChar))
+                                        .Value = row.Cell(50).Value.ToString();
                                     insertCount++;
                                     cn.Open();
                                     try
@@ -6328,8 +6408,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].kaiser_closet_overall " + //42 columns excl. ID
-                        "([sap_id], [ave_prod], [ave_prod_score], [otc], [otc_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @4, @5, @8, @9)");
+                        "([sap_id], [ave_prod], [ave_prod_score], [otc], [otc_score], [eom_score], [rank], [date])"
+                        + " VALUES (@1, @2, @3, @4, @5, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6347,15 +6427,20 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(7).Value.ToString());
                                     cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Calculations.getKaiserCloset_AveP(double.Parse(row.Cell(7).Value.ToString())); 
+                                    if (row.Cell(9).GetDouble() < 1 && row.Cell(9).GetDouble()!=0) { 
+                                        cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
+                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString().Substring(0,4));
+                                    } else { 
+                                        cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    }
                                     cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(10).Value.ToString()); 
+                                        .Value = Calculations.getKaiserCloset_OTC(double.Parse(row.Cell(9).Value.ToString())); 
                                     cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
-                                        .Value = Decimal.Parse(row.Cell(23).Value.ToString());
+                                        .Value = 0;
                                     cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
-                                        .Value = Int32.Parse(row.Cell(24).Value.ToString());
+                                        .Value = 0;
 
                                     insertCount++;
                                     cn.Open();
@@ -6444,8 +6529,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].ppmc_bpm_overall " + //42 columns excl. ID
-                        "([sap_id], [bpm], [bpm_score], [otc], [otc_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @4, @5, @8, @9)");
+                        "([sap_id], [bpm], [bpm_score], [otc], [otc_score], [eom_score], [rank], [date])"
+                        + " VALUES (@1, @2, @3, @4, @5, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6469,9 +6554,9 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
                                         .Value = Decimal.Parse(row.Cell(9).Value.ToString());
                                     cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
-                                        .Value = Decimal.Parse(row.Cell(22).Value.ToString());
+                                        .Value = 0;
                                     cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
-                                        .Value = Int32.Parse(row.Cell(23).Value.ToString());
+                                        .Value = 0;
 
                                     insertCount++;
                                     cn.Open();
@@ -6560,8 +6645,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].kaiser_smc_overall " + //42 columns excl. ID
-                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @8, @9)");
+                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank],[date])"
+                        + " VALUES (@1, @2, @3, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6579,11 +6664,11 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(7).Value.ToString());
                                     cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(8).Value.ToString());  
+                                        .Value = Calculations.getKaiserSMC_AveP(double.Parse(row.Cell(7).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
-                                        .Value = Decimal.Parse(row.Cell(21).Value.ToString());
+                                        .Value = 0;
                                     cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
-                                        .Value = Int32.Parse(row.Cell(22).Value.ToString());
+                                        .Value = 0;
 
                                     insertCount++;
                                     cn.Open();
@@ -6672,8 +6757,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].kaiser_others_overall " + //42 columns excl. ID
-                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @8, @9)");
+                        "([sap_id], [ave_prod], [ave_prod_score], [eom_score], [rank], [date])"
+                        + " VALUES (@1, @2, @3, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6785,8 +6870,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].ppmcl1_overall " + //42 columns excl. ID
-                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9)");
+                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank], [date])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6803,20 +6888,20 @@ namespace HCL_HRIS.Controllers
                                         .Value = Int32.Parse(row.Cell(1).Value.ToString()); 
                                     cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(6).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Decimal))
+                                        .Value = Calculations.getPPMC1_ACH(double.Parse(row.Cell(6).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(8).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Decimal))
+                                        .Value = Calculations.getPPMC1_AHT(double.Parse(row.Cell(8).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(10).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(11).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Decimal))
+                                        .Value = Calculations.getPPMC1_CashCol(double.Parse(row.Cell(10).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
-                                        .Value = Decimal.Parse(row.Cell(24).Value.ToString());
+                                        .Value = 0;
                                     cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
-                                        .Value = Int32.Parse(row.Cell(25).Value.ToString());
+                                        .Value = 0;
 
                                     insertCount++;
                                     cn.Open();
@@ -6905,8 +6990,8 @@ namespace HCL_HRIS.Controllers
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         WorkSheet.FirstRow().Delete();//if you want to remove 1st row
                         string _sql = string.Format("INSERT INTO [dbo].ppmcl2_overall " + //42 columns excl. ID
-                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank])"
-                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9)");
+                        "([sap_id], [ave_calls_handled], [ave_calls_handled_score], [aht], [aht_score], [cash_col], [cash_col_score], [eom_score], [rank], [date])"
+                        + " VALUES (@1, @2, @3, @4, @5, @6, @7, @8, @9, GETDATE()-1)");
                         using (SqlConnection cn = Utilities.getConn())
                         {
                             foreach (var row in WorkSheet.RowsUsed())
@@ -6924,19 +7009,19 @@ namespace HCL_HRIS.Controllers
                                     cmd.Parameters.Add(new SqlParameter("@2", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(6).Value.ToString());
                                     cmd.Parameters.Add(new SqlParameter("@3", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(7).Value.ToString());
+                                        .Value = Calculations.getPPMC2_ACH(double.Parse(row.Cell(6).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@4", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(8).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(9).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@5", SqlDbType.Decimal))
+                                        .Value = Calculations.getPPMC2_AHT(double.Parse(row.Cell(8).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@6", SqlDbType.Decimal))
                                         .Value = Decimal.Parse(row.Cell(10).Value.ToString());
-                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Int))
-                                        .Value = Decimal.Parse(row.Cell(11).Value.ToString());
+                                    cmd.Parameters.Add(new SqlParameter("@7", SqlDbType.Decimal))
+                                        .Value = Calculations.getPPMC2_CashCol(double.Parse(row.Cell(10).Value.ToString()));
                                     cmd.Parameters.Add(new SqlParameter("@8", SqlDbType.Decimal))
-                                        .Value = Decimal.Parse(row.Cell(24).Value.ToString());
+                                        .Value = 0;
                                     cmd.Parameters.Add(new SqlParameter("@9", SqlDbType.Int))
-                                        .Value = Int32.Parse(row.Cell(25).Value.ToString());
+                                        .Value = 0;
 
                                     insertCount++;
                                     cn.Open();

@@ -9,55 +9,442 @@
 <div> 
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.sap_id)
-        </dt>
+        <div class="card">
+            <div class="card-header">Agent Details</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.sap_id)
+                        </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.sap_id)
-        </dd>
+                        <dd>
+                            @Html.DisplayFor(model => model.sap_id)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.name)
+                        </dt>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.name)
-        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.name)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.user_role)
+                        </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.name)
-        </dd>
+                        <dd>
+                            @Html.DisplayFor(model => model.user_role)
+                        </dd>
+                    </div>
+                </div>
 
-        @*<dt>
-            @Html.DisplayNameFor(model => model.password)
-        </dt>
+                <div class="row">
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.designation)
+                        </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.password)
-        </dd>*@
+                        <dd>
+                            @Html.DisplayFor(model => model.designation)
+                        </dd>
+                    </div>
+                    <div class="col-4">
 
-        <dt>
-            @Html.DisplayNameFor(model => model.group_id)
-        </dt>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.division)
+                        </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.group.group_name)
-        </dd>
+                        <dd>
+                            @Html.DisplayFor(model => model.division)
+                        </dd>
+                    </div>
+                    <div class="col-4">
 
-        <dt>
-            @Html.DisplayNameFor(model => model.user_role)
-        </dt>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.status)
+                        </dt>
 
-        <dd>
-            @Html.DisplayFor(model => model.user_role)
-        </dd>
+                        <dd>
+                            @Html.DisplayFor(model => model.status)
+                        </dd>
+                    </div>
+                </div>
 
-        <dt>
-            Team Leader
-        </dt>
+                <div class="row">
+                    <div class="col-4">
 
-        <dd>
-            @Html.DisplayFor(model =>  model.group.user.name)
-        </dd>
-    </dl>
-</div>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.sub_department)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.sub_department)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.phase)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.phase)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.band)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.band)
+                        </dd>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.tenurity)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.tenurity)
+                        </dd>
+
+                    </div>
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.hcl_hire_date)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.hcl_hire_date)
+                        </dd>
+
+                    </div>
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.abay_start_date)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.abay_start_date)
+                        </dd>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.cms_id)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.cms_id)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.citrix)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.citrix)
+                        </dd>
+
+                    </div>
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.nt_login)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.nt_login)
+                        </dd>
+
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.finesse_extension)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.finesse_extension)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.finesse_names)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.finesse_names)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.finesse_enterprise_names)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.finesse_enterprise_names)
+                        </dd>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.badge_id)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.badge_id)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.birth_date)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.birth_date)
+                        </dd>
+                    </div>
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.address)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.address)
+                        </dd>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.contact_number)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.contact_number)
+                        </dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="card">
+            <div class="card-header">Agent File</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.nda)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.nda)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.nho_policies_sign_off)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.nho_policies_sign_off)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.bgv)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.bgv)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.versant)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.versant)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.typing)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.typing)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.aptitude)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.aptitude)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.group_policy)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.group_policy)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.agreement_read)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.agreement_read)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.email)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.email)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.C201)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.C201)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.basicreq)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.basicreq)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.bgv_result)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.bgv_result)
+                        </dd>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+
+                        <dt>
+                            @Html.DisplayNameFor(model => model.police_nbi)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.police_nbi)
+                        </dd>
+
+                    </div>
+
+                    <div class="col-6">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.versant_tin)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.versant_tin)
+                        </dd>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.bgv_status)
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.bgv_status)
+                        </dd>
+                    </div>
+
+                    <div class="col-6">
+
+                        <dt>
+                            Team Name
+                        </dt>
+
+                        <dd>
+                            @Html.DisplayFor(model => model.group.group_name)
+                        </dd>
+                    </div>
+                </div> 
+                    </div>
+                </div>
+
+</dl>
+</div> 
 <p>
     @*@Html.ActionLink("Go Back", "Index")*@
     <a href="javascript:history.back()">Go Back</a>

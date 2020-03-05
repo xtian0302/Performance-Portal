@@ -47,6 +47,13 @@ namespace HCL_HRIS.Models
         public string aptitude { get; set; }
         public string group_policy { get; set; }
         public Nullable<bool> agreement_read { get; set; }
+        public string email { get; set; }
+        public string C201 { get; set; }
+        public string basicreq { get; set; }
+        public string bgv_result { get; set; }
+        public string police_nbi { get; set; }
+        public string versant_tin { get; set; }
+        public string bgv_status { get; set; }
     
         public virtual group group { get; set; }
     }

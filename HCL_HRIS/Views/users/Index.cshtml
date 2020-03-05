@@ -6,7 +6,11 @@
 <h2>Manage Users</h2>
 
 <p>
-    @Html.ActionLink("Add New User", "Create")
+    @if (ViewBag.user.user_role.Equals("Administrator"))
+    {
+        @Html.ActionLink("Add New User", "Create")
+
+    }
 </p>
 <table class="table" id="table">
     <thead>
@@ -48,11 +52,14 @@
                 @*<td>
                         @Html.DisplayFor(modelItem => item.password)
                     </td>*@
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.user_id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.user_id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.user_id })
-                </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.user_id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.user_id }) |
+                @if (ViewBag.user.user_role.Equals("Administrator"))
+                {
+                    @Html.ActionLink("Delete", "Delete", new { id = item.user_id }) 
+                }
+            </td>
             </tr>
         }
     </tbody>

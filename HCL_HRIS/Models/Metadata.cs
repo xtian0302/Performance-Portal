@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
 namespace HCL_HRIS.Models
@@ -27,7 +28,78 @@ namespace HCL_HRIS.Models
         [Display(Name = "Role")]
         public string user_role { get; set; }
         [ScriptIgnore]
+        [Display(Name = "Manager")]
         public virtual group group { get; set; }
+        [Display(Name = "Designation")]
+        public string designation { get; set; }
+        [Display(Name = "Division")]
+        public string division { get; set; }
+        [Display(Name = "Status")]
+        public string status { get; set; }
+
+        [Display(Name = "Sub Department")]
+        public string sub_department { get; set; }
+        [Display(Name = "Phase")]
+        public string phase { get; set; }
+        [Display(Name = "Band")]
+        public string band { get; set; }
+        [Display(Name = "Tenurity")]
+        public string tenurity { get; set; }
+        [Display(Name = "Hire Date")]
+        public string hcl_hire_date { get; set; }
+        [Display(Name = "ABAY Start Date")]
+        public string abay_start_date { get; set; }
+        [Display(Name = "CMS ID")]
+        public string cms_id { get; set; }
+        [Display(Name = "Citrix")]
+        public string citrix { get; set; }
+        [Display(Name = "NT Login")]
+        public string nt_login { get; set; }
+        [Display(Name = "Finesse Extension")]
+        public string finesse_extension { get; set; }
+        [Display(Name = "Finesse Names")]
+        public string finesse_names { get; set; }
+        [Display(Name = "Finesse Enterprise Names")]
+        public string finesse_enterprise_names { get; set; }
+        [Display(Name = "Badge ID")]
+        public string badge_id { get; set; }
+        [Display(Name = "Birth Date")]
+        public string birth_date { get; set; }
+        [Display(Name = "Address")]
+        public string address { get; set; }
+        [Display(Name = "Contact Number")]
+        public string contact_number { get; set; }
+        [Display(Name = "NDA")]
+        public string nda { get; set; }
+        [Display(Name = "NHO Policies Sign Off")]
+        public string nho_policies_sign_off { get; set; }
+        [Display(Name = "BGV")]
+        public string bgv { get; set; }
+        [Display(Name = "Versant")]
+        public string versant { get; set; }
+        [Display(Name = "Typing")]
+        public string typing { get; set; }
+        [Display(Name = "Aptitude")]
+        public string aptitude { get; set; }
+        [Display(Name = "Group Policy")]
+        public string group_policy { get; set; }
+        [HiddenInput(DisplayValue = false)]
+        public Nullable<bool> agreement_read { get; set; }
+        [Display(Name = "Email")]
+        public string email { get; set; }
+        [Display(Name = "C201")]
+        public string C201 { get; set; }
+        [Display(Name = "Basic Requirements")]
+        public string basicreq { get; set; }
+        [Display(Name = "BGV Results")]
+        public string bgv_result { get; set; }
+        [Display(Name = "Police / NBI Clearance")]
+        public string police_nbi { get; set; }
+        [Display(Name = "Versant TIN")]
+        public string versant_tin { get; set; }
+        [Display(Name = "BGV Status")]
+        public string bgv_status { get; set; }
+         
     }
 
     public class chatMetadata
